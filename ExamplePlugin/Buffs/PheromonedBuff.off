@@ -1,0 +1,64 @@
+﻿using KitchenSanFiero.Equipment;
+using R2API;
+using RoR2;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+using UnityEngine.Networking;
+using static KitchenSanFieroPlugin.KitchenSanFiero;
+
+namespace KitchenSanFiero.Buffs
+{
+    public class PheronomedBuff : NetworkBehaviour
+    {
+        public static BuffDef PheronomedBuffDef;
+        internal static Sprite PheronomedIcon;
+        public TeamIndex previousTeam;
+        public PheronomedBuff()
+        {
+
+
+            PheronomedIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/PainkillersIcon.png");
+
+            Buff();
+
+        }
+        private void Buff()
+        {
+            PheronomedBuffDef = ScriptableObject.CreateInstance<BuffDef>();
+            PheronomedBuffDef.name = "ksfPheronomed";
+            PheronomedBuffDef.buffColor = Color.red;
+            PheronomedBuffDef.canStack = true;
+            PheronomedBuffDef.isDebuff = true;
+            PheronomedBuffDef.ignoreGrowthNectar = true;
+            PheronomedBuffDef.iconSprite = PheronomedIcon;
+            PheronomedBuffDef.isHidden = false;
+            PheronomedBuffDef.isCooldown = false;
+            ContentAddition.AddBuffDef(PheronomedBuffDef);
+            Array.Resize(ref Jarate.buffList, Jarate.buffList.Length + 1);
+            Jarate.buffList.SetValue(PheronomedBuffDef, Jarate.buffList.Length - 1);
+            On.RoR2.CharacterBody.OnBuffFirstStackGained += ChangeTeam;
+            On.RoR2.CharacterBody.OnBuffFinalStackLost += RevertTeam;
+        }
+
+        private void RevertTeam(On.RoR2.CharacterBody.orig_OnBuffFinalStackLost orig, CharacterBody self, BuffDef buffDef)
+        {
+            orig(self, buffDef);
+            if (buffDef == PheronomedBuff.PheronomedBuffDef)
+            {
+                self.teamComponent.teamIndex = previousTeam;
+            }
+        }
+
+        private void ChangeTeam(On.RoR2.CharacterBody.orig_OnBuffFirstStackGained orig, CharacterBody self, BuffDef buffDef)
+        {
+            orig(self, buffDef);
+            if (buffDef == PheronomedBuff.PheronomedBuffDef)
+            {
+                previousTeam = self.teamComponent.teamIndex;
+                self.teamComponent.teamIndex = base.gameObject.GetComponent<CharacterBody>().teamComponent.teamIndex;
+            }
+        }
+    }
+}

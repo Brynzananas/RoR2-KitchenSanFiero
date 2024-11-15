@@ -1,0 +1,24 @@
+﻿using RoR2;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+
+namespace KitchenSanFiero
+{
+    [System.Serializable]
+    public class SaveData
+    {
+        public GameObject archNemesisMasterPrefab;
+        public Inventory archNemesisInventory;
+        public string ArchNemesisStageName;
+        public bool ifLoop = false;
+        public SaveData()
+        {
+            archNemesisInventory = null;
+            archNemesisMasterPrefab = null;
+            ArchNemesisStageName = null;
+            ifLoop = false;
+        }
+    }
+}

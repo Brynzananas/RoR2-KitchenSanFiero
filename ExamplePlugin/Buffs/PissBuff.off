@@ -1,0 +1,55 @@
+﻿using KitchenSanFiero.Equipment;
+using R2API;
+using RoR2;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+using static KitchenSanFieroPlugin.KitchenSanFiero;
+
+namespace KitchenSanFiero.Buffs
+{
+    internal static class PissBuff
+    {
+        public static BuffDef PissBuffDef;
+        internal static Sprite PissIcon;
+        internal static void Init()
+        {
+
+
+            PissIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/PainkillersIcon.png");
+
+            Buff();
+
+        }
+        private static void Buff()
+        {
+            PissBuffDef = ScriptableObject.CreateInstance<BuffDef>();
+            PissBuffDef.name = "ksfPiss";
+            PissBuffDef.buffColor = Color.yellow;
+            PissBuffDef.canStack = true;
+            PissBuffDef.isDebuff = true;
+            PissBuffDef.ignoreGrowthNectar = true;
+            PissBuffDef.iconSprite = PissIcon;
+            PissBuffDef.isHidden = false;
+            PissBuffDef.isCooldown = false;
+            ContentAddition.AddBuffDef(PissBuffDef);
+            Array.Resize(ref Jarate.buffList, Jarate.buffList.Length + 1);
+            Jarate.buffList.SetValue(PissBuffDef, Jarate.buffList.Length - 1);
+            On.RoR2.HealthComponent.TakeDamage += Pissed;
+        }
+
+        private static void Pissed(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo)
+        {
+            if (self)
+            {
+                if (self.body.HasBuff(PissBuffDef))
+                {
+                    int buffCount = self.body.GetBuffCount(PissBuffDef);
+                    damageInfo.damage *= buffCount * 0.5f;
+                }
+            }
+            orig(self, damageInfo);
+        }
+    }
+}

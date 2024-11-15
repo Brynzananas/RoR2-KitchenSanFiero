@@ -1,0 +1,397 @@
+﻿using HG;
+using KitchenSanFiero.Elites;
+using KitchenSanFiero.Items;
+using KitchenSanFiero.Utils.Components;
+using R2API;
+using RoR2;
+using RoR2.Audio;
+using RoR2.Projectile;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Text;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.Networking;
+using UnityEngine.UI;
+using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static UnityEngine.UI.Image;
+
+namespace KitchenSanFiero.Equipment
+{
+    public static class Jarate
+    {
+        internal static GameObject JaratePrefab;
+        internal static Sprite JarateIcon;
+        static EquipmentDef JarateEquipDef;
+        public static NetworkSoundEventDef JarateThrowSound;
+        static string JarateName = "Jarate";
+
+        public static BuffDef[] buffList = new BuffDef[0];
+        private static GameObject JarateProjectileMain;
+
+        public static void Init()
+        {
+            JaratePrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/EnforcerHand.prefab");
+            JarateIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/NecronomiconIcon.png");
+            CreateProjectile();
+            Item();
+            CreateSound();
+            AddLanguageTokens();
+        }
+        public static void Item()
+        {
+            JarateEquipDef = ScriptableObject.CreateInstance<EquipmentDef>();
+            JarateEquipDef.name = JarateName.Trim();
+            JarateEquipDef.nameToken = JarateName.ToUpper().Trim() + "_NAME";
+            JarateEquipDef.pickupToken = JarateName.ToUpper().Trim() + "_PICKUP";
+            JarateEquipDef.descriptionToken = JarateName.ToUpper().Trim() + "_DESC";
+            JarateEquipDef.loreToken = JarateName.ToUpper().Trim() + "_LORE";
+            JarateEquipDef.pickupIconSprite = JarateIcon;
+            JarateEquipDef.pickupModelPrefab = JaratePrefab;
+            JarateEquipDef.appearsInMultiPlayer = true;
+            JarateEquipDef.appearsInSinglePlayer = true;
+            JarateEquipDef.canBeRandomlyTriggered = false;
+            JarateEquipDef.canDrop = true;
+            JarateEquipDef.cooldown = 10;
+            ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
+            rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]{
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = JaratePrefab,
+                    childName = "Chest",
+localPos = new Vector3(-0.10889F, 0.33533F, 0.00002F),
+localAngles = new Vector3(0F, 0F, 0F),
+localScale = new Vector3(0.30991F, 0.30991F, 0.30991F)
+                }
+            });
+            rules.Add("mdlHuntress", new RoR2.ItemDisplayRule[]{
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = JaratePrefab,
+                    childName = "Chest",
+localPos = new Vector3(-0.07711F, 0.23497F, -0.03041F),
+localAngles = new Vector3(0F, 326.6053F, 0F),
+localScale = new Vector3(0.32663F, 0.32663F, 0.32663F)
+                }
+            });
+            rules.Add("mdlBandit2", new RoR2.ItemDisplayRule[]{
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = JaratePrefab,
+                    childName = "Chest",
+localPos = new Vector3(-0.07881F, 0.25489F, -0.07988F),
+localAngles = new Vector3(0F, 302.05F, 0F),
+localScale = new Vector3(0.32271F, 0.32271F, 0.32271F)
+                }
+            });
+            rules.Add("mdlToolbot", new RoR2.ItemDisplayRule[]{
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = JaratePrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(1f, 1f, 1f)
+                }
+            });
+            rules.Add("mdlEngi", new RoR2.ItemDisplayRule[]{
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = JaratePrefab,
+                    childName = "Chest",
+localPos = new Vector3(-0.27198F, 0.352F, 0.00002F),
+localAngles = new Vector3(0F, 0F, 19.02883F),
+localScale = new Vector3(0.359F, 0.359F, 0.359F)
+                }
+            });
+            rules.Add("mdlEngiTurrety", new RoR2.ItemDisplayRule[]{
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = JaratePrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(1f, 1f, 1f)
+                }
+            });
+            rules.Add("mdlMage", new RoR2.ItemDisplayRule[]{
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = JaratePrefab,
+                    childName = "Chest",
+localPos = new Vector3(-0.10535F, 0.22892F, -0.02295F),
+localAngles = new Vector3(359.4844F, 334.8223F, 357.4088F),
+localScale = new Vector3(0.30409F, 0.30409F, 0.30409F)
+                }
+            });
+            rules.Add("mdlMerc", new RoR2.ItemDisplayRule[]{
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = JaratePrefab,
+                    childName = "Chest",
+localPos = new Vector3(-0.08653F, 0.17649F, -0.10837F),
+localAngles = new Vector3(0F, 0F, 0F),
+localScale = new Vector3(0.40697F, 0.40697F, 0.40697F)
+                }
+            });
+            rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]{
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = JaratePrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(1f, 1f, 1f)
+                }
+            });
+            rules.Add("mdlLoader", new RoR2.ItemDisplayRule[]{
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = JaratePrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(1f, 1f, 1f)
+                }
+            });
+            rules.Add("mdlCroco", new RoR2.ItemDisplayRule[]{
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = JaratePrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(1f, 1f, 1f)
+                }
+            });
+            rules.Add("mdlCaptain", new RoR2.ItemDisplayRule[]{
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = JaratePrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(1f, 1f, 1f)
+                }
+            });
+            rules.Add("mdlRailGunner", new RoR2.ItemDisplayRule[]{
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = JaratePrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(1f, 1f, 1f)
+                }
+            });
+            rules.Add("mdlVoidSurvivor", new RoR2.ItemDisplayRule[]{
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = JaratePrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(1f, 1f, 1f)
+                }
+            });
+            rules.Add("mdlSeeker", new RoR2.ItemDisplayRule[]{
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = JaratePrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(1f, 1f, 1f)
+                }
+            });
+            rules.Add("mdlChef", new RoR2.ItemDisplayRule[]{
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = JaratePrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(1f, 1f, 1f)
+                }
+            });
+            rules.Add("mdlFalseSon", new RoR2.ItemDisplayRule[]{
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = JaratePrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(1f, 1f, 1f)
+                }
+            });
+            rules.Add("mdlScav", new RoR2.ItemDisplayRule[]{
+                new RoR2.ItemDisplayRule
+                {
+                    ruleType = ItemDisplayRuleType.ParentedPrefab,
+                    followerPrefab = JaratePrefab,
+                    childName = "Chest",
+                    localPos = new Vector3(0f, 0f, 0f),
+                    localAngles = new Vector3(0f, 0f, 0f),
+                    localScale = new Vector3(1f, 1f, 1f)
+                }
+            });
+            var displayRules = new ItemDisplayRuleDict(null);
+            ItemAPI.Add(new CustomEquipment(JarateEquipDef, rules));
+            On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformAction;
+        }
+        /*
+        List<Collider> colliders = new List<Collider>();
+        new SphereSearch()
+        {
+            origin = impactExplosion.gameObject.transform.position,
+                mask = RoR2.LayerIndex.CommonMasks.interactable,
+                radius = 5,
+                queryTriggerInteraction = QueryTriggerInteraction.Collide,
+
+            }.ClearCandidates().RefreshCandidates().FilterCandidatesByColliderEntities().OrderCandidatesByDistance().FilterCandidatesByDistinctColliderEntities().GetColliders(colliders);
+            foreach (Collider collider in colliders)
+            {
+                var interactionEntity = collider.GetComponent<EntityLocator>().GetComponent<CharacterBody>();
+                if (interactionEntity)
+                {
+                    var newBuffArray = buffList;
+                    //int stock = interactionEntity.equipmentSlot.stock;
+                    for (int i = 0; i< 3; i++)
+                    {
+                        BuffDef currentBuff = (BuffDef)newBuffArray.GetValue(UnityEngine.Random.RandomRangeInt(0, newBuffArray.Length));
+        interactionEntity.AddTimedBuff(currentBuff, 10);
+                    }
+}
+            }*/
+
+        public static bool PerformAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, EquipmentSlot self, EquipmentDef equipmentDef)
+        {
+            if (equipmentDef == JarateEquipDef)
+            {
+                return OnUse(self);
+            }
+            else
+            {
+                return orig(self, equipmentDef);
+            }
+
+        }
+        public static bool OnUse(EquipmentSlot slot)
+        {
+                            FireJarate(slot.characterBody);
+
+            EntitySoundManager.EmitSoundServer(JarateThrowSound.akId, slot.characterBody.gameObject);
+
+            return true;
+        }
+        private static void CreateSound()
+        {
+            JarateThrowSound = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
+            JarateThrowSound.eventName = "Play_wEnforcer_ShieldActivate";
+            R2API.ContentAddition.AddNetworkSoundEventDef(JarateThrowSound);
+        }
+        private static void FireJarate(CharacterBody self)
+        {
+                    FireProjectileInfo fireProjectileInfo = new FireProjectileInfo()
+                    {
+                        projectilePrefab = JarateProjectileMain,
+                        owner = self.gameObject,
+                        damage = self.damage,
+                        position = self.transform.position,
+                        damageTypeOverride = null,
+                        damageColorIndex = DamageColorIndex.Default,
+                        procChainMask = default
+                    };
+
+                    ProjectileManager.instance.FireProjectile(fireProjectileInfo);
+        }
+        private static void CreateProjectile()
+        {
+            JarateProjectileMain = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/Molotov/MolotovSingleProjectile.prefab").WaitForCompletion(), "JarateProjectile", true);
+            var networkIdentityMain = JarateProjectileMain.GetComponent<NetworkIdentity>();
+            if (!networkIdentityMain) { JarateProjectileMain.AddComponent<NetworkIdentity>(); }
+
+            var model = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/PainKillers.prefab");
+            model.AddComponent<ProjectileGhostController>();
+            model.AddComponent<NetworkIdentity>();
+
+            var scaleCurve = model.AddComponent<ObjectScaleCurve>();
+            scaleCurve.useOverallCurveOnly = true;
+            scaleCurve.overallCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.05f, 1));
+
+            var projectileController = JarateProjectileMain.GetComponent<ProjectileController>();
+            projectileController.ghostPrefab = model;
+            var velocityRandom = JarateProjectileMain.AddComponent<VelocityRandomOnStart>();
+            velocityRandom.coneAngle = 30;
+            velocityRandom.directionMode = VelocityRandomOnStart.DirectionMode.Cone;
+            velocityRandom.baseDirection = Vector3.up;
+            velocityRandom.minSpeed = 15;
+            velocityRandom.maxSpeed = 20;
+
+
+            var velocityDetonate = JarateProjectileMain.AddComponent<ProjectileVelocityDetonate>();
+            velocityDetonate.DetonationEffect = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/Molotov/MolotovExplosion.prefab").WaitForCompletion();
+
+            /*var flicker = model.AddComponent<FlickerHGStandardEmission>();
+            flicker.renderers = new Renderer[]
+            {
+                model.transform.Find("_mdlNailBomb/Display").GetComponent<Renderer>()
+            };
+            flicker.StartIntensity = 6;
+            flicker.Interval = 0.01f;*/
+
+
+            UnityEngine.Object.Destroy(JarateProjectileMain.GetComponent<ProjectileImpactExplosion>());
+
+            
+            var impactExplosion = JarateProjectileMain.AddComponent<ProjectileFixedImpactExplosion>();
+            //impactExplosion.blastRadius = 4;
+            
+            /*
+            impactExplosion.ChildBulletAttack = true;
+            impactExplosion.childTracerPrefab = NailBombNailTracerEffect;
+            impactExplosion.childHitEffectPrefab = NailBombNailEffect;
+            impactExplosion.childrenCount = AmountOfNailsPerNailBomb;
+            impactExplosion.blastRadius = 4;
+            //impactExplosion.childrenDamageCoefficient = PercentDamagePerNailInNailBomb;
+            //impactExplosion.fireChildren = true;
+            //impactExplosion.MinDeviationAngle = NailBombChildMinSpreadAngle;
+            //impactExplosion.MaxDeviationAngle = NailBombChildMaxSpreadAngle;
+            //impactExplosion.Direction = NailBombChildDirectionVector;
+            impactExplosion.transformSpace = ProjectileFixedImpactExplosion.TransformSpace.World;
+            impactExplosion.destroyOnEnemy = false;
+            impactExplosion.destroyOnWorld = false;
+            impactExplosion.lifetime = 2;
+            impactExplosion.lifetimeAfterImpact = 0.2f;*/
+
+            PrefabAPI.RegisterNetworkPrefab(JarateProjectileMain);
+            ContentAddition.AddProjectile(JarateProjectileMain);
+
+        }
+        public static void AddLanguageTokens()
+        {
+            LanguageAPI.Add(JarateName.ToUpper().Trim() + "_NAME", JarateName);
+            LanguageAPI.Add(JarateName.ToUpper().Trim() + "_PICKUP", "parry");
+            LanguageAPI.Add(JarateName.ToUpper().Trim() + "_DESC", "parry");
+            LanguageAPI.Add(JarateName.ToUpper().Trim() + "_LORE", "mmmm yummy");
+        }
+    }
+}

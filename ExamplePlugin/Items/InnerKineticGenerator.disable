@@ -1,0 +1,332 @@
+﻿using R2API;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Text;
+using UnityEngine.AddressableAssets;
+using UnityEngine;
+using RoR2;
+using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static R2API.RecalculateStatsAPI;
+using KitchenSanFiero.Buffs;
+
+
+namespace KitchenSanFiero.Items
+{
+    internal static class InnerKineticGenerator //: ItemBase<FirstItem>
+    {
+        internal static GameObject InnerKineticGeneratorPrefab;
+        internal static Sprite InnerKineticGeneratorIcon;
+        public static ItemDef InnerKineticGeneratorItemDef;
+        static float timer = 0f;
+        static float timer2 = 0f;
+        static float damage = 0;
+        static float damage1 = 0;
+        static float damage2 = 0;
+        static float damage3 = 0;
+
+        internal static void Init()
+        {
+            InnerKineticGeneratorPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/Item/Ciggaretes.prefab");
+            InnerKineticGeneratorIcon = MainAssets.LoadAsset<Sprite>("Assets/Materials/Item/Painkillers/PainkillersIcon.png");
+
+            Item();
+
+            AddLanguageTokens();
+        }
+        private static void Item()
+        {
+            InnerKineticGeneratorItemDef = ScriptableObject.CreateInstance<ItemDef>();
+            InnerKineticGeneratorItemDef.name = "InnerKineticGenerator";
+            InnerKineticGeneratorItemDef.nameToken = "INNERKINETICGENERATOR_NAME";
+            InnerKineticGeneratorItemDef.pickupToken = "INNERKINETICGENERATOR_PICKUP";
+            InnerKineticGeneratorItemDef.descriptionToken = "INNERKINETICGENERATOR_DESC";
+            InnerKineticGeneratorItemDef.loreToken = "INNERKINETICGENERATOR_LORE";
+            switch (InnerKineticlGeneratorTier.Value)
+            {
+                case 1:
+                    InnerKineticGeneratorItemDef.deprecatedTier = ItemTier.Tier1;
+                    break;
+                case 2:
+                    InnerKineticGeneratorItemDef.deprecatedTier = ItemTier.Tier2;
+                    break;
+                case 3:
+                    InnerKineticGeneratorItemDef.deprecatedTier = ItemTier.Tier3;
+                    break;
+
+            }
+            InnerKineticGeneratorItemDef.pickupIconSprite = InnerKineticGeneratorIcon;
+            InnerKineticGeneratorItemDef.pickupModelPrefab = InnerKineticGeneratorPrefab;
+            InnerKineticGeneratorItemDef.canRemove = true;
+            InnerKineticGeneratorItemDef.hidden = false;
+            if (InnerKineticlGeneratorAIBlacklist.Value)
+            {
+                InnerKineticGeneratorItemDef.tags = new[]
+                {
+                    ItemTag.Damage,
+                    ItemTag.AIBlacklist
+                };
+            }
+            else
+            {
+                InnerKineticGeneratorItemDef.tags = new[]
+                {
+                    ItemTag.Damage
+                };
+            }
+            var displayRules = new ItemDisplayRuleDict(null);
+            ItemAPI.Add(new CustomItem(InnerKineticGeneratorItemDef, displayRules));
+            On.RoR2.CharacterBody.OnTakeDamageServer += OntakeDamage;
+            On.RoR2.CharacterBody.OnSkillActivated += OnSkillActivation;
+            On.RoR2.CharacterBody.FixedUpdate += OnTime;
+            GetStatCoefficients += SaltStatIncrease;
+        }
+
+
+
+        private static void OnSkillActivation(On.RoR2.CharacterBody.orig_OnSkillActivated orig, CharacterBody self, GenericSkill skill)
+        {
+            orig(self, skill);
+            var skillChoice = self.skillLocator.special;
+            if (self.teamComponent.teamIndex == TeamIndex.Player)
+            {
+                switch (InnerKineticGeneratorSkillChoice.Value)
+                {
+                    case 1:
+                        skillChoice = self.skillLocator.primary;
+                        break;
+                    case 2:
+                        skillChoice = self.skillLocator.secondary;
+                        break;
+                    case 3:
+                        skillChoice = self.skillLocator.utility;
+                        break;
+                    case 4:
+                        skillChoice = self.skillLocator.special;
+                        break;
+                }
+            }
+            else
+            {
+                switch (InnerKineticGeneratorEnemySkillChoice.Value)
+                {
+                    case 1:
+                        skillChoice = self.skillLocator.primary;
+                        break;
+                    case 2:
+                        skillChoice = self.skillLocator.secondary;
+                        break;
+                    case 3:
+                        skillChoice = self.skillLocator.utility;
+                        break;
+                    case 4:
+                        skillChoice = self.skillLocator.special;
+                        break;
+                }
+            }
+                    var count = self.inventory.GetItemCount(InnerKineticGeneratorItemDef.itemIndex);
+                    int buffCount = self.GetBuffCount(ChargeBuff.ChargeBuffDef);
+                    if (count > 0)
+                    {
+                        if (skill == skillChoice)
+                        {
+                            for (int i = 0; i < buffCount * InnerKineticGeneratorPassiveToActive.Value; i++)
+                            {
+                                self.AddBuff(ActiveChargeBuff.ActiveChargeBuffDef);
+                                self.AddBuff(HiddenChargeBuff.HiddenChargeBuffDef);
+                            }
+                            for (int i = 0; i < buffCount; i++)
+                            {
+
+                                self.RemoveBuff(ChargeBuff.ChargeBuffDef);
+                            }
+
+
+                        }
+
+
+
+                    }
+
+                
+            
+            /*
+        else
+        {
+            switch (InnerKineticGeneratorEnemySkillChoice.Value)
+            {
+                case 1:
+                    skillChoice = self.skillLocator.primary;
+                    break;
+                case 2:
+                    skillChoice = self.skillLocator.secondary;
+                    break;
+                case 3:
+                    skillChoice = self.skillLocator.utility;
+                    break;
+                case 4:
+                    skillChoice = self.skillLocator.special;
+                    break;
+
+            }
+        }*/
+
+
+
+        }
+
+        private static void OntakeDamage(On.RoR2.CharacterBody.orig_OnTakeDamageServer orig, CharacterBody self, DamageReport damageReport)
+        {
+            orig(self, damageReport);
+            var attacker = damageReport.attacker;
+            int count = self.inventory ? self.inventory.GetItemCount(InnerKineticGeneratorItemDef) : 0;
+            var damage = damageReport.damageDealt * InnerKineticGeneratorDamageToChargesValue.Value;
+            var countWithDamage = count * damage;
+            if (count > 0)
+            {
+                        for (var i = 0; i < countWithDamage; i++)
+                        {
+                            self.AddBuff(ChargeBuff.ChargeBuffDef);
+                        }
+
+
+
+                if (self.teamComponent.teamIndex == TeamIndex.Player)
+                {
+                self.healthComponent.AddBarrier(damageReport.damageDealt * InnerKineticGeneratorBarrier.Value);
+                }
+                else
+                {
+                    self.healthComponent.AddBarrier(damageReport.damageDealt * InnerKineticGeneratorEnemyBarrier.Value);
+                }
+                
+
+            }
+
+        }
+        private static void OnTime(On.RoR2.CharacterBody.orig_FixedUpdate orig, CharacterBody self)
+        {
+            orig(self);
+            int count = self.inventory ? self.inventory.GetItemCount(InnerKineticGeneratorItemDef) : 0;
+            int buffCount = self ? self.GetBuffCount(ActiveChargeBuff.ActiveChargeBuffDef) : 0;
+            int hiddenBuffCount = self ? self.GetBuffCount(HiddenChargeBuff.HiddenChargeBuffDef) : 0;
+            
+            //self.RemoveBuff(RoR2Content.Buffs.HiddenInvincibility);
+            if ((self ? count : 0) > 0)
+            {
+                //Debug.Log("1");
+                if (buffCount == 0)
+                        {
+                    //Debug.Log("12");
+                    timer += InnerKineticGeneratorTimer1Value.Value * 0.1f * count;
+                    //timer += InnerKineticGeneratorTimer1Value.Value * 0.1f * count;
+                            if (timer > 10f)
+                            {
+                                self.AddBuff(ChargeBuff.ChargeBuffDef);
+                                timer = 0;
+                               // Debug.Log("2");
+                            }
+                        }
+
+                        if (self.HasBuff(ActiveChargeBuff.ActiveChargeBuffDef))
+                        {
+                            timer2 += (float)Math.Pow(buffCount, InnerKineticGeneratorActiveChargesMultDrain.Value) * 0.5f;// - 600f;
+                                                                                                                             //Debug.Log("3");
+                                                                                                                             //Debug.Log(timer2);
+                            timer2 += InnerKineticGeneratorActiveChargesLinearDrain.Value * 100f;
+                    if (timer2 > 3000f)
+                    {
+                        self.RemoveBuff(ActiveChargeBuff.ActiveChargeBuffDef);
+                        timer2 = 0;
+                        //Debug.Log(timer2);
+                        //Debug.Log("4");
+                    }
+                    if (buffCount == 0)
+                    {
+
+                        for (int i = 0; i < hiddenBuffCount; i++)
+                        {
+                            self.RemoveBuff(HiddenChargeBuff.HiddenChargeBuffDef);
+                        }
+                        timer2 = 0;
+                        //Debug.Log("5");
+                    }
+                }
+                        
+
+                        
+                    }
+
+                    //Chat.AddMessage(timer2.ToString());
+                    //Chat.AddMessage(damage.ToString());
+
+                    //Debug.Log("6");
+                
+        }
+        private static void SaltStatIncrease(CharacterBody sender, StatHookEventArgs args)
+        {
+            int buffCount3 = sender.GetBuffCount(ActiveChargeBuff.ActiveChargeBuffDef);
+            
+            if (buffCount3 > 0)
+            {
+                float damageFinal = sender.GetBuffCount(HiddenChargeBuff.HiddenChargeBuffDef);
+                args.baseAttackSpeedAdd += (float)Math.Log(damageFinal) * (InnerKineticGeneratorDamageMultiplier.Value / 10);
+                args.damageMultAdd += (float)Math.Log(damageFinal) * (InnerKineticGeneratorAttackSpeedMultiplier.Value / 10);
+                args.baseMoveSpeedAdd += InnerKineticGeneratorSpeed.Value;
+            }
+
+            /*
+            int num52 = 0;
+            int buffCount3 = sender.GetBuffCount(SaltedBuff.SaltedBuffDef);
+            float num76 = 0f;
+            if (buffCount3 >= 2)
+            {
+                num76 = (float)(buffCount3 * (buffCount3 + num52)) * 0.01f;
+            }
+            else if (buffCount3 == 1)
+            {
+                num76 = (float)(1 + num52) * 0.01f;
+            }
+            args.baseDamageAdd += sender.baseDamage * num76;
+            if (sender.oldComboMeter < buffCount3)
+            {
+                sender.oldComboMeter = buffCount3;
+            }
+            */
+        }
+
+        /*
+private static void GlobalEventManager_OnHitEnemy(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim)
+{
+   var attacker = damageInfo.attacker;
+   var body = attacker.GetComponent<CharacterBody>();
+   var count = body.inventory.GetItemCount(SaltItemDef.itemIndex);
+
+   if (count > 0)
+   {
+       if (damageInfo.attacker && !damageInfo.rejected)
+       {
+           if (Util.CheckRoll(25, body.master)) {
+               victim.GetComponent<CharacterBody>().AddTimedBuff(SaltedBuff.SaltedBuffDef, 5f, count);
+           }
+       }
+   }
+
+}*/
+
+
+        private static void AddLanguageTokens()
+        {
+            //The Name should be self explanatory
+            LanguageAPI.Add("INNERKINETICGENERATOR_NAME", "Inner Kinetic Generator");
+            //The Pickup is the short text that appears when you first pick this up. This text should be short and to the point, nuimbers are generally ommited.
+            LanguageAPI.Add("INNERKINETICGENERATOR_PICKUP", "On getting hit get a Salted buff");
+            //The Description is where you put the actual numbers and give an advanced description.
+            LanguageAPI.Add("INNERKINETICGENERATOR_DESC",
+                "On hit ignite enemies for 80% base damage for 5 seconds. Stacks up to 1(+1 per stack)");
+            //The Lore is, well, flavor. You can write pretty much whatever you want here.
+            LanguageAPI.Add("INNERKINETICGENERATOR_LORE",
+                "SAAAAAAAAAAAAAALLT");
+        }
+    }
+}

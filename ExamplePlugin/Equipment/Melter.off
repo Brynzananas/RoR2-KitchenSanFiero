@@ -1,0 +1,175 @@
+﻿using KitchenSanFiero.Items;
+using R2API;
+using Rewired;
+using RoR2;
+using RoR2.Items;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+using UnityEngine.Networking;
+using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static RoR2.PickupPickerController;
+
+namespace KitchenSanFiero.Equipment
+{
+
+    public static class Melter
+    {
+        internal static GameObject MelterPrefab;
+        internal static Sprite MelterIcon;
+        static EquipmentDef MelterEquipDef;
+        public static int key = 1;
+        public static bool keyPressed = false;
+        internal static void Init()
+        {
+            MelterPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/ForbiddenTome.prefab");
+            MelterIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/NecronomiconIcon.png");
+
+            Item();
+
+            AddLanguageTokens();
+        }
+        private static void Item()
+        {
+            MelterEquipDef = ScriptableObject.CreateInstance<EquipmentDef>();
+            MelterEquipDef.name = "Melter";
+            MelterEquipDef.nameToken = "MELTER_NAME";
+            MelterEquipDef.pickupToken = "MELTER_PICKUP";
+            MelterEquipDef.descriptionToken = "MELTER_DESC";
+            MelterEquipDef.loreToken = "MELTER_LORE";
+            MelterEquipDef.pickupIconSprite = MelterIcon;
+            MelterEquipDef.pickupModelPrefab = MelterPrefab;
+            MelterEquipDef.appearsInMultiPlayer = true;
+            MelterEquipDef.appearsInSinglePlayer = true;
+            MelterEquipDef.cooldown = 2;
+            var displayRules = new ItemDisplayRuleDict(null);
+            ItemAPI.Add(new CustomEquipment(MelterEquipDef, displayRules));
+            On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformAction;
+            On.RoR2.CharacterBody.FixedUpdate += OnFixedUpdate;
+        }
+
+        private static void OnFixedUpdate(On.RoR2.CharacterBody.orig_FixedUpdate orig, CharacterBody self)
+        {
+            orig(self);
+            if (keyPressed)
+            {
+            switch (key)
+            {
+                case 1:
+                    Chat.AddMessage("Melter: uses white scrap");
+                    break;
+                case 2:
+                    Chat.AddMessage("Melter: uses green scrap");
+                    break;
+                case 3:
+                    Chat.AddMessage("Melter: uses red scrap");
+                    break;
+                case 4:
+                    Chat.AddMessage("Melter: uses yellow scrap");
+                    break;
+            }
+                keyPressed = false;
+            }
+            if (
+                Input.GetKeyDown(KeyCode.Plus))
+            {
+                key++;
+                if (key == 5)
+                {
+                    key = 1;
+                }
+                keyPressed = true;
+            };
+            if (Input.GetKeyDown(KeyCode.Equals))
+            {
+                key--;
+                if (key == 0)
+                {
+                    key = 4;
+                }
+                keyPressed = true;
+            };
+
+        }
+
+        private static bool PerformAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, EquipmentSlot self, EquipmentDef equipmentDef)
+        {
+            if (equipmentDef == MelterEquipDef)
+            { 
+                return OnUse(self);
+            }
+            else
+            {
+                return orig(self, equipmentDef);
+            }
+        }
+
+        public static bool OnUse(EquipmentSlot slot)
+        {
+            if (slot.inventory.GetItemCount(RoR2Content.Items.ScrapWhite) > 0)
+            {
+                int sliceCount = 1;
+                float num = 25f;
+                if (NetworkServer.active)
+                {
+                    string drone = "Drone1Master";
+                    float y = Quaternion.LookRotation(slot.GetAimRay().direction).eulerAngles.y;
+                    float d = 3f;
+                    foreach (float num2 in new DegreeSlices(sliceCount, 0.5f))
+                    {
+                        Quaternion rotation = Quaternion.Euler(-30f, y + num2, 0f);
+                        Quaternion rotation2 = Quaternion.Euler(0f, y + num2 + 180f, 0f);
+                        Vector3 position = slot.transform.position + rotation * (Vector3.forward * d);
+                        switch (key)
+                        {
+                            case 1:
+                                drone = "Drone1Master";
+                                break;
+                            case 2:
+                                drone = "DroneMissileMaster";
+                                break;
+                            case 3:
+                                drone = "MegaDroneMaster";
+                                break;
+                            case 4:
+                                drone = "MegaDroneMaster";
+                                break;
+                        }
+                        CharacterMaster characterMaster = slot.SummonMaster(LegacyResourcesAPI.Load<GameObject>("Prefabs/CharacterMasters/" + drone), position, rotation2);
+                    }
+                    switch (key)
+                    {
+                        case 1:
+                            slot.inventory.RemoveItem(RoR2Content.Items.ScrapWhite);
+                            CharacterMasterNotificationQueue.SendTransformNotification(slot.GetComponent<CharacterMaster>(), RoR2Content.Items.ScrapWhite.itemIndex, RoR2Content.Items.ScrapWhite.itemIndex, CharacterMasterNotificationQueue.TransformationType.Default);
+                            break;
+                        case 2:
+                            slot.inventory.RemoveItem(RoR2Content.Items.ScrapGreen);
+                            CharacterMasterNotificationQueue.SendTransformNotification(slot.GetComponent<CharacterMaster>(), RoR2Content.Items.ScrapGreen.itemIndex, RoR2Content.Items.ScrapGreen.itemIndex, CharacterMasterNotificationQueue.TransformationType.Default);
+                            break;
+                        case 3:
+                            slot.inventory.RemoveItem(RoR2Content.Items.ScrapRed);
+                            CharacterMasterNotificationQueue.SendTransformNotification(slot.GetComponent<CharacterMaster>(), RoR2Content.Items.ScrapRed.itemIndex, RoR2Content.Items.ScrapRed.itemIndex, CharacterMasterNotificationQueue.TransformationType.Default);
+                            break;
+                        case 4:
+                            slot.inventory.RemoveItem(RoR2Content.Items.ScrapYellow);
+                            CharacterMasterNotificationQueue.SendTransformNotification(slot.GetComponent<CharacterMaster>(), RoR2Content.Items.ScrapYellow.itemIndex, RoR2Content.Items.ScrapYellow.itemIndex, CharacterMasterNotificationQueue.TransformationType.Default);
+                            break;
+                    }
+
+                }
+
+            }
+            return true;
+        }
+
+        private static void AddLanguageTokens()
+        {
+            LanguageAPI.Add("MELTER_NAME", "Melter");
+            LanguageAPI.Add("MELTER_PICKUP", "Use scrap to craft drones. Select drone to craft by holding Ping Button and scrolling your mouse wheel");
+            LanguageAPI.Add("MELTER_DESC", "Use scrap to craft drones. Select drone to craft by holding Ping Button and scrolling your mouse wheel");
+            LanguageAPI.Add("MELTER_LORE", "po3 reference haha");
+        }
+    }
+}

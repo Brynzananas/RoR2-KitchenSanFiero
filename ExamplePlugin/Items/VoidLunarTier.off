@@ -1,0 +1,40 @@
+﻿using R2API;
+using RoR2;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+using static KitchenSanFieroPlugin.KitchenSanFiero;
+
+namespace KitchenSanFiero.Items
+{
+    internal static class VoidLunarTier //: ItemBase<FirstItem>
+    {
+        internal static Sprite VoidLunarTierIcon;
+        public static ItemTierDef VoidLunarTierDef;
+
+
+        internal static void Init()
+        {
+//VoidLunarTierIcon = MainAssets.LoadAsset<Sprite>("Assets/Materials/Item/Painkillers/PainkillersIcon.png");
+
+            Tier();
+        }
+        private static void Tier()
+        {
+            VoidLunarTierDef = ScriptableObject.CreateInstance<ItemTierDef>();
+            VoidLunarTierDef.bgIconTexture = null;//VoidLunarTierIcon;
+            VoidLunarTierDef.canRestack = true;
+            VoidLunarTierDef.colorIndex = ColorCatalog.ColorIndex.VoidItem;
+            VoidLunarTierDef.darkColorIndex = ColorCatalog.ColorIndex.VoidItemDark;
+            VoidLunarTierDef.isDroppable = true;
+            VoidLunarTierDef.name = "VoidLunar";
+            VoidLunarTierDef.pickupRules = ItemTierDef.PickupRules.ConfirmFirst;
+            VoidLunarTierDef.canScrap = false;
+            VoidLunarTierDef.tier = ItemTier.AssignedAtRuntime;
+
+            ContentAddition.AddItemTierDef(VoidLunarTierDef);
+        }
+    }
+}
+

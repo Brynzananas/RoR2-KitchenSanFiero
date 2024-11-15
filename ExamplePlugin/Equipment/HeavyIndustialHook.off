@@ -1,0 +1,169 @@
+﻿using R2API;
+using RoR2;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine.Networking;
+using UnityEngine;
+using static KitchenSanFieroPlugin.KitchenSanFiero;
+using RoR2.Items;
+using EntityStates;
+using RoR2.Projectile;
+using UnityEngine.AddressableAssets;
+using RoR2.Skills;
+using EntityStates.Loader;
+using KitchenSanFiero.Skills;
+using MonoMod.Cil;
+using static RoR2.MasterSpawnSlotController;
+
+namespace KitchenSanFiero.Equipment
+{
+    public class HeavyIndustrialHook : FireHook
+    {
+        internal static GameObject HeavyIndustrialHookPrefab;
+        internal static Sprite HeavyIndustrialHookIcon;
+        static EquipmentDef HeavyIndustrialHookEquipDef;
+        [SerializeField]
+        public static float damageCoefficient;
+        public static GameObject muzzleflashEffectPrefab = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Loader/MuzzleflashLoader.prefab").WaitForCompletion(), "HeavyIndustrialHookFlash");
+        //public static SkillDef hookSkill = (SkillDef)PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Loader/FireYankHook.asset").WaitForCompletion(), "HeavyIndustrialHook");
+        public static GameObject projectilePrefab = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Loader/LoaderYankHook.prefab").WaitForCompletion(), "HeavyIndustrialHookProjectile");
+        //public static string fireSoundString;
+        //public static GameObject hookInstance;
+        public static GameObject HeavyIndustrialHookProjectileMain;
+        //public static ProjectileStickOnImpact hookStickOnImpact;
+        //private static bool isStuck;
+        // private static bool hadHookInstance;
+        public static SkillDef skillDef = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Loader/FireYankHook.asset").WaitForCompletion();
+        public static EntityStateConfiguration loaderState = Addressables.LoadAssetAsync<EntityStateConfiguration>("RoR2/Base/Loader/EntityStates.Loader.FireHook.asset").WaitForCompletion();
+        //public static SkillDef skillDef = Skills.HeavyIndustrialHookSkill.HeavyIndustrialHookSkillDef;
+        public static bool isPressed = false;
+
+
+        public HeavyIndustrialHook()
+        {
+            HeavyIndustrialHookPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/Item/ForbiddenTome.prefab");
+            HeavyIndustrialHookIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/NecronomiconIcon.png");
+
+            Item();
+
+            AddLanguageTokens();
+        }
+        public void Item()
+        {
+            HeavyIndustrialHookEquipDef = ScriptableObject.CreateInstance<EquipmentDef>();
+            HeavyIndustrialHookEquipDef.name = "HeavyIndustrialHook";
+            HeavyIndustrialHookEquipDef.nameToken = "HEAVY_INDUSTRIAL_HOOK_NAME";
+            HeavyIndustrialHookEquipDef.pickupToken = "HEAVY_INDUSTRIAL_HOOK_PICKUP";
+            HeavyIndustrialHookEquipDef.descriptionToken = "HEAVY_INDUSTRIAL_HOOK_DESC";
+            HeavyIndustrialHookEquipDef.loreToken = "HEAVY_INDUSTRIAL_HOOK_LORE";
+            HeavyIndustrialHookEquipDef.pickupIconSprite = HeavyIndustrialHookIcon;
+            HeavyIndustrialHookEquipDef.pickupModelPrefab = HeavyIndustrialHookPrefab;
+            HeavyIndustrialHookEquipDef.appearsInMultiPlayer = true;
+            HeavyIndustrialHookEquipDef.appearsInSinglePlayer = true;
+            HeavyIndustrialHookEquipDef.cooldown = 1;
+            var displayRules = new ItemDisplayRuleDict(null);
+            ItemAPI.Add(new CustomEquipment(HeavyIndustrialHookEquipDef, displayRules));
+            On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformAction;/*
+            IL.EntityStates.Loader.FireHook.OnEnter += (il) =>
+            {
+                var c = new ILCursor(il);
+                c.GotoNext(
+                    x => x.MatchLdarg(0),
+                    x => x.MatchLdstr("Grapple"),
+                    x => x.MatchLdsfld<FireHook>("FireHookExitStateHash"),
+                    x => x.MatchCallvirt<EntityState>("PlayAnimation")
+                    );
+                c.RemoveRange(4);
+            };
+            IL.EntityStates.Loader.FireHook.FixedUpdate += (il) => {
+                var c = new ILCursor(il);
+                c.GotoNext(
+                    x => x.MatchLdarg(0),
+                    x => x.MatchLdstr("Grapple"),
+                    x => x.MatchLdsfld<FireHook>("FireHookExitStateHash"),
+                    x => x.MatchCallvirt<EntityState>("PlayAnimation")
+                    );
+                c.RemoveRange(4);
+
+            };
+            IL.EntityStates.Loader.FireHook.OnExit += (il) => {
+                var c = new ILCursor(il);
+                c.GotoNext(
+                    x => x.MatchLdarg(0),
+                    x => x.MatchLdstr("Grapple"),
+                    x => x.MatchLdsfld<FireHook>("FireHookExitStateHash"),
+                    x => x.MatchCallvirt<EntityState>("PlayAnimation")
+                    );
+                c.RemoveRange(4);
+
+            };*/
+            //On.RoR2.GenericSkill.OnExecute += NExtStateIDK;
+            On.RoR2.CharacterBody.FixedUpdate += DebugSmth;
+        }
+
+        private void DebugSmth(On.RoR2.CharacterBody.orig_FixedUpdate orig, CharacterBody self)
+        {
+            orig(self);
+            float timer = Time.deltaTime;
+            if (self.equipmentSlot == HeavyIndustrialHookEquipDef)
+            {
+                Debug.Log(self.GetComponent<EntityState>());
+
+            }
+        }
+
+        private bool PerformAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, EquipmentSlot self, EquipmentDef equipmentDef)
+        {
+            if (equipmentDef == HeavyIndustrialHookEquipDef)
+            {
+
+
+                return OnUse(self);
+
+                
+            }
+            else
+            {
+                return orig(self, equipmentDef);
+            }
+        }   
+        public bool OnUse(EquipmentSlot slot)
+        {
+            
+            EntityStateMachine[] components = slot.characterBody.gameObject.GetComponents<EntityStateMachine>();
+            bool hasHook = false;
+            for (int i = 0; i < components.Length; i++)
+            {
+                if (components[i].customName == "Hook")
+                {
+                    hasHook = true;
+                }
+            }
+            if (!hasHook)
+            {
+            slot.characterBody.gameObject.AddComponent<EntityStateMachine>().customName += "Hook";
+            }
+
+            if (slot.characterBody.skillLocator.secondary.skillDef != skillDef)
+            {
+                slot.characterBody.skillLocator.secondary.SetSkillOverride(slot.characterBody, skillDef, GenericSkill.SkillOverridePriority.Replacement);
+            }
+            else
+            {
+                slot.characterBody.skillLocator.secondary.UnsetSkillOverride(slot.characterBody, skillDef, GenericSkill.SkillOverridePriority.Replacement);
+
+            }
+                
+            return true;
+        }
+
+        public void AddLanguageTokens()
+        {
+            LanguageAPI.Add("HEAVY_INDUSTRIAL_HOOK_NAME", "Heavy Industrial Hook");
+            LanguageAPI.Add("HEAVY_INDUSTRIAL_HOOK_PICKUP", "wip");
+            LanguageAPI.Add("HEAVY_INDUSTRIAL_HOOK_DESC", "wip");
+            LanguageAPI.Add("HEAVY_INDUSTRIAL_HOOK_LORE", "mmmm yummy");
+        }
+    }
+}

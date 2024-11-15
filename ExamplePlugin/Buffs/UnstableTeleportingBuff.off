@@ -1,0 +1,59 @@
+﻿using KitchenSanFiero.Equipment;
+using R2API;
+using RoR2;
+using RoR2.Navigation;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using UnityEngine;
+using static KitchenSanFieroPlugin.KitchenSanFiero;
+
+namespace KitchenSanFiero.Buffs
+{
+    internal static class UnstableTeleporingBuff
+    {
+        public static BuffDef UnstableTeleportingBuffDef;
+        internal static Sprite UnstableTeleportingIcon;
+        internal static void Init()
+        {
+
+
+            UnstableTeleportingIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/PainkillersIcon.png");
+
+            Buff();
+
+        }
+        private static void Buff()
+        {
+            UnstableTeleportingBuffDef = ScriptableObject.CreateInstance<BuffDef>();
+            UnstableTeleportingBuffDef.name = "ksfUnstableTeleporting";
+            UnstableTeleportingBuffDef.buffColor = Color.cyan;
+            UnstableTeleportingBuffDef.canStack = true;
+            UnstableTeleportingBuffDef.isDebuff = true;
+            UnstableTeleportingBuffDef.ignoreGrowthNectar = true;
+            UnstableTeleportingBuffDef.iconSprite = UnstableTeleportingIcon;
+            UnstableTeleportingBuffDef.isHidden = false;
+            UnstableTeleportingBuffDef.isCooldown = false;
+            ContentAddition.AddBuffDef(UnstableTeleportingBuffDef);
+            Array.Resize(ref Jarate.buffList, Jarate.buffList.Length + 1);
+            Jarate.buffList.SetValue(UnstableTeleportingBuffDef, Jarate.buffList.Length - 1);
+            On.RoR2.CharacterBody.OnBuffFinalStackLost += Teleport;
+        }
+
+        private static void Teleport(On.RoR2.CharacterBody.orig_OnBuffFinalStackLost orig, CharacterBody self, BuffDef buffDef)
+        {
+            orig(self, buffDef);
+            if (buffDef == UnstableTeleportingBuffDef)
+            {
+                NodeGraph nodeGraph = SceneInfo.instance.GetNodeGraph(MapNodeGroup.GraphType.Ground);
+                List<NodeGraph.NodeIndex> source = nodeGraph.FindNodesInRange(self.corePosition, 100f, 200f, HullMask.Human);
+                Vector3 vector;
+                nodeGraph.GetNodePosition(source.First<NodeGraph.NodeIndex>(), out vector);
+                TeleportHelper.TeleportBody(self, vector, false);
+                TeleportOutController.AddTPOutEffect(self.transform.GetComponent<CharacterModel>(), 1f, 0f, 1f);
+            }
+        }
+    }
+}

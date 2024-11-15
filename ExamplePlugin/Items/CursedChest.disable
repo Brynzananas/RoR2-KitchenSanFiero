@@ -1,0 +1,489 @@
+﻿using R2API;
+using RoR2;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine.AddressableAssets;
+using UnityEngine;
+using static KitchenSanFieroPlugin.KitchenSanFiero;
+using UnityEngine.Networking;
+using System.ComponentModel;
+using UnityEngine.Events;
+using EntityStates.GummyClone;
+using UnityEngine.Diagnostics;
+
+namespace KitchenSanFiero.Items
+{
+    internal static class CursedChest //: ItemBase<FirstItem>
+    {
+        internal static GameObject CursedChestPrefab;
+        internal static Sprite CursedChestIcon;
+        public static ItemDef CursedChestItemDef;
+        static int chestCost = 25;
+        static int minionItems;
+        static CharacterBody minionBody;
+        
+
+
+        internal static void Init()
+        {
+            CursedChestPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/Item/Ciggaretes.prefab");
+            CursedChestIcon = MainAssets.LoadAsset<Sprite>("Assets/Materials/Item/Ciggaretes/PackOfSiggaretesIcon.png");
+
+            Item();
+
+            AddLanguageTokens();
+        }
+        private static void Item()
+        {
+            CursedChestItemDef = ScriptableObject.CreateInstance<ItemDef>();
+            CursedChestItemDef.name = "CursedChest";
+            CursedChestItemDef.nameToken = "CURSEDCHEST_NAME";
+            CursedChestItemDef.pickupToken = "CURSEDCHEST_PICKUP";
+            CursedChestItemDef.descriptionToken = "CURSEDCHEST_DESC";
+            CursedChestItemDef.loreToken = "CURSEDCHEST_LORE";
+            switch (CursedChestTier.Value)
+            {
+                case 1:
+                    CursedChestItemDef.deprecatedTier = ItemTier.Tier1;
+                    break;
+                case 2:
+                    CursedChestItemDef.deprecatedTier = ItemTier.Tier2;
+                    break;
+                case 3:
+                    CursedChestItemDef.deprecatedTier = ItemTier.Tier3;
+                    break;
+
+            }
+            CursedChestItemDef.pickupIconSprite = CursedChestIcon;
+            CursedChestItemDef.pickupModelPrefab = CursedChestPrefab;
+            CursedChestItemDef.canRemove = true;
+            CursedChestItemDef.hidden = false;
+            if (CursedChestAIBlacklist.Value)
+            {
+                CursedChestItemDef.tags = new[]
+                {
+                    ItemTag.Damage,
+                    ItemTag.AIBlacklist
+                };
+            }
+            else
+            {
+                CursedChestItemDef.tags = new[]
+                {
+                    ItemTag.Damage
+                };
+            }
+
+            var displayRules = new ItemDisplayRuleDict(null);
+            ItemAPI.Add(new CustomItem(CursedChestItemDef, displayRules));
+            On.RoR2.PurchaseInteraction.OnInteractionBegin += OnChestOpen;
+            On.RoR2.CharacterBody.Start += OnStageStartDefineChestValue;
+            //On.RoR2.GlobalEventManager.OnInteractionBegin -= OnChestOpen2;
+        }
+
+        private static void OnStageStartDefineChestValue(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
+        {
+
+            orig(self);
+            
+            int itemCount = self.inventory ? self.inventory.GetItemCount(CursedChestItemDef) : 0; //Backup Plan
+            if (itemCount > 0)
+            {
+                self.TransmitItemBehavior(new CharacterBody.NetworkItemBehaviorData(CursedChestItemDef.itemIndex, 0f));
+                uint difficultyScaledCost = (uint)Run.instance.GetDifficultyScaledCost((int)25f);
+                chestCost = (int)difficultyScaledCost;
+            }
+        }
+
+        /*private static void OnChestOpen2(On.RoR2.GlobalEventManager.orig_OnInteractionBegin orig, GlobalEventManager self, Interactor interactor, IInteractable interactable, GameObject interactableObject)
+        {
+            orig(self, interactor, interactable, interactableObject);
+            //if (NetworkServer.active && activator && activator.gameObject && self.GetInteractability(activator) == Interactability.Available)
+            //{
+            var characterBody = interactor.gameObject.GetComponent<CharacterBody>();
+
+            //if (characterBody)
+            //{
+            var inventoryCount = characterBody.inventory.GetItemCount(CursedChestItemDef);
+            Chat.AddMessage("Purchase");
+            if (inventoryCount > 0)
+            {
+                Chat.AddMessage("Purchase with item");
+                SpawnCard spawnCard = LegacyResourcesAPI.Load<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards/cscLesserWisp.asset");
+                DirectorPlacementRule placementRule = new DirectorPlacementRule
+                {
+                    placementMode = DirectorPlacementRule.PlacementMode.Approximate,
+                    minDistance = 5f,
+                    maxDistance = 25f,
+                    position = interactableObject.transform.position
+                };
+                DirectorSpawnRequest directorSpawnRequest = new DirectorSpawnRequest(spawnCard, placementRule, RoR2Application.rng);
+                directorSpawnRequest.teamIndexOverride = new TeamIndex?(characterBody.teamComponent.teamIndex);
+                directorSpawnRequest.summonerBodyObject = interactor.gameObject;
+                DirectorSpawnRequest directorSpawnRequest2 = directorSpawnRequest;
+                directorSpawnRequest2.onSpawnedServer = (Action<SpawnCard.SpawnResult>)Delegate.Combine(directorSpawnRequest2.onSpawnedServer, new Action<SpawnCard.SpawnResult>(delegate (SpawnCard.SpawnResult result)
+                {
+                    if (!result.success || !result.spawnedInstance)
+                    {
+                        return;
+                    }
+                    CharacterMaster component7 = result.spawnedInstance.GetComponent<CharacterMaster>();
+                    if (component7 && component7.inventory)
+                    {
+                        component7.inventory.GiveItem(RoR2Content.Items.BoostAttackSpeed);
+                    }
+                }));
+                DirectorCore.instance.TrySpawnObject(directorSpawnRequest);
+            }
+        }*/
+
+        private static void OnChestOpen(On.RoR2.PurchaseInteraction.orig_OnInteractionBegin orig, PurchaseInteraction self, Interactor activator)
+        {
+            orig(self, activator);
+            //if (NetworkServer.active && activator && activator.gameObject && self.GetInteractability(activator) == Interactability.Available)
+            //{
+            var characterBody = activator.gameObject.GetComponent<CharacterBody>();
+
+            //if (characterBody)
+            //{
+            int inventoryCount = characterBody.inventory.GetItemCount(CursedChestItemDef);
+            int buffCount = characterBody.GetBuffCount(Buffs.DesignUpgradeBuff.DesignUpgradeBuffDef);
+            bool minionActive = false;
+            if (inventoryCount > 0) 
+            {
+                
+                minionActive = true;
+                characterBody.AddBuff(Buffs.DesignUpgradeBuff.DesignUpgradeBuffDef);
+            CharacterMaster characterMaster = characterBody.master;
+                /*
+            if (!characterMaster || characterMaster.IsDeployableLimited(DeployableSlot.GummyClone))
+            {
+                return;
+            }*/
+            MasterCopySpawnCard masterCopySpawnCard = MasterCopySpawnCard.FromMaster(characterMaster, false, false, null);
+                Debug.Log(masterCopySpawnCard);
+                Debug.Log(characterMaster);
+                Debug.Log(characterMaster.masterIndex);
+                if (!masterCopySpawnCard)
+            {
+                return;
+            }
+                //masterCopySpawnCard.GiveItem(DLC1Content.Items.GummyCloneIdentifier, 1);
+                
+
+                //masterCopySpawnCard.GiveItem(RoR2Content.Items.MinionLeash);
+                //masterCopySpawnCard.GiveItem(DLC2Content.Items.LemurianHarness);
+
+                Transform transform = self.transform;
+            DirectorCore.MonsterSpawnDistance input = DirectorCore.MonsterSpawnDistance.Close;
+            DirectorPlacementRule directorPlacementRule = new DirectorPlacementRule
+            {
+                spawnOnTarget = transform,
+                placementMode = DirectorPlacementRule.PlacementMode.Direct
+            };
+            DirectorCore.GetMonsterSpawnDistance(input, out directorPlacementRule.minDistance, out directorPlacementRule.maxDistance);
+            DirectorSpawnRequest directorSpawnRequest = new DirectorSpawnRequest(masterCopySpawnCard, directorPlacementRule, new Xoroshiro128Plus(Run.instance.seed + (ulong)Run.instance.fixedTime));
+            directorSpawnRequest.teamIndexOverride = new TeamIndex?(characterMaster.teamIndex);
+            directorSpawnRequest.ignoreTeamMemberLimit = true;
+            directorSpawnRequest.summonerBodyObject = characterBody.gameObject;
+            DirectorSpawnRequest directorSpawnRequest2 = directorSpawnRequest;
+            directorSpawnRequest2.onSpawnedServer = (Action<SpawnCard.SpawnResult>)Delegate.Combine(directorSpawnRequest2.onSpawnedServer, new Action<SpawnCard.SpawnResult>(delegate (SpawnCard.SpawnResult result)
+            {
+                CharacterMaster component3 = result.spawnedInstance.GetComponent<CharacterMaster>();
+                component3.GetBody().baseNameToken = characterBody.GetUserName() + " Replika";  
+                minionBody = component3.GetBody();
+
+                //Deployable deployable = result.spawnedInstance.AddComponent<Deployable>();
+                //characterMaster.AddDeployable(deployable, DeployableSlot.GummyClone);
+                //deployable.onUndeploy = (deployable.onUndeploy ?? new UnityEvent());
+                //deployable.onUndeploy.AddListener(new UnityAction(component3.TrueKill));
+                /*
+                GameObject bodyObject = component3.GetBodyObject();
+                if (bodyObject)
+                {
+                    foreach (EntityStateMachine entityStateMachine in bodyObject.GetComponents<EntityStateMachine>())
+                    {
+                        if (entityStateMachine.customName == "Body")
+                        {
+                            entityStateMachine.SetState(new GummyCloneSpawnState());
+                            
+                            return;
+                        }
+                    }
+                }*/
+                /*
+                Chat.AddMessage("start");
+                if (minionBody == true)
+                {
+                    Chat.AddMessage("true");
+                    var minionItems = component3.inventory.GetItemCount(RoR2Content.Items.BoostDamage);
+                    for (int i = 0; i < buffCount * inventoryCount - minionItems; i++)
+                    {
+                        component3.inventory.GiveItem(RoR2Content.Items.BoostDamage);
+                        component3.inventory.GiveItem(RoR2Content.Items.BoostHp);
+                        component3.inventory.GiveItem(RoR2Content.Items.BoostAttackSpeed);
+                        Chat.AddMessage(component3 ? component3.inventory.GetItemCount(RoR2Content.Items.BoostDamage).ToString() : "no");
+                    }
+                }
+                Chat.AddMessage(component3 ? component3.inventory.GetItemCount(RoR2Content.Items.BoostDamage).ToString() + "69" : "no");
+                if (component3.inventory.GetItemCount(RoR2Content.Items.BoostDamage) == 0)
+                {
+                    Chat.AddMessage("false");
+                    minionBody = false;
+                }
+                if (component3.lostBodyToDeath)
+                {
+                    Chat.AddMessage("dead");
+                    minionBody = false;
+                }
+                
+                */
+                
+            }
+            ));
+                //var minionBodyIndex = directorSpawnRequest.summonerBodyObject.GetComponent<CharacterBody>();
+                Debug.Log(minionActive);
+                    
+                if (minionActive)
+                {
+                    if (minionBody != null)
+                    {
+                    minionItems = minionBody.inventory.GetItemCount(RoR2Content.Items.BoostDamage);
+
+                    }
+                    else
+                    {
+                        minionItems = 0;
+                    }
+                    if (minionItems > 0)
+                    {
+                        for (int i = 0; i < minionItems; i++)
+                        {
+                            minionBody.inventory.RemoveItem(RoR2Content.Items.BoostDamage);
+                            minionBody.inventory.RemoveItem(RoR2Content.Items.BoostHp);
+                            minionBody.inventory.RemoveItem(RoR2Content.Items.BoostAttackSpeed);
+
+                        }
+                        for (int i = 0; i < buffCount * inventoryCount; i++)
+                        {
+                            minionBody.inventory.GiveItem(RoR2Content.Items.BoostDamage);
+                            minionBody.inventory.GiveItem(RoR2Content.Items.BoostHp);
+                            minionBody.inventory.GiveItem(RoR2Content.Items.BoostAttackSpeed);
+
+                        }
+                        Chat.AddMessage(minionBody.inventory ? minionBody.inventory.GetItemCount(RoR2Content.Items.BoostDamage).ToString() : "no");
+                        minionActive = true;
+                    }
+                }
+                else
+                {
+                    minionActive = false;
+                }
+                Debug.Log(minionActive);
+                if (!minionActive) {
+                
+                    DirectorCore.instance.TrySpawnObject(directorSpawnRequest);
+                }
+                    
+
+                       
+                
+                    
+                
+                UnityEngine.Object.Destroy(masterCopySpawnCard);
+                
+            }
+
+
+            /*public void SpawnGummyClone()
+		{
+			ProjectileController component = base.GetComponent<ProjectileController>();
+			if (!component || !component.owner)
+			{
+				return;
+			}
+			CharacterBody component2 = component.owner.GetComponent<CharacterBody>();
+			if (!component2)
+			{
+				return;
+			}
+			CharacterMaster characterMaster = component2.master;
+			if (!characterMaster || characterMaster.IsDeployableLimited(DeployableSlot.GummyClone))
+			{
+				return;
+			}
+			MasterCopySpawnCard masterCopySpawnCard = MasterCopySpawnCard.FromMaster(characterMaster, false, false, null);
+			if (!masterCopySpawnCard)
+			{
+				return;
+			}
+			masterCopySpawnCard.GiveItem(DLC1Content.Items.GummyCloneIdentifier, 1);
+			masterCopySpawnCard.GiveItem(RoR2Content.Items.BoostDamage, this.damageBoostCount);
+			masterCopySpawnCard.GiveItem(RoR2Content.Items.BoostHp, this.hpBoostCount);
+			Transform transform = base.transform;
+			DirectorCore.MonsterSpawnDistance input = DirectorCore.MonsterSpawnDistance.Close;
+			DirectorPlacementRule directorPlacementRule = new DirectorPlacementRule
+			{
+				spawnOnTarget = transform,
+				placementMode = DirectorPlacementRule.PlacementMode.Direct
+			};
+			DirectorCore.GetMonsterSpawnDistance(input, out directorPlacementRule.minDistance, out directorPlacementRule.maxDistance);
+			DirectorSpawnRequest directorSpawnRequest = new DirectorSpawnRequest(masterCopySpawnCard, directorPlacementRule, new Xoroshiro128Plus(Run.instance.seed + (ulong)Run.instance.fixedTime));
+			directorSpawnRequest.teamIndexOverride = new TeamIndex?(characterMaster.teamIndex);
+			directorSpawnRequest.ignoreTeamMemberLimit = true;
+			directorSpawnRequest.summonerBodyObject = component2.gameObject;
+			DirectorSpawnRequest directorSpawnRequest2 = directorSpawnRequest;
+			directorSpawnRequest2.onSpawnedServer = (Action<SpawnCard.SpawnResult>)Delegate.Combine(directorSpawnRequest2.onSpawnedServer, new Action<SpawnCard.SpawnResult>(delegate(SpawnCard.SpawnResult result)
+			{
+				CharacterMaster component3 = result.spawnedInstance.GetComponent<CharacterMaster>();
+				Deployable deployable = result.spawnedInstance.AddComponent<Deployable>();
+				characterMaster.AddDeployable(deployable, DeployableSlot.GummyClone);
+				deployable.onUndeploy = (deployable.onUndeploy ?? new UnityEvent());
+				deployable.onUndeploy.AddListener(new UnityAction(component3.TrueKill));
+				GameObject bodyObject = component3.GetBodyObject();
+				if (bodyObject)
+				{
+					foreach (EntityStateMachine entityStateMachine in bodyObject.GetComponents<EntityStateMachine>())
+					{
+						if (entityStateMachine.customName == "Body")
+						{
+							entityStateMachine.SetState(new GummyCloneSpawnState());
+							return;
+						}
+					}
+				}
+			}));
+			DirectorCore.instance.TrySpawnObject(directorSpawnRequest);
+			UnityEngine.Object.Destroy(masterCopySpawnCard);
+		}*/
+
+
+
+
+
+
+
+
+
+            /*
+            if (self.cost == 1)
+            {
+                self.cost = chestCost * 2;
+            }
+
+            if (inventoryCount > 0)
+            {
+                /*
+                if (self.cost >= difficultyScaledCost)
+                {
+                    Chat.AddMessage("Greater");
+                            SpawnCard spawnCard = LegacyResourcesAPI.Load<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards/cscGreaterWisp");
+                            DirectorPlacementRule placementRule = new DirectorPlacementRule
+                            {
+                                placementMode = DirectorPlacementRule.PlacementMode.Approximate,
+                                minDistance = 5f,
+                                maxDistance = 25f,
+                                position = activator.transform.position
+                            };
+                            DirectorSpawnRequest directorSpawnRequest = new DirectorSpawnRequest(spawnCard, placementRule, RoR2Application.rng);
+						    directorSpawnRequest.teamIndexOverride = new TeamIndex?(characterBody.teamComponent.teamIndex);
+						    directorSpawnRequest.summonerBodyObject = activator.gameObject;
+						    DirectorSpawnRequest directorSpawnRequest2 = directorSpawnRequest;
+						    directorSpawnRequest2.onSpawnedServer = (Action<SpawnCard.SpawnResult>)Delegate.Combine(directorSpawnRequest2.onSpawnedServer, new Action<SpawnCard.SpawnResult>(delegate(SpawnCard.SpawnResult result)
+						    {
+							    if (!result.success || !result.spawnedInstance)
+							    {
+								    return;
+							    }
+							    CharacterMaster component7 = result.spawnedInstance.GetComponent<CharacterMaster>();
+							    if (component7 && component7.inventory)
+							    {
+								    component7.inventory.GiveItem(RoR2Content.Items.ShinyPearl, 30);
+							    }
+						    }));
+                            DirectorCore.instance.TrySpawnObject(directorSpawnRequest);
+                }else 
+                *//*if(self.cost == 1)
+                {
+                    Chat.AddMessage("Lunar");
+                    SpawnCard spawnCard = LegacyResourcesAPI.Load<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards/cscLunarWisp");
+                    DirectorPlacementRule placementRule = new DirectorPlacementRule
+                    {
+                        placementMode = DirectorPlacementRule.PlacementMode.Approximate,
+                        minDistance = 5f,
+                        maxDistance = 25f,
+                        position = activator.transform.position
+                    };
+                    DirectorSpawnRequest directorSpawnRequest = new DirectorSpawnRequest(spawnCard, placementRule, RoR2Application.rng);
+                    directorSpawnRequest.teamIndexOverride = new TeamIndex?(characterBody.teamComponent.teamIndex);
+                    directorSpawnRequest.summonerBodyObject = activator.gameObject;
+                    DirectorSpawnRequest directorSpawnRequest2 = directorSpawnRequest;
+                    directorSpawnRequest2.onSpawnedServer = (Action<SpawnCard.SpawnResult>)Delegate.Combine(directorSpawnRequest2.onSpawnedServer, new Action<SpawnCard.SpawnResult>(delegate (SpawnCard.SpawnResult result)
+                    {
+                        if (!result.success || !result.spawnedInstance)
+                        {
+                            return;
+                        }
+                        CharacterMaster component7 = result.spawnedInstance.GetComponent<CharacterMaster>();
+                        if (component7 && component7.inventory)
+                        {
+                            component7.inventory.GiveItem(RoR2Content.Items.ShinyPearl, 1 * inventoryCount);
+                        }
+                    }));
+                    DirectorCore.instance.TrySpawnObject(directorSpawnRequest);
+                }
+                else
+                //{
+                SpawnCard spawnCard = LegacyResourcesAPI.Load<CharacterSpawnCard>("SpawnCards/CharacterSpawnCards/cscLesserWisp");
+                DirectorPlacementRule placementRule = new DirectorPlacementRule
+                {
+                    placementMode = DirectorPlacementRule.PlacementMode.Approximate,
+                    minDistance = 2f,
+                    maxDistance = 10f,
+
+                    position = activator.transform.position
+                };
+                DirectorSpawnRequest directorSpawnRequest = new DirectorSpawnRequest(spawnCard, placementRule, RoR2Application.rng);
+                directorSpawnRequest.teamIndexOverride = new TeamIndex?(characterBody.teamComponent.teamIndex);
+                directorSpawnRequest.ignoreTeamMemberLimit = true;
+                directorSpawnRequest.summonerBodyObject = activator.gameObject;
+                DirectorSpawnRequest directorSpawnRequest2 = directorSpawnRequest;
+                directorSpawnRequest2.onSpawnedServer = (Action<SpawnCard.SpawnResult>)Delegate.Combine(directorSpawnRequest2.onSpawnedServer, new Action<SpawnCard.SpawnResult>(delegate (SpawnCard.SpawnResult result)
+                {
+                    if (!result.success || !result.spawnedInstance)
+                    {
+                        return;
+                    }
+                    CharacterMaster component7 = result.spawnedInstance.GetComponent<CharacterMaster>();
+                    if (component7 && component7.inventory)
+                    {
+                        component7.inventory.GiveItem(RoR2Content.Items.BoostDamage, 1 * inventoryCount * (self.cost / chestCost) * CursedChestDamageBoost.Value);
+                        component7.inventory.GiveItem(RoR2Content.Items.BoostHp, 1 * inventoryCount * (self.cost / chestCost) * CursedChestHealthBoost.Value);
+                        component7.inventory.GiveItem(RoR2Content.Items.BoostAttackSpeed, 1 * inventoryCount * (self.cost / chestCost) * CursedChestAttackSpeedBoost.Value);
+                        component7.inventory.GiveItem(RoR2Content.Items.MinionLeash);
+                    }
+                }));
+                DirectorCore.instance.TrySpawnObject(directorSpawnRequest);
+                //}*/
+
+            //}
+
+
+
+
+
+            //}
+            //}
+
+        }
+        private static void AddLanguageTokens()
+        {
+            LanguageAPI.Add("CURSEDCHEST_NAME", "Cursed Chest");
+            LanguageAPI.Add("CURSEDCHEST_PICKUP", "On purchase spawn a friendly lesser wisp. Wisp stats scale with item stacks and purchase cost");
+            LanguageAPI.Add("CURSEDCHEST_DESC", "On chest purchase spawn a friendly wisp");
+            LanguageAPI.Add("CURSEDCHEST_LORE", "Wispy");
+        }
+        
+    }
+}

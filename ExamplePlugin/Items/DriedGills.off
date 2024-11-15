@@ -1,0 +1,54 @@
+﻿using R2API;
+using RoR2;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+using static KitchenSanFieroPlugin.KitchenSanFiero;
+
+namespace KitchenSanFiero.Items
+{
+    internal static class DriedGills //: ItemBase<FirstItem>
+    {
+        internal static GameObject DriedGillsPrefab;
+        internal static Sprite DriedGillsIcon;
+        public static ItemDef DriedGillsItemDef;
+
+
+        internal static void Init()
+        {
+            DriedGillsPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/Item/PainKillers.prefab");
+            DriedGillsIcon = MainAssets.LoadAsset<Sprite>("Assets/Materials/Item/Painkillers/PainkillersIcon.png");
+
+            Item();
+
+            AddLanguageTokens();
+        }
+        private static void Item()
+        {
+            DriedGillsItemDef = ScriptableObject.CreateInstance<ItemDef>();
+            DriedGillsItemDef.name = "DriedGills";
+            DriedGillsItemDef.nameToken = "DRIEDGILLS_NAME";
+            DriedGillsItemDef.pickupToken = "DRIEDGILLS_PICKUP";
+            DriedGillsItemDef.descriptionToken = "DRIEDGILLS_DESC";
+            DriedGillsItemDef.loreToken = "DRIEDGILLS_LORE";
+            DriedGillsItemDef.deprecatedTier = VoidLunarTier.VoidLunarTierDef.tier;
+            DriedGillsItemDef.pickupIconSprite = DriedGillsIcon;
+            DriedGillsItemDef.pickupModelPrefab = DriedGillsPrefab;
+            DriedGillsItemDef.canRemove = true;
+            DriedGillsItemDef.hidden = false;
+            var tags = new List<ItemTag>() { ItemTag.Damage };
+            DriedGillsItemDef.tags = tags.ToArray();
+            var displayRules = new ItemDisplayRuleDict(null);
+            ItemAPI.Add(new CustomItem(DriedGillsItemDef, displayRules));
+            
+        }
+        private static void AddLanguageTokens()
+        {
+            LanguageAPI.Add("DRIEDGILLS_NAME", "Dried Gills");
+            LanguageAPI.Add("DRIEDGILLS_PICKUP", "wip");
+            LanguageAPI.Add("DRIEDGILLS_DESC", "wip");
+            LanguageAPI.Add("DRIEDGILLS_LORE", "mmmm yummy");
+        }
+    }
+}

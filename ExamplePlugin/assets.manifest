@@ -1,0 +1,214 @@
+ManifestFileVersion: 0
+CRC: 3536634294
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: f86f075681cb0772c3c55f095a479279
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 403862eeb3e4ccb8d062ce116f8a2295
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 74
+  Script: {instanceID: 0}
+- Class: 91
+  Script: {instanceID: 0}
+- Class: 95
+  Script: {instanceID: 0}
+- Class: 108
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 511512695, guid: 951ce57ad999ac1f040a4dceb5f8b763, type: 3}
+- Class: 114
+  Script: {fileID: -335047464, guid: 951ce57ad999ac1f040a4dceb5f8b763, type: 3}
+- Class: 114
+  Script: {fileID: -1864444436, guid: 951ce57ad999ac1f040a4dceb5f8b763, type: 3}
+- Class: 114
+  Script: {fileID: -565067572, guid: 951ce57ad999ac1f040a4dceb5f8b763, type: 3}
+- Class: 114
+  Script: {fileID: 816898038, guid: 951ce57ad999ac1f040a4dceb5f8b763, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 135
+  Script: {instanceID: 0}
+- Class: 137
+  Script: {instanceID: 0}
+- Class: 198
+  Script: {instanceID: 0}
+- Class: 199
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+- Class: 330
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers:
+- AssemblyName: RoR2
+  ClassName: Wave
+Assets:
+- Assets/stubbed-shaders/shaders/fx/hgvertexonly.shader
+- Assets/Icons/hasting_icon.png
+- Assets/Icons/GuardianAngelCrown.png
+- Assets/Icons/PainKillers.png
+- Assets/Icons/EmergencyMedicalTreatmentIcon.png
+- Assets/Icons/EnergisedChocolateBarIconTier3.png
+- Assets/Icons/OtherworldlyManuscriptTier1.png
+- Assets/Materials/matGuardianAngelPalette.mat
+- Assets/Materials/matTalismanExplosion.mat
+- Assets/Models/Prefabs/EnforcerHand.prefab
+- Assets/stubbed-shaders/shaders/ui/hguiignorez.shader
+- Assets/Materials/matCigs_palette.mat
+- Assets/Icons/SkullGammaGunIcon.png
+- Assets/stubbed-shaders/shaders/fx/hgintersectioncloudremap.shader
+- Assets/stubbed-shaders/shaders/postprocess/hgoutlinehighlight.shader
+- Assets/stubbed-shaders/shaders/ui/hguianimatealpha.shader
+- Assets/stubbed-shaders/shaders/environment/hggrass.shader
+- Assets/Models/Prefabs/Talisman.prefab
+- Assets/Models/Prefabs/Energychocolatebar.prefab
+- Assets/Materials/matInvisibleHand.mat
+- Assets/stubbed-shaders/shaders/fx/hgdamagenumber.shader
+- Assets/VFX/TalismanExplosion.prefab
+- Assets/Icons/BattleArtifactActivated.png
+- Assets/Textures/EnergyChocolateBarEmission.png
+- Assets/stubbed-shaders/shaders/deferred/hgstandard.shader
+- Assets/Icons/healshield.png
+- Assets/Textures/dredged_ramp.png
+- Assets/Materials/matLemurian_skull_normal.mat
+- Assets/Icons/Killswitchbuff.png
+- Assets/stubbed-shaders/shaders/deferred/hgtriplanarterrainblend.shader
+- Assets/Textures/ForbiddenTome_Emission.png
+- Assets/Materials/matForbiddenTome_palette.mat
+- Assets/Models/Prefabs/QuantumDeck.prefab
+- Assets/stubbed-shaders/shaders/postprocess/hgscreendamage.shader
+- Assets/Icons/Irradiated.png
+- Assets/Icons/GuardianAngelCrownTier1.png
+- Assets/Models/Prefabs/GuardianAngel.prefab
+- Assets/stubbed-shaders/shaders/ui/hguibarremap.shader
+- Assets/Materials/matTalismanPalette.mat
+- Assets/Materials/matAncientManuscript.mat
+- Assets/Shaders/deffered/hgstandard.shader
+- Assets/Icons/BattleArtifactDeActivated.png
+- Assets/Textures/AncientManuscript.png
+- Assets/Textures/Painkillers_palette.png
+- Assets/Materials/matArchnemesis_hat.mat
+- Assets/Models/Prefabs/revengeitem.prefab
+- Assets/Icons/PainKillersTier2.png
+- Assets/Materials/matOtherworldlyManusscript.mat
+- Assets/Icons/EnergisedChocolateBarIconTier2.png
+- Assets/Models/Prefabs/PainKillers.prefab
+- Assets/Models/Prefabs/Keychains.prefab
+- Assets/Textures/brass_modality_ramp.png
+- Assets/Icons/dredged_icon.png
+- Assets/Textures/Cigs_palette.png
+- Assets/Icons/CapturedPotentialTier1.png
+- Assets/Icons/Keybuff.png
+- Assets/Materials/matheychain_palette.mat
+- Assets/Materials/matHotelBell.mat
+- Assets/Textures/EmergencyMedicalTreatmentEmission.png
+- Assets/Materials/matCapturedPotential.mat
+- Assets/stubbed-shaders/shaders/postprocess/hgscopeshader.shader
+- Assets/Icons/Wounded.png
+- Assets/Materials/matColdHeart.mat
+- Assets/stubbed-shaders/shaders/fx/hgopaquecloudremap.shader
+- Assets/Icons/BrassBellIconTier3.png
+- Assets/Textures/arch_nemesis_ramp.png
+- Assets/Icons/MajesticHandTier3.png
+- Assets/VFX/ImpactDAgger.prefab
+- Assets/Textures/enforcer_hand_palette.png
+- Assets/Icons/CapturedPotentialTier3.png
+- Assets/Icons/OtherworldlyManuscriptTier3.png
+- Assets/Icons/PackOfCiggaretsIcon.png
+- Assets/Icons/RejectedDaggerTier1.png
+- Assets/Materials/matMajesticHand.mat
+- Assets/Textures/EmergencyMedicalTreatmentPalette.png
+- Assets/Icons/talismanbuff.png
+- Assets/Textures/hasting_ramp.png
+- Assets/stubbed-shaders/shaders/postprocess/hgsobelbuffer.shader
+- Assets/Models/Prefabs/EmergencyMedicalTreatment.prefab
+- Assets/stubbed-shaders/shaders/environment/hgdistantwater.shader
+- Assets/stubbed-shaders/shaders/environment/hgwaterfall.shader
+- Assets/Icons/RejectedDaggerTier2.png
+- Assets/Icons/EmergencyMedicalTreatmentIconTier2.png
+- Assets/Icons/BrassBellIconTier1.png
+- Assets/Icons/BrassBellIcon.png
+- Assets/Icons/EmergencyMedicalTreatmentIconTier1.png
+- Assets/Models/Prefabs/SkullGammaGun.prefab
+- Assets/Materials/matPainkillers_palette.mat
+- Assets/stubbed-shaders/shaders/ui/hguioverbrighten.shader
+- Assets/Textures/ForbiddenTome_palette.png
+- Assets/Icons/PackOfCiggaretsIconTier3.png
+- Assets/stubbed-shaders/shaders/fx/hgcloudremap.shader
+- Assets/Models/Prefabs/TalismanWorldModel.prefab
+- Assets/Icons/EnforcerHand.png
+- Assets/Icons/ReflectDamage.png
+- Assets/Icons/GuardianAngelCrownTier3.png
+- Assets/Materials/matEnforcer_hand_palette.mat
+- Assets/Materials/matEnergyChocolateBar.mat
+- Assets/Icons/FragileGiftBoxIcon.png
+- Assets/Icons/arch_nemesis_icon.png
+- Assets/Models/Prefabs/ForbiddenTome.prefab
+- Assets/Icons/EnergisedChocolateBarIcon.png
+- Assets/Textures/EnergyChocolateBar.png
+- Assets/Textures/GuardianAngelEmission.png
+- Assets/Icons/NecronomiconIcon.png
+- Assets/stubbed-shaders/shaders/deferred/hgsnowtopped.shader
+- Assets/Icons/PackOfCiggaretsIconTier2.png
+- Assets/Icons/SkullGammaGunIconTier1.png
+- Assets/stubbed-shaders/shaders/fx/hgsolidparallax.shader
+- Assets/Textures/CapturedPotential.png
+- Assets/Icons/OtherworldlyManuscript.png
+- Assets/Icons/brass_modality_icon.png
+- Assets/stubbed-shaders/shaders/ui/hguiblur.shader
+- Assets/Icons/TalismanReady.png
+- Assets/Models/Prefabs/CritBuffOnEliteKill.prefab
+- Assets/Materials/matBrassBellBake.mat
+- Assets/Materials/matIDK.mat
+- Assets/stubbed-shaders/shaders/deferred/hgwavycloth.shader
+- Assets/Textures/archnemesis_hat.png
+- Assets/Textures/SkullGammaGun.001.png
+- Assets/Icons/Dazzled.png
+- Assets/Materials/matEmergencyMedicalTreatmentPalette.mat
+- Assets/Icons/healshield2.png
+- Assets/stubbed-shaders/shaders/fx/hgdistortion.shader
+- Assets/Textures/GuardianAngelPalette.png
+- Assets/Models/Prefabs/FragileGiftBox.prefab
+- Assets/Icons/guardian_elite_icon.png
+- Assets/Icons/PainKillersTier3.png
+- Assets/Materials/matSkullGammaGun.mat
+- Assets/Icons/MajesticHandTier1.png
+- Assets/Textures/FraileGiftBox.png
+- Assets/Models/Prefabs/ColdHeart.prefab
+- Assets/Icons/SkullGammaGunIconTier3.png
+- Assets/Models/Prefabs/CigWorldModel.prefab
+- Assets/stubbed-shaders/shaders/fx/hgforwardplanet.shader
+- Assets/Textures/CapturedPotentialEmission.png
+- Assets/Icons/CapturedPotential.png
+- Assets/Icons/RejectedDagger.png
+- Assets/Icons/MajesticHandTier2.png
+- Assets/Textures/OtherWorldlyManuscript.png
+- Assets/Textures/BrassBellBake.png
+- Assets/Textures/SkullGammaGun.png
+- Assets/Models/Prefabs/BrassBell.prefab
+- Assets/Models/Prefabs/Ciggaretes.prefab
+- Assets/Models/Prefabs/hotelbell.prefab
+- Assets/Materials/matFraileGiftBox.mat
+- Assets/Models/Prefabs/archnemesishat.prefab
+- Assets/Icons/BellBoosted.png
+- Assets/StubbedShaders/RoR2/Deferred/HGStandard.shader
+- Assets/stubbed-shaders/shaders/ui/hguicustomblend.shader
+Dependencies: []

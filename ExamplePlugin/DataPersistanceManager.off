@@ -1,0 +1,65 @@
+﻿using KitchenSanFieroPlugin;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+using System.Linq;
+namespace KitchenSanFiero
+{
+    public class DataPersistanceManager : MonoBehaviour
+    {
+        private SaveData saveData;
+        private List<IDataPersistance> dataPersistances;
+        public static DataPersistanceManager instance { get; private set; }
+        private void Awake()
+        {
+            if (instance != null)
+            {
+                Debug.LogError("Two");
+            }
+            instance = this;
+        }
+        private void Start()
+        {
+            this.dataPersistances = FindAlldata();
+            LoadGame();
+        }
+
+        private List<IDataPersistance> FindAlldata()
+        {
+            IEnumerable<IDataPersistance> dataPersistances = FindObjectsOfType<MonoBehaviour>().OfType<IDataPersistance>();
+            return new List<IDataPersistance>(dataPersistances);
+        }
+
+        public void NewGame()
+        {
+            this.saveData = new SaveData();
+            
+        }
+        public void LoadGame()
+        {
+            if (this.saveData == null)
+            {
+                Debug.Log("KitchenSanFiero: No data found");
+                NewGame();
+            }
+            foreach (IDataPersistance dataPersistance in dataPersistances)
+            {
+                dataPersistance.LoadData(saveData);
+            }
+            Debug.Log("KitchenSanFiero: Loaded Arch Nemesis prefab " + saveData.archNemesisMasterPrefab + " that will appear on " + saveData.ArchNemesisStageName + " stage");
+        }
+        public void SaveGame()
+        {
+            foreach (IDataPersistance dataPersistance in dataPersistances)
+            {
+                dataPersistance.SaveData(ref saveData);
+            }
+            Debug.Log("KitchenSanFiero: Saved Arch Nemesis prefab " + saveData.archNemesisMasterPrefab + " that will appear on " + saveData.ArchNemesisStageName + " stage");
+        }
+        private void OnApplicationQuit()
+        {
+            SaveGame();
+        }
+    }
+}

@@ -92,8 +92,8 @@ namespace KitchenSanFiero.Items
                                          "Control how long this item effect lasts in seconds");
             BrassBellDamageIncrease = Config.Bind<float>("Item : " + name,
                                          "Damage increase multiplier",
-                                         2f,
-                                         "Control the damage multiplier on effect per stack");
+                                         100f,
+                                         "Control the damage increase in percentage");
             BrassBellIsReloadSecondary = Config.Bind<bool>("Item : " + name,
                                          "Secondary skill reload",
                                          true,
@@ -431,9 +431,38 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
 
         public static void AddLanguageTokens()
         {
+            string configSkills = ".";
+            if (BrassBellIsReloadSecondary.Value || BrassBellIsReloadutility.Value || BrassBellIsReloadSpecial.Value)
+            {
+                configSkills += "<style=cIsUtility>Reload ";
+
+                if (BrassBellIsReloadSecondary.Value)
+                {
+                    configSkills += "secondary";
+                }
+                if (BrassBellIsReloadutility.Value || BrassBellIsReloadSpecial.Value)
+                {
+                    configSkills += ",";
+                }
+                if (BrassBellIsReloadutility.Value)
+                {
+                    configSkills += " utility";
+                    
+                }
+                if (BrassBellIsReloadSpecial.Value)
+                {
+                    configSkills += ",";
+                }
+                if (BrassBellIsReloadSpecial.Value)
+                {
+                    configSkills += " special";
+                }
+                configSkills += " skills on effect activation</style>.";
+
+            }
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_NAME", name);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "Every " + BrassBellCooldown.Value + " seconds reload your secondary skill and increase your damage by " + ((BrassBellDamageIncrease.Value - 1) * 100) + "% (+" + ((BrassBellDamageIncrease.Value - 1) * 100) + "% per item stack) for " + BrassBellEffectTime.Value + " seconds");
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "Every " + BrassBellCooldown.Value + " seconds reload your secondary skill and increase your damage by " + ((BrassBellDamageIncrease.Value - 1) * 100) + "% (+" + ((BrassBellDamageIncrease.Value - 1) * 100) + "% per item stack) for " + BrassBellEffectTime.Value + " seconds");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "Every " + BrassBellCooldown.Value + " seconds <style=cIsDamage>increase your damage by " + BrassBellDamageIncrease.Value + "%</style> <style=cStack>(+" + BrassBellDamageIncrease.Value + "% per item stack)</style> for " + BrassBellEffectTime.Value + " seconds" + configSkills);
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "Every " + BrassBellCooldown.Value + " seconds increase your damage by " + BrassBellDamageIncrease.Value + "% (+" + BrassBellDamageIncrease.Value + "% per item stack) for " + BrassBellEffectTime.Value + " seconds" + configSkills);
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_LORE", "mmmm yummy");
         }
     }

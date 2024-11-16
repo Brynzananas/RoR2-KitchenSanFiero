@@ -11,6 +11,8 @@ using static KitchenSanFieroPlugin.KitchenSanFiero;
 using static RoR2.MasterSpawnSlotController;
 using static KitchenSanFiero.Elites.ArchNemesis;
 using UnityEngine.Diagnostics;
+using static RoR2.MasterCatalog;
+using System.IO;
 
 namespace KitchenSanFiero.Items
 {
@@ -55,12 +57,13 @@ namespace KitchenSanFiero.Items
         {
             orig(self);
             int itemCount = self.inventory ? self.inventory.GetItemCount(CoolHatItemDef) : 0;
-            if (itemCount > 0 && !isSpawned)
+            if (itemCount > 0)
             {
+                GameObject archNemesisMasterPrefab = GetMasterPrefab(FindMasterIndex(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Prefab.txt")).Replace("(Clone)", "")));
                 var summon = new MasterSummon
                 {
 
-                    masterPrefab = ArchNemesisAllyMasterprefab,
+                    masterPrefab = archNemesisMasterPrefab,
                     position = ArchNemesisAllyPosition,
                     rotation = Quaternion.identity,
                     teamIndexOverride = new TeamIndex?(self.GetComponent<CharacterBody>().teamComponent.teamIndex),
@@ -78,7 +81,7 @@ namespace KitchenSanFiero.Items
                 }
                 Stage.DontDestroyOnLoad(characterMaster);
                 //Util.IsDontDestroyOnLoad(characterMaster.gameObject);    
-                isSpawned = true;
+                self.inventory.RemoveItem(CoolHatItemDef);
             }
         }
 

@@ -47,7 +47,7 @@ namespace KitchenSanFiero.Buffs
             if (buffCount > 0)
             {
                 int itemCount = sender.inventory ? sender.inventory.GetItemCount(BrassBell.BrassBellItemDef) : 0;
-                args.damageMultAdd += itemCount * (BrassBell.BrassBellDamageIncrease.Value - 1);
+                args.damageMultAdd += BrassBell.BrassBellDamageIncrease.Value / 100;
             }
         }
         

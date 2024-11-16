@@ -23,12 +23,14 @@ namespace KitchenSanFiero.Items
         internal static GameObject RejectedDaggerPrefab;
         internal static Sprite RejectedDaggerIcon;
         public static ItemDef RejectedDaggerItemDef;
+        public static ConfigEntry<bool> RejectedDaggerEnable;
         public static ConfigEntry<bool> RejectedDaggerAIBlacklist;
         public static ConfigEntry<float> RejectedDaggerTier;
         public static ConfigEntry<float> RejectedDaggerDamageToAll;
-        public static ConfigEntry<int> RejectedDaggerMinEnemyCount;
+        public static ConfigEntry<float> RejectedDaggerDamageToAllStack;
+        /*public static ConfigEntry<int> RejectedDaggerMinEnemyCount;
         public static ConfigEntry<float> RejectedDaggerDamageToMin;
-        public static ConfigEntry<float> RejectedDaggerChampionReduction;
+        public static ConfigEntry<float> RejectedDaggerChampionReduction;*/
         public static string name = "Rejected Dagger";
 
         internal static void Init()
@@ -50,7 +52,10 @@ namespace KitchenSanFiero.Items
             }
             RejectedDaggerPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/CritBuffOnEliteKill.prefab");
             RejectedDaggerIcon = MainAssets.LoadAsset<Sprite>(tier);
-
+            if (!RejectedDaggerEnable.Value)
+            {
+                return;
+            }
             Item();
 
             AddLanguageTokens();
@@ -58,6 +63,10 @@ namespace KitchenSanFiero.Items
 
         private static void AddConfigs()
         {
+            RejectedDaggerEnable = Config.Bind<bool>("Item : " + name,
+                             "Enable",
+                             true,
+                             "Enable this item?");
             RejectedDaggerAIBlacklist = Config.Bind<bool>("Item : " + name,
                              "AI Blacklist",
                              false,
@@ -68,9 +77,9 @@ namespace KitchenSanFiero.Items
                                          "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
             RejectedDaggerDamageToAll = Config.Bind<float>("Item : " + name,
                                          "Damage sharing to all",
-                                         0.5f,
-                                         "Control the damage sharing multiplier to all enemies of the same type");
-            RejectedDaggerMinEnemyCount = Config.Bind<int>("Item : " + name,
+                                         50f,
+                                         "Control the damage sharing multiplier to all enemies of the same type in percentage");
+            /*RejectedDaggerMinEnemyCount = Config.Bind<int>("Item : " + name,
                                          "Enemy count",
                                          5,
                                          "Control the count of enemies left required to activate the single damage bonus");
@@ -81,13 +90,14 @@ namespace KitchenSanFiero.Items
             RejectedDaggerChampionReduction = Config.Bind<float>("Item : " + name,
                                          "Damage to champion reduction",
                                          2f,
-                                         "Control the division applied to the damage increase if the enemy is a champion");
+                                         "Control the division applied to the damage increase if the enemy is a champion");*/
+            ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(RejectedDaggerTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(RejectedDaggerDamageToAll));
-            ModSettingsManager.AddOption(new IntFieldOption(RejectedDaggerMinEnemyCount));
+            /*ModSettingsManager.AddOption(new IntFieldOption(RejectedDaggerMinEnemyCount));
             ModSettingsManager.AddOption(new FloatFieldOption(RejectedDaggerDamageToMin));
-            ModSettingsManager.AddOption(new FloatFieldOption(RejectedDaggerChampionReduction));
+            ModSettingsManager.AddOption(new FloatFieldOption(RejectedDaggerChampionReduction));*/
         }
 
         private static void Item()
@@ -230,7 +240,7 @@ namespace KitchenSanFiero.Items
                         {
                             damage = damageInfo.damage / characterBodyArray.Length * RejectedDaggerDamageToAll.Value * count,
                             damageColorIndex = DamageColorIndex.Item,
-                            damageType = DamageType.Generic,
+                            damageType = DamageType.Silent,
                             attacker = attacker,
                             crit = damageInfo.crit,
                             force = Vector3.zero,
@@ -281,8 +291,8 @@ namespace KitchenSanFiero.Items
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name);
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", "Share 10% (+10% per item stack) between all monsters of the same type. Deal more damage on less monsters");
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", "Share 10% (+10% per item stack) between all monsters of the same type. Deal more damage on less monsters");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", "On hit, damage all enemies for " + RejectedDaggerDamageToAll.Value + "% (+" + RejectedDaggerDamageToAll.Value + " TOTAL damage. Damage is divided by the number of all enemies");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", "On hit, damage all enemies for " + RejectedDaggerDamageToAll.Value + "% (+" + RejectedDaggerDamageToAll.Value + " TOTAL damage. Damage is divided by the number of all enemies");
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "mmmm yummy");
         }
     }

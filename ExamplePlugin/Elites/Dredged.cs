@@ -196,7 +196,7 @@ namespace KitchenSanFiero.Elites
                     if (body.inventory.GetEquipmentIndex() == AffixDredgedEquipment.equipmentIndex)
                     {
                         DredgedRespawn(self); //DredgedRespawn(self, body);
-
+                        body.inventory.GiveItem(ColdHeart.ColdHeartDef, 1);
                         body.inventory.SetEquipmentIndex(EquipmentIndex.None);
 
                         if (self.IsInvoking("RespawnExtraLife"))

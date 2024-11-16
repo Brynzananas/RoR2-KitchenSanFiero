@@ -353,8 +353,8 @@ localScale = new Vector3(0.01019F, 0.01019F, 0.01019F)
                         {
                             attackerObject = damageInfo.attacker,
                             victimObject = victim,
-                            totalDamage = damageInfo.damage * PackOfCiggaretesTotalDamage.Value,
-                            damageMultiplier = PackOfCiggaretesDamage.Value * victimBody.GetBuffCount(SmokingBuff.SmokingBuffDef),
+                            totalDamage = damageInfo.damage * PackOfCiggaretesTotalDamage.Value * victimBody.GetBuffCount(SmokingBuff.SmokingBuffDef),
+                            damageMultiplier = PackOfCiggaretesDamage.Value,
                             duration = PackOfCiggaretesDuration.Value,
                             dotIndex = DotController.DotIndex.Burn,
                             maxStacksFromAttacker = 69

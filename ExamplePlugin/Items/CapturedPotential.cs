@@ -24,6 +24,8 @@ using System.Collections;
 using KitchenSanFiero.Buffs;
 using System.Threading;
 using R2API.Utils;
+using ProperSave;
+using System.Runtime.Serialization;
 
 namespace KitchenSanFiero.Items
 {
@@ -346,27 +348,103 @@ localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
             On.RoR2.CharacterBody.OnInventoryChanged += ChangeArraySize;
             //On.RoR2.EquipmentDef.AttemptGrant += FillEmptySlots;
             On.RoR2.PurchaseInteraction.OnInteractionBegin += CardCompatibility;
-        }
-        /*
-        private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, ref PickupDef.GrantContext context)
-        {
-            if (context.body.masterObject.GetComponent<CapturedPotentialComponent>() && context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray.Length > 0 && context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray.Contains(EquipmentIndex.None))
+            if (ProperSaveCompatibility.enabled)
             {
-                bool found = false;
-                for (int i = 0; i < context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray.Length && !found; i++)
+                ProperSave.SaveFile.OnGatherSaveData += SaveFile_OnGatherSaveData;
+                ProperSave.Loading.OnLoadingEnded += Loading_OnLoadingStarted;
+            }
+            
+        }
+
+        private static void Loading_OnLoadingStarted(SaveFile file)
+        {
+            string ComponentDictKey = "KitchenSanFiero_CapturedPotentialInventory";
+            List<CapturedPotentialSaveStructure> CapturedPotentialStructures = file.GetModdedData<List<CapturedPotentialSaveStructure>>(ComponentDictKey);
+            foreach (CapturedPotentialSaveStructure ComponentsList in CapturedPotentialStructures)
+            {
+                NetworkUserId NUID = ComponentsList.userID.Load();
+                CharacterMaster master = NetworkUser.readOnlyInstancesList.FirstOrDefault(Nuser => Nuser.id.Equals(NUID)).master;
+                EquipmentIndex[] equipmentIndexes = new EquipmentIndex[0];
+                int number = 0;
+                Debug.Log(master);
+                
+                foreach (EquipmentIndex equip in ComponentsList.EquipInventory)
                 {
-                    if (context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray[i] == EquipmentIndex.None)
-                    {
-                        context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray[i] = context.body.inventory.currentEquipmentIndex;
-                        context.body.inventory.SetEquipmentIndex(EquipmentIndex.None);
-                        found = true;
-                    }
+                    Array.Resize(ref equipmentIndexes, number + 1);
+                    equipmentIndexes.SetValue(equip, number);
+                    number++;
+                    //equipmentIndexes.Add(EquipmentCatalog.GetEquipmentDef(EquipmentCatalog.FindEquipmentIndex(equip)));
+
                     
                 }
+                Debug.Log(equipmentIndexes.Length);
+                Debug.Log(equipmentIndexes.GetValue(0));
+                CapturedPotentialComponent temp = master.GetBody().masterObject.AddComponent<CapturedPotentialComponent>();
+                temp.master = master;
+                temp.equipArray = equipmentIndexes;
+
+
             }
-            orig(ref context);
         }
-        */
+
+        private static void SaveFile_OnGatherSaveData(Dictionary<string, object> dictionary)
+        {
+            string ComponentDictKey = "KitchenSanFiero_CapturedPotentialInventory";
+
+            List<CapturedPotentialComponent> equipInventory = CharacterMaster.instancesList
+            .Select(master => master.GetBody().masterObject.GetComponent<CapturedPotentialComponent>())
+            .Where(tracker => tracker != null)
+            .ToList();
+
+            List<CapturedPotentialSaveStructure> ComponentSaveListList = new List<CapturedPotentialSaveStructure>();
+
+            foreach (CapturedPotentialComponent component in equipInventory)
+            {
+                EquipmentIndex[] ComponentEquipList = new EquipmentIndex[component.equipArray.Length];
+                int number = 0;
+                foreach (EquipmentIndex ED in component.equipArray)
+                {
+                    ComponentEquipList.SetValue(ED, number);
+                number++;
+
+                }
+
+                ComponentSaveListList.Add(new CapturedPotentialSaveStructure
+                {
+                    userID = new ProperSave.Data.UserIDData(component.master.playerCharacterMasterController.networkUser.id),
+                    EquipInventory = ComponentEquipList
+                });
+            }
+
+            dictionary.Add(ComponentDictKey, ComponentSaveListList);
+        }
+        public struct CapturedPotentialSaveStructure
+        {
+            [DataMember(Name = "UserID")]
+            public ProperSave.Data.UserIDData userID;
+            [DataMember(Name = "EquipInventory")]
+            public EquipmentIndex[] EquipInventory;
+        }
+        /*
+private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, ref PickupDef.GrantContext context)
+{
+   if (context.body.masterObject.GetComponent<CapturedPotentialComponent>() && context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray.Length > 0 && context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray.Contains(EquipmentIndex.None))
+   {
+       bool found = false;
+       for (int i = 0; i < context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray.Length && !found; i++)
+       {
+           if (context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray[i] == EquipmentIndex.None)
+           {
+               context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray[i] = context.body.inventory.currentEquipmentIndex;
+               context.body.inventory.SetEquipmentIndex(EquipmentIndex.None);
+               found = true;
+           }
+
+       }
+   }
+   orig(ref context);
+}
+*/
         [ConCommand(commandName = "EquipArrayIndexUp", flags = ConVarFlags.ExecuteOnServer)]
         private static void EquipArrayIndexUp(ConCommandArgs args)
         {
@@ -468,10 +546,14 @@ localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
         {
             orig(self);
                 int itemCount = self.inventory ? self.inventory.GetItemCount(CapturedPotentialItemDef) : 0;
-            
-            if (itemCount > 0 && !self.masterObject.GetComponent<CapturedPotentialComponent>())
+            bool ifItsLoading = false;
+                if (ProperSaveCompatibility.enabled)
             {
-                Debug.Log("add");
+                ifItsLoading = Loading.IsLoading;
+            }
+            if (itemCount > 0 && !self.masterObject.GetComponent<CapturedPotentialComponent>() && !ifItsLoading)
+            {
+                //Debug.Log("add");
                 CapturedPotentialComponent component = self.masterObject.AddComponent<CapturedPotentialComponent>();
                 //component.body = self;
                 component.equipArray = new EquipmentIndex[0];
@@ -532,10 +614,12 @@ localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
         }*/
         public class CapturedPotentialComponent : MonoBehaviour
         {
+            [DataMember(Name = "EquipInventory")]
             public EquipmentIndex[] equipArray = new EquipmentIndex[0];
             //public CharacterBody body;
+            [IgnoreDataMember]
             public CharacterMaster master;
-            public float timer = 0;
+            //public float timer = 0;
             public void Update()
             {
                 /*
@@ -1035,8 +1119,8 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add("CAPTUREDPOTENTIAL_NAME", "Captured Potential");
-            LanguageAPI.Add("CAPTUREDPOTENTIAL_PICKUP", "Gain +1 (+1 per item stack) equipment slot. Change equipments by holding Interaction Button and scrolling the mouse wheel");
-            LanguageAPI.Add("CAPTUREDPOTENTIAL_DESC", "Gain +1 (+1 per item stack) equipment slot. Change equipments by holding Interaction Button and scrolling the mouse wheel");
+            LanguageAPI.Add("CAPTUREDPOTENTIAL_PICKUP", "Gain +1 (+1 per item stack) equipment slot");
+            LanguageAPI.Add("CAPTUREDPOTENTIAL_DESC", "Gain +1 (+1 per item stack) equipment slot");
             LanguageAPI.Add("CAPTUREDPOTENTIAL_LORE", "lol");
         }
     }

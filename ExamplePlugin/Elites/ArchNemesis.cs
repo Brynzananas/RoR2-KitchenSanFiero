@@ -25,6 +25,7 @@ using static RoR2.MasterCatalog;
 using System.Collections;
 using System.Runtime.Serialization.Formatters.Binary;
 using RiskOfOptions.OptionConfigs;
+using RoR2.Navigation;
 
 namespace KitchenSanFiero.Elites
 {
@@ -46,12 +47,8 @@ namespace KitchenSanFiero.Elites
         public static GameObject ArchNemesisToCopyMasterprefab;
         public static Inventory ArchNemesisAllyInventory;
         public static Vector3 ArchNemesisAllyPosition;
-        public static bool ArchNemesisDead = false;
-        public static GameObject archNemesisMasterPrefab;
-        public static string archNemesisInventory;
-        public static string ArchNemesisStageName;
-        public static bool ifLoop = false;
-        public static bool isThereArchNemesis = false;
+        //public static bool ArchNemesisDead = false;
+       // public static bool isThereArchNemesis = false;
         public static ConfigEntry<bool> ArchNemesisEnable;
         public static ConfigEntry<float> ArchNemesisHealthMult;
         public static ConfigEntry<float> ArchNemesisDamageMult;
@@ -84,7 +81,7 @@ namespace KitchenSanFiero.Elites
             On.RoR2.CharacterBody.OnBuffFinalStackLost += CharacterBody_OnBuffFinalStackLost;
             GetStatCoefficients += Stats;
             RoR2.Stage.onStageStartGlobal += SpawnArchNemesis;
-            On.RoR2.CharacterBody.Start += SetArchNemesis;
+            //On.RoR2.CharacterBody.Start += SetArchNemesis;
             On.RoR2.CharacterBody.OnDeathStart += RemoveArchNemesis;
             Run.onRunStartGlobal += RespawnArchNemesis;
         }
@@ -145,12 +142,14 @@ namespace KitchenSanFiero.Elites
 
         private static void RespawnArchNemesis(Run run)
         {
-            if (ArchNemesisDead)
+            //var path = System.IO.Path.Combine(SavesDirectory, "Prefab.txt");
+            if (File.Exists(System.IO.Path.Combine(SavesDirectory, "Prefab.txt")))
             {
-            ArchNemesisDead = false ;
+                File.WriteAllText(System.IO.Path.Combine(SavesDirectory, "IsDefeated.txt"), "False");
+                //isThereArchNemesis = true;
 
             }
-            
+            /*
             var path = System.IO.Path.Combine(SavesDirectory, "Prefab");
             var path1 = System.IO.Path.Combine(SavesDirectory, "StageName");
             var path2 = System.IO.Path.Combine(SavesDirectory, "Inventory");
@@ -184,58 +183,95 @@ namespace KitchenSanFiero.Elites
             {
                 isThereArchNemesis= false ;
                 Debug.Log("KitchenSanFieroLog: Found no Arch Nemesis, keep it up!");
-            }
+            }*/
 
         }
 
         private static void RemoveArchNemesis(On.RoR2.CharacterBody.orig_OnDeathStart orig, CharacterBody self)
         {
             orig(self);
-            if (isThereArchNemesis)
+            /*if (isThereArchNemesis)
             {
-            archNemesisMasterPrefab = GetMasterPrefab(FindMasterIndex(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Prefab")).Replace("(Clone)", "")));
-
-            }
-            if (isThereArchNemesis && MasterCatalog.GetMasterPrefab(self.master.masterIndex) == archNemesisMasterPrefab && self.teamComponent.teamIndex != TeamIndex.Player && self.inventory.GetEquipmentIndex() == ArchNemesis.AffixArchNemesisEquipment.equipmentIndex)
+            archNemesisMasterPrefab = GetMasterPrefab(FindMasterIndex(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Prefab.txt")).Replace("(Clone)", "")));
+            isThereArchNemesis && MasterCatalog.GetMasterPrefab(self.master.masterIndex) == archNemesisMasterPrefab
+            }*/
+            if (self.HasBuff(AffixArchNemesisBuff))
             {
-                ArchNemesisAllyMasterprefab = MasterCatalog.GetMasterPrefab(self.master.masterIndex);
+                //ArchNemesisAllyMasterprefab = MasterCatalog.GetMasterPrefab(self.master.masterIndex);
                 ArchNemesisAllyPosition = self.transform.position;
-                ArchNemesisAllyInventory = self.inventory;
+                //ArchNemesisAllyInventory = self.inventory;
                 if (Util.CheckRoll(ArchNemesisDropChance.Value))
                 {
                 PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(CoolHat.CoolHatItemDef.itemIndex), self.transform.position, self.transform.rotation.eulerAngles * 20f);
 
                 }
 
-                ArchNemesisStageName = null;
-                archNemesisMasterPrefab = null;
                 //archNemesisInventory = null;
-                ArchNemesisDead = true;
-                File.Delete(System.IO.Path.Combine(SavesDirectory, "Prefab"));
-                File.Delete(System.IO.Path.Combine(SavesDirectory, "StageName"));
-                File.Delete(System.IO.Path.Combine(SavesDirectory, "IfLoop"));
+                //ArchNemesisDead = true;
+                //File.Delete(System.IO.Path.Combine(SavesDirectory, "IsDefeated.txt"));
+                if (File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "IsDefeated.txt")) == "False")
+                {
+                    File.WriteAllText(System.IO.Path.Combine(SavesDirectory, "IsDefeated.txt"), "True");
+                }
+                
+                //File.Delete(System.IO.Path.Combine(SavesDirectory, "Prefab.txt"));
+                //File.Delete(System.IO.Path.Combine(SavesDirectory, "Stage.txt"));
+                //File.Delete(System.IO.Path.Combine(SavesDirectory, "Team.txt"));
             }
         }
-
+        /*
         private static void SetArchNemesis(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
         {
             orig(self);
             if (ArchNemesisSpawning)
             {
-                archNemesisMasterPrefab = GetMasterPrefab(FindMasterIndex(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Prefab")).Replace("(Clone)", "")));
+                archNemesisMasterPrefab = GetMasterPrefab(FindMasterIndex(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Prefab.txt")).Replace("(Clone)", "")));
                 if (MasterCatalog.GetMasterPrefab(self.master.masterIndex) == archNemesisMasterPrefab && self.teamComponent.teamIndex != TeamIndex.Player && MasterCatalog.GetMasterPrefab(self.master.masterIndex) != null)
                 {
                     self.inventory.SetEquipmentIndex(AffixArchNemesisEquipment.equipmentIndex);
                     ArchNemesisSpawning = false;
                 }
             }
-        }
+        }*/
 
         private static void SpawnArchNemesis(Stage stage)
         {
-            if (NetworkServer.active && isThereArchNemesis)
+            if (NetworkServer.active && File.Exists(System.IO.Path.Combine(SavesDirectory, "Prefab.txt")))
             {
-                ArchNemesisStageName = File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "StageName"));
+                int ArchNemesisStageCount = int.Parse(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Stage.txt")));
+                string isDefeated = File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "IsDefeated.txt"));
+                if (stage.sceneDef.stageOrder >= ArchNemesisStageCount && isDefeated == "False")
+                {
+
+                TeamIndex ArchNemesisTeam = (TeamIndex)int.Parse(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Team.txt")));
+
+                    //Chat.AddMessage("There is an Arch Nemesis here");
+                    GameObject archNemesisMasterPrefab = GetMasterPrefab(FindMasterIndex(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Prefab.txt")).Replace("(Clone)", "")));
+                    NodeGraph nodeGraph = SceneInfo.instance.GetNodeGraph(MapNodeGroup.GraphType.Ground);
+                    List<NodeGraph.NodeIndex> source = nodeGraph.FindNodesInRange(stage.transform.position, 50f, 200f, HullMask.Human);
+                    Vector3 vector;
+                    nodeGraph.GetNodePosition(source.First<NodeGraph.NodeIndex>(), out vector);
+                    var summon = new MasterSummon
+                    {
+
+                        masterPrefab = archNemesisMasterPrefab,
+                        position = vector,
+                        rotation = Quaternion.identity,
+                        teamIndexOverride = ArchNemesisTeam,
+                        useAmbientLevel = true,
+                        //summonerBodyObject = slot.gameObject,
+                        //inventoryToCopy = NecronomiconInventory,
+                        ignoreTeamMemberLimit = true,
+
+                    };
+                    CharacterMaster characterMaster = summon.Perform();
+
+                    if (characterMaster)
+                    {
+                        characterMaster.inventory.SetEquipmentIndex(AffixArchNemesisEquipment.equipmentIndex);
+
+                    }
+                }/*
                 if (!ArchNemesisDead && stage.sceneDef.cachedName == ArchNemesisStageName && stage.sceneDef.cachedName != null)
                 {
 
@@ -254,7 +290,7 @@ namespace KitchenSanFiero.Elites
                         ArchNemesisSpawning = true;
 
                     }
-                }
+                }*/
             }
         }
 
@@ -283,16 +319,28 @@ namespace KitchenSanFiero.Elites
             orig(self, buffDef);
             if (buffDef == AffixArchNemesisBuff)
             {
-                archNemesisInventory = File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Inventory"));
-                string[] archNemesisInventoryArray = archNemesisInventory.Split(",");
-                //GameObject gameObject = Object.Instantiate<GameObject>(ArchNemesisWard);
-                Vector3 position = self.transform.position + 2f * Vector3.forward;
-                for (int i = 0; i < archNemesisInventoryArray.Length; i++, i++)
+                //Chat.AddMessage("Arch Nemesis has been spawned");
+                string archNemesisInventory = File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Inventory.txt"));
+                if (archNemesisInventory != null)
                 {
-                    string toParse = archNemesisInventoryArray[i + 1];
-                    int itemCount = int.Parse(toParse);
-                    self.inventory.GiveItemString(archNemesisInventoryArray[i], itemCount);
+                    string[] archNemesisInventoryArray = archNemesisInventory.Split(",");
+                    Vector3 position = self.transform.position + 2f * Vector3.forward;
+                    for (int i = 0; i < archNemesisInventoryArray.Length; i++, i++)
+                    {
+                        try
+                        {
+                            string toParse = archNemesisInventoryArray[i + 1];
+                            int itemCount = int.Parse(toParse);
+                            self.inventory.GiveItemString(archNemesisInventoryArray[i], itemCount);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError(e);
+                        }
+                        
+                    }
                 }
+                
                 /*
                 for (int i = 0; i < archNemesisInventory.Length; i++)
                 {

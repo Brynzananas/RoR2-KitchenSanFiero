@@ -13,6 +13,7 @@ using System.Text;
 using UnityEngine;
 using static KitchenSanFieroPlugin.KitchenSanFiero;
 using static R2API.RecalculateStatsAPI;
+using KitchenSanFiero.Elites;
 
 namespace KitchenSanFiero.Items
 {
@@ -23,6 +24,7 @@ namespace KitchenSanFiero.Items
         public static ItemDef ColdHeartDef;
         public static ConfigEntry<float> ColdHeartDamage;
         public static ConfigEntry<float> ColdHeartHealth;
+        public static ConfigEntry<bool> ColdHeartRegenerate;
         internal static void Init()
         {
             AddConfigs();
@@ -37,16 +39,21 @@ namespace KitchenSanFiero.Items
         public static void AddConfigs()
         {
             ColdHeartDamage = Config.Bind<float>("Item : Cold Heart",
-                                         "Damage multiplier",
-                                         1.2f,
-                                         "Control the damage multiplier");
+                                         "Damage increase",
+                                         20f,
+                                         "Control the damage increase in percentage");
             ColdHeartHealth = Config.Bind<float>("Item : Cold Heart",
-                                         "Health multiplier",
-                                         1.2f,
-                                         "Control the health multiplier");
+                                         "Health increase",
+                                         20f,
+                                         "Control the health increase in percentage");
+            ColdHeartRegenerate = Config.Bind<bool>("Item : Cold Heart",
+                                         "Regenerate",
+                                         false,
+                                         "Control if this item turns into The Dredged affix");
 
             ModSettingsManager.AddOption(new FloatFieldOption(ColdHeartDamage));
             ModSettingsManager.AddOption(new FloatFieldOption(ColdHeartHealth));
+            ModSettingsManager.AddOption(new CheckBoxOption(ColdHeartRegenerate));
         }
         public static void Item()
         {
@@ -57,11 +64,13 @@ namespace KitchenSanFiero.Items
             ColdHeartDef.pickupToken = "COLDHEART_PICKUP";
             ColdHeartDef.descriptionToken = "COLDHEART_DESC";
             ColdHeartDef.loreToken = "COLDHEART_LORE";
-            ColdHeartDef.deprecatedTier = ItemTier.NoTier;
+            ColdHeartDef.deprecatedTier = ItemTier.Boss;
             ColdHeartDef.pickupIconSprite = ColdHeartIcon;
             ColdHeartDef.pickupModelPrefab = ColdHeartPrefab;
             ColdHeartDef.canRemove = false;
             ColdHeartDef.hidden = false;
+            var tags = new List<ItemTag>() { ItemTag.WorldUnique, ItemTag.CannotDuplicate, ItemTag.CannotSteal};
+            ColdHeartDef.tags = tags.ToArray();
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
             rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
@@ -264,6 +273,21 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
             var displayRules = new ItemDisplayRuleDict(null);
             ItemAPI.Add(new CustomItem(ColdHeartDef, displayRules));
             GetStatCoefficients += Stats;
+            On.RoR2.CharacterMaster.OnServerStageBegin += StageStart;
+        }
+
+        private static void StageStart(On.RoR2.CharacterMaster.orig_OnServerStageBegin orig, CharacterMaster self, Stage stage)
+        {
+            orig(self, stage);
+            if (self && self.inventory && self.inventory.GetItemCount(ColdHeartDef) > 0)
+            {
+                int itemCount = self.inventory.GetItemCount(ColdHeartDef);
+                for (int i = 0; i < itemCount; i++)
+                {
+                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(Dredged.AffixDredgedEquipment.equipmentIndex), self.GetBody().transform.position, self.GetBody().transform.rotation.eulerAngles * 20f);
+                    self.inventory.RemoveItem(ColdHeartDef);
+                }
+            }
         }
 
         private static void Stats(CharacterBody sender, StatHookEventArgs args)
@@ -271,17 +295,17 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
             int itemCount = sender.inventory ? sender.inventory.GetItemCount(ColdHeartDef) : 0;
             if (itemCount > 0)
             {
-                args.damageMultAdd += ColdHeartDamage.Value - 1;
-                args.healthMultAdd += ColdHeartHealth.Value - 1;
+                args.damageMultAdd += ColdHeartDamage.Value / 100;
+                args.healthMultAdd += ColdHeartHealth.Value / 100;
             }
         }
 
         public static void AddLanguageTokens()
         {
             LanguageAPI.Add("COLDHEART_NAME", "Cold Heart");
-            LanguageAPI.Add("COLDHEART_PICKUP", "It's cold here...");
-            LanguageAPI.Add("COLDHEART_DESC", "Gain " + ColdHeartDamage.Value + "x (+" + (ColdHeartDamage.Value - 1) + " per item stack) damage multiplier and " + ColdHeartHealth.Value + "x (+" + (ColdHeartHealth.Value - 1) + " per item stack) health multiplier");
-            LanguageAPI.Add("COLDHEART_LORE", "mmmm yummy");
+            LanguageAPI.Add("COLDHEART_PICKUP", "It's an eternity here...");
+            LanguageAPI.Add("COLDHEART_DESC", "It's an eternity here...");
+            LanguageAPI.Add("COLDHEART_LORE", "It's an eternity here...");
         }
     }
 }

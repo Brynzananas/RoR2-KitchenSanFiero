@@ -14,7 +14,6 @@ using KitchenSanFiero.Equipment;
 using KitchenSanFiero.Elites;
 using System;
 using KitchenSanFiero.Artifact;
-using KitchenSanFiero.Skills;
 using R2API.Networking;
 using KitchenSanFiero;
 using System.IO;
@@ -164,7 +163,6 @@ namespace KitchenSanFieroPlugin
             ParryNextDamageBuff.Init();
             CapturedPotential.Init();
             Battle.Init();
-            HeavyIndustrialHookSkill.Init();
             SkullGammaGun.Init();
             BrassBell.Init();
             OtherworldlyManuscript.Init();
@@ -205,22 +203,16 @@ namespace KitchenSanFieroPlugin
 
                 if (Input.GetKey(KeyCode.E) && Input.mouseScrollDelta == Vector2.up)
                 {
-                    Chat.AddMessage("Send");
-
-                    //NetworkWriter networkWriter = new NetworkWriter();
                     RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList.FirstOrDefault(), "EquipArrayIndexUp");
-                    //SendCommandInternal(networkWriter, 0, "EquipArrayIndexUp");
                 }
                 if (Input.GetKey(KeyCode.E) && Input.mouseScrollDelta == Vector2.down)
                 {
                     RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList.FirstOrDefault(), "EquipArrayIndexDown");
-                    //NetworkWriter networkWriter = new NetworkWriter();
-                    //SendCommandInternal(networkWriter, 0, "EquipArrayIndexDown");
                 }
             }
         }
 
-        public static class OtherModCompatibility
+        public static class ProperSaveCompatibility
         {
             private static bool? _enabled;
 
@@ -241,8 +233,14 @@ namespace KitchenSanFieroPlugin
             {
                 // stuff that require the dependency to be loaded
             }
-        }
-    
+        }/*
+        public static event Action FinishedLoadingCompatability;
+
+        public static void FinishedLoading()
+        {
+            FinishedLoadingCompatability.Invoke();
+        }*/
+
         private void ResetArrays(Stage stage)
         {
             Array.Clear(deadPositionArray, 0, deadPositionArray.Length);
@@ -298,10 +296,11 @@ namespace KitchenSanFieroPlugin
                 {
                     Directory.CreateDirectory(SavesDirectory);
                     
-                    var path = System.IO.Path.Combine(SavesDirectory, "Prefab");
-                    var path1 = System.IO.Path.Combine(SavesDirectory, "StageName");
-                    var path2 = System.IO.Path.Combine(SavesDirectory, "Inventory");
-                    var path3 = System.IO.Path.Combine(SavesDirectory, "IfLoop");
+                    var path = System.IO.Path.Combine(SavesDirectory, "Prefab.txt");
+                    var path1 = System.IO.Path.Combine(SavesDirectory, "Stage.txt");
+                    var path2 = System.IO.Path.Combine(SavesDirectory, "Inventory.txt");
+                    var path3 = System.IO.Path.Combine(SavesDirectory, "Team.txt");
+                    var path4 = System.IO.Path.Combine(SavesDirectory, "IsDefeated.txt");
                     //Convert.ToByte(damageReport.victimBody.inventory.itemAcquisitionOrder);
                     /*BinaryFormatter formatter = new BinaryFormatter();
                     byte[] byteArray;
@@ -355,8 +354,9 @@ namespace KitchenSanFieroPlugin
                     }
                     File.WriteAllText(path, self.master.name.ToString());
                     File.WriteAllText(path2, string.Join(",", itemsArray));
-                    File.WriteAllText(path1, RoR2.Stage.instance.sceneDef.cachedName);
-                    File.WriteAllText(path3, ifLoopTemp.ToString());
+                    File.WriteAllText(path1, RoR2.Stage.instance.sceneDef.stageOrder.ToString());
+                    File.WriteAllText(path3, ((int)self.teamComponent.teamIndex).ToString());
+                    File.WriteAllText(path4, "False");
                 }
                 catch (Exception e)
                 {

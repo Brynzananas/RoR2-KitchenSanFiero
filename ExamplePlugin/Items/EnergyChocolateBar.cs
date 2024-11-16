@@ -70,7 +70,7 @@ namespace KitchenSanFiero.Items
             EnergyChocolateBuffStats = Config.Bind<float>("Item : Energised Chocolate Bar",
                                          "Statistics increase",
                                          10f,
-                                         "How much this item gives all stats add bonus?");
+                                         "Control how much this item gives all stats increase in percentage");
             EnergyChocolateBuffNextStage = Config.Bind<float>("Item : Energised Chocolate Bar",
                                          "Next stage behaviour",
                                          1f,

@@ -24,8 +24,15 @@ namespace KitchenSanFiero.Items
         public static ConfigEntry<bool> PainkillersEnable;
         public static ConfigEntry<bool> PainkillersAIBlacklist;
         public static ConfigEntry<float> PainkillersTier;
-        public static ConfigEntry<float> PainkillersArmor;
-        public static ConfigEntry<bool> PainkillersOnItemPickupEffect;
+        //public static ConfigEntry<float> PainkillersArmorMult;
+        public static ConfigEntry<float> PainkillersArmorAdd;
+        public static ConfigEntry<float> PainkillersMaxHealthMult;
+        public static ConfigEntry<float> PainkillersMaxHealthAdd;
+        public static ConfigEntry<float> PainkillersRegenMult;
+        public static ConfigEntry<float> PainkillersRegenAdd;
+        public static ConfigEntry<float> PainkillersHealthMult;
+        public static ConfigEntry<float> PainkillersHealthAdd;
+        //public static ConfigEntry<bool> PainkillersOnItemPickupEffect;
 
         internal static void Init()
         {
@@ -69,19 +76,47 @@ namespace KitchenSanFiero.Items
                                          "Item tier",
                                          1f,
                                          "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
-            PainkillersArmor = Config.Bind<float>("Item : Painkillers",
-                                         "Armor gain",
+            PainkillersArmorAdd = Config.Bind<float>("Item : Painkillers",
+                                         "Armor add",
                                          2.5f,
-                                         "How much this item gives armor?");
-            PainkillersOnItemPickupEffect = Config.Bind<bool>("Item : Painkillers",
+                                         "Control how much this item gives flat armor");
+            /*PainkillersArmorMult = Config.Bind<float>("Item : Painkillers",
+                                         "Armor multiply percentage",
+                                         0f,
+                                         "Control how much this item multiplies armor in percentage");*/
+            PainkillersRegenAdd = Config.Bind<float>("Item : Painkillers",
+                                         "Regen add",
+                                         1f,
+                                         "Control how much this item gives flat regeneration");
+            PainkillersRegenMult = Config.Bind<float>("Item : Painkillers",
+                                         "Regen multiply percentage",
+                                         0f,
+                                         "Control how much this item multiplies regeneration in percentage");
+            PainkillersMaxHealthAdd = Config.Bind<float>("Item : Painkillers",
+                                         "Max health add",
+                                         10f,
+                                         "Control how much this item gives flat maximum health");
+            PainkillersMaxHealthMult = Config.Bind<float>("Item : Painkillers",
+                                         "Max health multiply percentage",
+                                         0f,
+                                         "Control how much this item multiplies maximum health in percentage");
+            PainkillersHealthAdd = Config.Bind<float>("Item : Painkillers",
+                                         "Healing add",
+                                         1f,
+                                         "Control how much this item gives flat healing addition");
+            PainkillersHealthMult = Config.Bind<float>("Item : Painkillers",
+                                         "Healing multiply percentage",
+                                         5f,
+                                         "Control how much this item multiplies healing in percentage");
+            /*PainkillersOnItemPickupEffect = Config.Bind<bool>("Item : Painkillers",
                              "On item pickup effect",
                              true,
-                             "Enable on pickup effect?");
+                             "Enable on pickup effect?");*/
             ModSettingsManager.AddOption(new CheckBoxOption(PainkillersEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(PainkillersAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(PainkillersTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
-            ModSettingsManager.AddOption(new FloatFieldOption(PainkillersArmor));
-            ModSettingsManager.AddOption(new CheckBoxOption(PainkillersOnItemPickupEffect));
+            ModSettingsManager.AddOption(new FloatFieldOption(PainkillersArmorAdd));
+            //ModSettingsManager.AddOption(new CheckBoxOption(PainkillersOnItemPickupEffect));
         }
 
         private static void Item()
@@ -318,6 +353,19 @@ localScale = new Vector3(0.05652F, 0.05652F, 0.05652F)
             ItemAPI.Add(new CustomItem(PainkillersItemDef, displayRules));
             //On.RoR2.CharacterBody.OnInventoryChanged += HealOnPickup;
             GetStatCoefficients += Stats;
+            On.RoR2.HealthComponent.Heal += IncreasedHealing;
+        }
+
+        private static float IncreasedHealing(On.RoR2.HealthComponent.orig_Heal orig, HealthComponent self, float amount, ProcChainMask procChainMask, bool nonRegen)
+        {
+            int itemCount = self.body.inventory? self.body.inventory.GetItemCount(PainkillersItemDef) : 0;
+            if (itemCount > 0)
+            {
+                amount += itemCount * PainkillersHealthAdd.Value;
+
+                amount *= 1f + (itemCount * PainkillersHealthMult.Value / 100);
+            }
+            return orig(self, amount, procChainMask, nonRegen);
         }
 
         /*
@@ -347,8 +395,11 @@ localScale = new Vector3(0.05652F, 0.05652F, 0.05652F)
             int itemCount = sender.inventory ? sender.inventory.GetItemCount(PainkillersItemDef) : 0;
             if (itemCount > 0)
             {
-                args.armorAdd += itemCount * PainkillersArmor.Value;
-                args.baseRegenAdd += itemCount * 1;
+                args.armorAdd += itemCount * PainkillersArmorAdd.Value;
+                args.baseRegenAdd += itemCount * PainkillersRegenAdd.Value;
+                args.regenMultAdd += itemCount * PainkillersRegenMult.Value / 100;
+                args.baseHealthAdd += itemCount * PainkillersMaxHealthAdd.Value;
+                args.healthMultAdd += itemCount * PainkillersMaxHealthMult.Value / 100;
             }
 
         }
@@ -356,8 +407,8 @@ localScale = new Vector3(0.05652F, 0.05652F, 0.05652F)
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add("PAINKILLERS_NAME", "Painkillers");
-            LanguageAPI.Add("PAINKILLERS_PICKUP", "<style=cIsUtility>Gain " + PainkillersArmor.Value + " armor</style> and 1 regen <style=cStack>per item stack<style=cStack>");
-            LanguageAPI.Add("PAINKILLERS_DESC", "<style=cIsUtility>Gain " + PainkillersArmor.Value + " armor</style> and 1 regen <style=cStack>per item stack<style=cStack>");
+            LanguageAPI.Add("PAINKILLERS_PICKUP", "Slightly increase all health related statistics");
+            LanguageAPI.Add("PAINKILLERS_DESC", "Slightly increase all health related statistics");
             LanguageAPI.Add("PAINKILLERS_LORE", "mmmm yummy");
         }
     }

@@ -73,7 +73,7 @@ namespace KitchenSanFiero.Artifact
                                          "Control the zone radius multiplier");
             BattleTime = Config.Bind<float>("Artifact : Battle",
                                          "Teleport time",
-                                         3f,
+                                         210f,
                                          "Control the teleport time in seconds");
             BattleDrizzleDifficulty = Config.Bind<float>("Artifact : Battle",
                                          "Credits multiplier on Drizzle and lower",
@@ -252,9 +252,9 @@ private static void ChageTeleport(On.RoR2.Stage.orig_FixedUpdate orig, Stage sel
                 Debug.Log("DischargeRate" + teleport.holdoutZoneController.dischargeRate);*/
                 changeTeleport = true;
                 itHappened = false;
-                teleport.holdoutZoneController.chargeRadiusDelta *= BattleZoneRange.Value;
+                teleport.holdoutZoneController.chargeRadiusDelta = BattleZoneRange.Value * 100;
                 teleport.holdoutZoneController.radiusSmoothTime = 0.1f;
-                teleport.holdoutZoneController.baseChargeDuration *= BattleTime.Value;
+                teleport.holdoutZoneController.baseChargeDuration = BattleTime.Value;
                 teleport.bonusDirector.creditMultiplier += difficulty;
 ;
             }
@@ -292,7 +292,7 @@ private static void ChageTeleport(On.RoR2.Stage.orig_FixedUpdate orig, Stage sel
         public static void AddLanguageTokens()
         {
             LanguageAPI.Add("ARTIFACT_BATTLE_NAME", "Artifact of Battle");
-            LanguageAPI.Add("ARTIFACT_BATTLE_DESCRIPTION", "Multiply teleporter radius by " + BattleZoneRange.Value + " and multiply its completion time by " + BattleTime.Value + ". Every " + BattleInterval.Value + " seconds monsters gain " + BattleCreditsAddition.Value + " director credits. Midway teleporter multiply credits multiplier by " + BattleMidwayDifficulty.Value + " and monsters gain " + BattleMidwayCredits.Value + " director credits one time.");
+            LanguageAPI.Add("ARTIFACT_BATTLE_DESCRIPTION", "Multiply teleporter radius by " + BattleZoneRange.Value + " and set its completion time to " + BattleTime.Value + " seconds. Every " + BattleInterval.Value + " seconds monsters gain " + BattleCreditsAddition.Value + " director credits. Midway teleporter multiply credits multiplier by " + BattleMidwayDifficulty.Value + " and monsters gain " + BattleMidwayCredits.Value + " director credits one time. Kills gain " + BattleChargeOnKill.Value + "% teleporter charge");
         }
     }
 }

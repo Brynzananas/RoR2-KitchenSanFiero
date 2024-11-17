@@ -90,15 +90,15 @@ namespace KitchenSanFiero.Elites
             DredgedDamageReviveCount = Config.Bind<int>("Elite : Dredged",
                                          "Maximum revive count",
                                          2,
-                                         "Control the damage multiplier of Dredged elite");
+                                         "Control the maximum amount Dredged elites can revive");
             DredgedHealthReviveMult = Config.Bind<float>("Elite : Dredged",
-                                         "Health Multiplier per revive",
-                                         0.5f,
-                                         "Control the health multiplier of Dredged elite per every revive");
+                                         "Health increase per revive",
+                                         50f,
+                                         "Control the health increase of Dredged elite per every revive in percentage");
             DredgedDamageReviveMult = Config.Bind<float>("Elite : Dredged",
-                                         "Damage Multiplier per revive",
-                                         0.5f,
-                                         "Control the damage multiplier of Dredged elite per every revive");
+                                         "Damage increase per revive",
+                                         50f,
+                                         "Control the damage increase of Dredged elite per every revive in percentage");
             DredgedEnable = Config.Bind<bool>("Elite : Dredged",
                  "Activation",
                  true,
@@ -115,8 +115,8 @@ namespace KitchenSanFiero.Elites
         {
             if (sender.HasBuff(AffixDredgedBuff) && sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) > 0)
             {
-                args.healthMultAdd = sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) * DredgedHealthReviveMult.Value;
-                args.damageMultAdd = sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) * DredgedDamageReviveMult.Value;
+                args.healthMultAdd += sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) * DredgedHealthReviveMult.Value / 100;
+                args.damageMultAdd += sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) * DredgedDamageReviveMult.Value / 100;
             }
         }
         public static void DredgedRespawn(CharacterMaster self)

@@ -32,12 +32,14 @@ namespace KitchenSanFiero.Items
         public static ConfigEntry<float> SkullGammaGunAngleStack;
         public static ConfigEntry<float> SkullGammaGunRange;
         public static ConfigEntry<float> SkullGammaGunRangeStack;
+        public static ConfigEntry<float> SkullGammaGunDamage;
+        public static ConfigEntry<float> SkullGammaGunDamageStack;
+        public static ConfigEntry<float> SkullGammaGunProc;
         public static ConfigEntry<float> SkullGammaGunBuffDamageMultiplier;
         public static ConfigEntry<float> SkullGammaGunDamageMultiplier;
         public static ConfigEntry<float> SkullGammaGunDuration;
         public static ConfigEntry<int> SkullGammaGunMaxBuffCount;
         public static ConfigEntry<int> SkullGammaGunMaxBuffCountStack;
-        public static ConfigEntry<float> SkullGammaGunBuffDamage;
 
         internal static void Init()
         {
@@ -96,10 +98,22 @@ namespace KitchenSanFiero.Items
                                          "Range per stack",
                                          4f,
                                          "Control the range increase per item stack");
+            SkullGammaGunDamage = Config.Bind<float>("Item : Skull Gamma Gun",
+                             "Damage",
+                             200f,
+                             "Control how the damage of this item in percentage");
+            SkullGammaGunDamageStack = Config.Bind<float>("Item : Skull Gamma Gun",
+                             "Damage stack",
+                             100f,
+                             "Control how the damage increase of this item in percentage");
+            SkullGammaGunProc = Config.Bind<float>("Item : Skull Gamma Gun",
+                             "Proc",
+                             0.6f,
+                             "Control how the proc of this item");
             SkullGammaGunBuffDamageMultiplier = Config.Bind<float>("Item : Skull Gamma Gun",
-                                         "Damage multiplier",
-                                         1f,
-                                         "Control the damage multiplier of the debuff");
+                                         "DOT Damage",
+                                         100f,
+                                         "Control the damage of the DOT in percentage");
             SkullGammaGunMaxBuffCount = Config.Bind<int>("Item : Skull Gamma Gun",
                                          "Base max debuff stack",
                                          3,
@@ -108,10 +122,6 @@ namespace KitchenSanFiero.Items
                                          "Max debuff stack per stack",
                                          1,
                                          "Control the max debuff stack increase per item stack");
-            SkullGammaGunBuffDamage = Config.Bind<float>("Item : Skull Gamma Gun",
-                             "Debuff stack damage",
-                             0.5f,
-                             "Control how much debuff stack increases its damage multiplicatively?");
             ModSettingsManager.AddOption(new CheckBoxOption(SkullGammaGunEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(SkullGammaGunAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(SkullGammaGunTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
@@ -120,10 +130,12 @@ namespace KitchenSanFiero.Items
             ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunAngleStack));
             ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunRange));
             ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunRangeStack));
+            ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunDamage));
+            ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunDamageStack));
+            ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunProc));
             ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunBuffDamageMultiplier));
             ModSettingsManager.AddOption(new IntFieldOption(SkullGammaGunMaxBuffCount));
             ModSettingsManager.AddOption(new IntFieldOption(SkullGammaGunMaxBuffCountStack));
-            ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunBuffDamage));
         }
         private static void Item()
         {
@@ -211,7 +223,7 @@ localPos = new Vector3(0F, 0.73419F, 0F),
 localAngles = new Vector3(350.008F, 180F, 0F),
 localScale = new Vector3(0.12937F, 0.12937F, 0.12937F)
                 }
-            });/*
+            });
             rules.Add("mdlEngiTurrety", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -222,7 +234,7 @@ localScale = new Vector3(0.12937F, 0.12937F, 0.12937F)
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(1f, 1f, 1f)
                 }
-            });*/
+            });
             rules.Add("mdlMage", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -244,7 +256,7 @@ localPos = new Vector3(-0.09267F, 0.18578F, 0.04265F),
 localAngles = new Vector3(0F, 180F, 315.4285F),
 localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                 }
-            });/*
+            });
             rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -354,9 +366,9 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(1f, 1f, 1f)
                 }
-            });*/
+            });
             var displayRules = new ItemDisplayRuleDict(null);
-            ItemAPI.Add(new CustomItem(MicrowaveItemDef, displayRules));
+            ItemAPI.Add(new CustomItem(MicrowaveItemDef, rules));
             On.RoR2.CharacterBody.OnInventoryChanged += ActivateBehaviour;
             //On.RoR2.CharacterBody.FixedUpdate += BUUURNN;
         }
@@ -413,15 +425,15 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                             Vector3 targetDir = characterBody.corePosition - body.corePosition;
                             float angle = Vector3.Angle(targetDir, body.inputBank.aimDirection);
                             float dist = Vector3.Distance(characterBody.corePosition, body.corePosition);
-                            if (angle < (SkullGammaGunAngle.Value / 2) + (SkullGammaGunAngleStack.Value / 2 * stack) && body.teamComponent.teamIndex != characterBody.teamComponent.teamIndex && dist < SkullGammaGunRange.Value + (stack * SkullGammaGunRangeStack.Value))
+                            if (angle < (SkullGammaGunAngle.Value / 2) + (SkullGammaGunAngleStack.Value / 2 * (stack - 1)) && body.teamComponent.teamIndex != characterBody.teamComponent.teamIndex && dist < SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value))
                             {
                                 float damage = body.damage;
                                 Vector3 position2 = characterBody.transform.position;
                                 DamageInfo damageInfo2 = new DamageInfo
                                 {
-                                    damage = damage * stack * (SkullGammaGunRange.Value + (stack * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + (stack * SkullGammaGunRangeStack.Value)) / 2),
+                                    damage = damage * (SkullGammaGunDamage.Value / 100) * ((stack - 1) * (SkullGammaGunDamageStack.Value / 100)) * (SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2),
                                     damageColorIndex = DamageColorIndex.Item,
-                                    damageType = DamageType.Generic,
+                                    damageType = DamageType.BypassArmor,
                                     attacker = body.gameObject,
                                     crit = Util.CheckRoll(body.crit),
                                     force = Vector3.zero,
@@ -440,11 +452,11 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                                 {
                                     attackerObject = body.gameObject,
                                     victimObject = characterBody.gameObject,
-                                    totalDamage = body.damage * SkullGammaGunBuffDamageMultiplier.Value, //* PackOfCiggaretesDuration.Value,
-                                    damageMultiplier = stack * (SkullGammaGunRange.Value + (stack * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + (stack * SkullGammaGunRangeStack.Value)) / 2) * ((characterBody.GetBuffCount(IrradiatedBuff.IrradiatedBuffDef) + 1) * SkullGammaGunBuffDamage.Value),
-                                    duration = 5f,
+                                    totalDamage = body.damage * (SkullGammaGunBuffDamageMultiplier.Value / 100), //* PackOfCiggaretesDuration.Value,
+                                    damageMultiplier = stack * (SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2),
+                                    duration = SkullGammaGunDuration.Value,
                                     dotIndex = Buffs.IrradiatedBuff.IrradiatedDOTDef,
-                                    maxStacksFromAttacker = (uint?)(SkullGammaGunMaxBuffCount.Value + (stack - 1 * SkullGammaGunMaxBuffCountStack.Value))
+                                    maxStacksFromAttacker = (uint?)(SkullGammaGunMaxBuffCount.Value + ((stack - 1) * SkullGammaGunMaxBuffCountStack.Value))
 
                                 };
                                 //StrengthenBurnUtils.CheckDotForUpgrade(self.inventory, ref dotInfo);

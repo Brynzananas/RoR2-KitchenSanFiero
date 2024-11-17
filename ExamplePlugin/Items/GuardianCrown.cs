@@ -33,6 +33,7 @@ namespace KitchenSanFiero.Items
         public static ConfigEntry<float> GuardianCrownEnemyChance;
         public static ConfigEntry<float> GuardianCrownDistance;
         public static ConfigEntry<float> GuardianCrownDistanceMaxChance;
+        public static ConfigEntry<float> GuardianCrownBuffTime;
         public static string name = "Guardian Crown";
         internal static void Init()
         {
@@ -96,6 +97,10 @@ namespace KitchenSanFiero.Items
                                          "Distance chance",
                                          50,
                                          "Change the distance chance increase");
+            GuardianCrownDistanceMaxChance = Config.Bind<float>("Item : " + name,
+                                         "Dazzled time",
+                                         5,
+                                         "Change the time of the Dazzled debuff in seconds");
             ModSettingsManager.AddOption(new CheckBoxOption(GuardianCrownEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(GuardianCrownAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(GuardianCrownTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
@@ -338,7 +343,7 @@ localScale = new Vector3(0.23871F, 0.23871F, 0.23871F)
                 }
             });
             var displayRules = new ItemDisplayRuleDict(null);
-            ItemAPI.Add(new CustomItem(GuardianCrownItemDef, displayRules));
+            ItemAPI.Add(new CustomItem(GuardianCrownItemDef, rules));
             On.RoR2.CharacterBody.OnSkillActivated += OnEnemySkillUse;
         }
 
@@ -405,25 +410,30 @@ bool roll = false;
             }
             if (roll)
             {
-                if (!self.isChampion)
+                if (true)
                 {
                     SetStateOnHurt component = self.GetComponent<SetStateOnHurt>();
                     if (component.hasEffectiveAuthority)
                     {
-                        //self.AddTimedBuff(DLC2Content.Buffs.DisableAllSkills, 0.2f);
-                        component.SetStunInternal(0.2f);
+                            //self.AddTimedBuff(DLC2Content.Buffs.DisableAllSkills, 0.2f);
+                            if (!self.isChampion)
+                            {
+                                component.SetStunInternal(0.2f);
+                            }
                         //SetStateOnHurt.SetStunOnObject(self.gameObject, 0.2f);
                         EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
                     }
                     else
                     {
-                        //self.AddTimedBuff(DLC2Content.Buffs.DisableAllSkills, 0.2f);
-                        component.CallRpcSetStun(0.2f);
-                        //SetStateOnHurt.SetStunOnObject(self.gameObject, 0.2f);
-                        EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
+                            if (!self.isChampion)
+                            {
+                                component.SetStunInternal(0.2f);
+                            }
+                            //SetStateOnHurt.SetStunOnObject(self.gameObject, 0.2f);
+                            EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
 
                     }
-                        self.AddTimedBuff(Buffs.DazzledBuff.DazzledBuffDef, 3f);
+                        self.AddTimedBuff(Buffs.DazzledBuff.DazzledBuffDef, GuardianCrownBuffTime.Value);
                     return;
                 }
             }

@@ -46,7 +46,7 @@ namespace KitchenSanFiero.Buffs
             orig(self, buffDef);
             if (buffDef == BrassTimerBuffDef)
             {
-                self.AddTimedBuff(BrassBoostedBuff.BrassBoostedBuffDef, BrassBell.BrassBellEffectTime.Value);
+                self.AddTimedBuff(BrassBoostedBuff.BrassBoostedBuffDef, BrassBell.BrassBellEffectTime.Value + BrassBell.BrassBellEffectTimeStack.Value);
                 
             }
         }/*

@@ -37,6 +37,7 @@ namespace KitchenSanFiero.Items
         public static ConfigEntry<bool> CapturedPotentialEnable;
         public static ConfigEntry<float> CapturedPotentialTier;
         public static ConfigEntry<int> CapturedPotentialEquipSlots;
+        public static ConfigEntry<int> CapturedPotentialEquipSlotsStack;
         public static ConfigEntry<bool> CapturedPotentialAffixes;
         public static ConfigEntry<bool> CapturedPotentialCard;
         public static ConfigEntry<KeyCode> CapturedPotentialKey;
@@ -97,9 +98,13 @@ namespace KitchenSanFiero.Items
                                          2f,
                                          "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
             CapturedPotentialEquipSlots = Config.Bind<int>("Item : Captured Potential",
-                                         "Equipment slots per item stack",
+                                         "Equipment slots",
+                                         2,
+                                         "Control how much this item gives equipment slots");
+            CapturedPotentialEquipSlotsStack = Config.Bind<int>("Item : Captured Potential",
+                                         "Equipment slots stacking",
                                          1,
-                                         "Control how much this item gives equipment slots per item stack");
+                                         "Control how much this item gives equipment slots per next stacks");
             CapturedPotentialAffixes = Config.Bind<bool>("Item : Captured Potential",
                                          "Affixes compatibility",
                                          true,
@@ -111,6 +116,7 @@ namespace KitchenSanFiero.Items
             ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(CapturedPotentialTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new IntFieldOption(CapturedPotentialEquipSlots));
+            ModSettingsManager.AddOption(new IntFieldOption(CapturedPotentialEquipSlotsStack));
             ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialCard));
             ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialAffixes));
         }
@@ -140,7 +146,7 @@ namespace KitchenSanFiero.Items
             CapturedPotentialItemDef.pickupModelPrefab = CapturedPotentialPrefab;
             CapturedPotentialItemDef.canRemove = true;
             CapturedPotentialItemDef.hidden = false;
-            var tags = new List<ItemTag>() { ItemTag.Utility, ItemTag.AIBlacklist, ItemTag.BrotherBlacklist };
+            var tags = new List<ItemTag>() { ItemTag.Utility, ItemTag.AIBlacklist, ItemTag.BrotherBlacklist, ItemTag.EquipmentRelated };
             CapturedPotentialItemDef.tags = tags.ToArray();
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
             rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]{
@@ -342,17 +348,14 @@ localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
                 }
             });
             var displayRules = new ItemDisplayRuleDict(null);
-            ItemAPI.Add(new CustomItem(CapturedPotentialItemDef, displayRules));
+            ItemAPI.Add(new CustomItem(CapturedPotentialItemDef, rules));
             //On.RoR2.CharacterBody.Update += KeyInputUpdate;
             //On.RoR2.CharacterBody.FixedUpdate += KeyInput;
             On.RoR2.CharacterBody.OnInventoryChanged += ChangeArraySize;
             //On.RoR2.EquipmentDef.AttemptGrant += FillEmptySlots;
             On.RoR2.PurchaseInteraction.OnInteractionBegin += CardCompatibility;
-            if (ProperSaveCompatibility.enabled)
-            {
                 ProperSave.SaveFile.OnGatherSaveData += SaveFile_OnGatherSaveData;
                 ProperSave.Loading.OnLoadingEnded += Loading_OnLoadingStarted;
-            }
             
         }
 
@@ -364,12 +367,18 @@ localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
             {
                 NetworkUserId NUID = ComponentsList.userID.Load();
                 CharacterMaster master = NetworkUser.readOnlyInstancesList.FirstOrDefault(Nuser => Nuser.id.Equals(NUID)).master;
+                GameObject masterObject = NetworkUser.readOnlyInstancesList.FirstOrDefault(Nuser => Nuser.id.Equals(NUID)).masterObject;
                 EquipmentIndex[] equipmentIndexes = new EquipmentIndex[0];
                 int number = 0;
                 Debug.Log(master);
                 
                 foreach (EquipmentIndex equip in ComponentsList.EquipInventory)
                 {
+                    //if (equip != EquipmentIndex.None)
+                    //{
+                    //    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(equip), master.GetBody().transform.position, master.GetBody().transform.rotation.eulerAngles * 20f);
+
+                    //}
                     Array.Resize(ref equipmentIndexes, number + 1);
                     equipmentIndexes.SetValue(equip, number);
                     number++;
@@ -379,11 +388,18 @@ localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
                 }
                 Debug.Log(equipmentIndexes.Length);
                 Debug.Log(equipmentIndexes.GetValue(0));
-                CapturedPotentialComponent temp = master.GetBody().masterObject.AddComponent<CapturedPotentialComponent>();
-                temp.master = master;
-                temp.equipArray = equipmentIndexes;
-
-
+                //if (master.GetBody().masterObject.GetComponent<CapturedPotentialComponent>())
+                //{
+                //    CapturedPotentialComponent temp = master.GetBody().masterObject.GetComponent<CapturedPotentialComponent>();
+                //    temp.equipArray = equipmentIndexes;
+                //    temp.master = master;
+                //}
+                //else
+                //{
+                    CapturedPotentialComponent temp = masterObject.AddComponent<CapturedPotentialComponent>();
+                    temp.master = master;
+                    temp.equipArray = equipmentIndexes;
+                //}
             }
         }
 
@@ -546,12 +562,7 @@ private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, 
         {
             orig(self);
                 int itemCount = self.inventory ? self.inventory.GetItemCount(CapturedPotentialItemDef) : 0;
-            bool ifItsLoading = false;
-                if (ProperSaveCompatibility.enabled)
-            {
-                ifItsLoading = Loading.IsLoading;
-            }
-            if (itemCount > 0 && !self.masterObject.GetComponent<CapturedPotentialComponent>() && !ifItsLoading)
+            if (itemCount > 0 && !self.masterObject.GetComponent<CapturedPotentialComponent>())
             {
                 //Debug.Log("add");
                 CapturedPotentialComponent component = self.masterObject.AddComponent<CapturedPotentialComponent>();
@@ -619,7 +630,6 @@ private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, 
             //public CharacterBody body;
             [IgnoreDataMember]
             public CharacterMaster master;
-            //public float timer = 0;
             public void Update()
             {
                 /*
@@ -698,125 +708,122 @@ private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, 
                 {
                     return;
                 }
-                if (master.GetBody())
-                {
-                    int itemCount = master.inventory ? master.inventory.GetItemCount(CapturedPotentialItemDef) : 0;
-                    //var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray;
-                    if (itemCount < equipArray.Length)
+                
+                    if (master.GetBody())
                     {
-                        for (int i = 0; i < (equipArray.Length - itemCount); i++)
+                        int itemCount = master.inventory ? master.inventory.GetItemCount(CapturedPotentialItemDef) : 0;
+                        if (itemCount > 0)
                         {
-                            EquipmentIndex pickupIndex = (EquipmentIndex)equipArray.GetValue(equipArray.Length - (i + 1));
-                            if (pickupIndex != EquipmentIndex.None)
+                            itemCount += CapturedPotentialEquipSlots.Value - 1;
+                            if (itemCount > 1)
                             {
-                            PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(pickupIndex), master.GetBody().transform.position, master.GetBody().transform.rotation.eulerAngles * 20f);
+                                itemCount += CapturedPotentialEquipSlotsStack.Value * (itemCount - 1);
+                            }
+                        }
+                        //var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray;
+                        if (itemCount < equipArray.Length)
+                        {
+                            for (int i = 0; i < (equipArray.Length - itemCount); i++)
+                            {
+                                EquipmentIndex pickupIndex = (EquipmentIndex)equipArray.GetValue(equipArray.Length - (i + 1));
+                                if (pickupIndex != EquipmentIndex.None)
+                                {
+                                    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(pickupIndex), master.GetBody().transform.position, master.GetBody().transform.rotation.eulerAngles * 20f);
+
+                                }
+
+                            }
+                            Array.Resize<EquipmentIndex>(ref equipArray, itemCount);
+
+                        }
+                        if (itemCount > equipArray.Length)
+                        {
+                            int toChange = equipArray.Length;
+                            Array.Resize<EquipmentIndex>(ref equipArray, itemCount);
+                            for (int i = 0; i < (itemCount - toChange); i++)
+                            {
+                                equipArray.SetValue(EquipmentIndex.None, equipArray.Length - (i + 1));
 
                             }
 
-                        }
-                        Array.Resize<EquipmentIndex>(ref equipArray, itemCount);
 
-                    }
-                    if (itemCount > equipArray.Length)
-                    {
-                        int toChange = equipArray.Length;
-                        Array.Resize<EquipmentIndex>(ref equipArray, itemCount);
-                        for (int i = 0; i < (itemCount - toChange); i++)
-                        {
-                            equipArray.SetValue(EquipmentIndex.None, equipArray.Length - (i + 1));
 
                         }
-
-
-
-                    }
-                    var body = master.GetBody();
-                    //timer += Time.fixedDeltaTime;
-                    if (CapturedPotentialAffixes.Value)
-                    {
+                        var body = master.GetBody();
+                        //timer += Time.fixedDeltaTime;
+                        if (CapturedPotentialAffixes.Value)
                         {
-                            foreach (EquipmentIndex equipIndex in equipArray)
                             {
-                                if (EquipmentCatalog.GetEquipmentDef(equipIndex) && EquipmentCatalog.GetEquipmentDef(equipIndex).passiveBuffDef && !body.HasBuff(EquipmentCatalog.GetEquipmentDef(equipIndex).passiveBuffDef))
+                                foreach (EquipmentIndex equipIndex in equipArray)
                                 {
-                                    body.AddTimedBuff(EquipmentCatalog.GetEquipmentDef(equipIndex).passiveBuffDef, 1);
+                                    if (EquipmentCatalog.GetEquipmentDef(equipIndex) && EquipmentCatalog.GetEquipmentDef(equipIndex).passiveBuffDef && !body.HasBuff(EquipmentCatalog.GetEquipmentDef(equipIndex).passiveBuffDef))
+                                    {
+                                        body.AddTimedBuff(EquipmentCatalog.GetEquipmentDef(equipIndex).passiveBuffDef, 1);
+                                    }
                                 }
                             }
-                        }
-                        //timer = 0;
-                        /*
+                            /*
 
-                        if (equipArray.Contains<EquipmentIndex>(RoR2Content.Equipment.AffixRed.equipmentIndex) && !body.HasBuff(RoR2Content.Buffs.AffixRed))
-                        {
-                            body.AddTimedBuff(RoR2Content.Buffs.AffixRed.buffIndex, 1);
+                            if (equipArray.Contains<EquipmentIndex>(RoR2Content.Equipment.AffixRed.equipmentIndex) && !body.HasBuff(RoR2Content.Buffs.AffixRed))
+                            {
+                                body.AddTimedBuff(RoR2Content.Buffs.AffixRed.buffIndex, 1);
+                            }
+                            if (equipArray.Contains<EquipmentIndex>(RoR2Content.Equipment.AffixWhite.equipmentIndex) && !body.HasBuff(RoR2Content.Buffs.AffixWhite))
+                            {
+                                body.AddTimedBuff(RoR2Content.Buffs.AffixWhite.buffIndex, 1);
+                            }
+                            if (equipArray.Contains<EquipmentIndex>(RoR2Content.Equipment.AffixPoison.equipmentIndex) && !body.HasBuff(RoR2Content.Buffs.AffixPoison))
+                            {
+                                body.AddTimedBuff(RoR2Content.Buffs.AffixPoison.buffIndex, 1);
+                            }
+                            if (equipArray.Contains<EquipmentIndex>(RoR2Content.Equipment.AffixBlue.equipmentIndex) && !body.HasBuff(RoR2Content.Buffs.AffixBlue))
+                            {
+                                body.AddTimedBuff(RoR2Content.Buffs.AffixBlue.buffIndex, 1);
+                            }
+                            if (equipArray.Contains<EquipmentIndex>(RoR2Content.Equipment.AffixHaunted.equipmentIndex) && !body.HasBuff(RoR2Content.Buffs.AffixHaunted))
+                            {
+                                body.AddTimedBuff(RoR2Content.Buffs.AffixHaunted.buffIndex, 1);
+                            }
+                            if (equipArray.Contains<EquipmentIndex>(RoR2Content.Equipment.AffixLunar.equipmentIndex) && !body.HasBuff(RoR2Content.Buffs.AffixLunar))
+                            {
+                                body.AddTimedBuff(RoR2Content.Buffs.AffixLunar.buffIndex, 1);
+                            }
+                            if (equipArray.Contains<EquipmentIndex>(DLC1Content.Equipment.EliteVoidEquipment.equipmentIndex) && !body.HasBuff(DLC1Content.Buffs.EliteVoid))
+                            {
+                                body.AddTimedBuff(DLC1Content.Buffs.EliteVoid.buffIndex, 1);
+                            }
+                            if (equipArray.Contains<EquipmentIndex>(DLC1Content.Elites.Earth.eliteEquipmentDef.equipmentIndex) && !body.HasBuff(DLC1Content.Buffs.EliteEarth))
+                            {
+                                body.AddTimedBuff(DLC1Content.Buffs.EliteEarth.buffIndex, 1);
+                            }
+                            if (equipArray.Contains<EquipmentIndex>(DLC2Content.Equipment.EliteBeadEquipment.equipmentIndex) && !body.HasBuff(DLC2Content.Buffs.EliteBead.buffIndex))
+                            {
+                                body.AddTimedBuff(DLC2Content.Buffs.EliteBead.buffIndex, 1);
+                            }
+                            if (equipArray.Contains<EquipmentIndex>(DLC2Content.Equipment.EliteAurelioniteEquipment.equipmentIndex) && !body.HasBuff(DLC2Content.Buffs.EliteAurelionite.buffIndex))
+                            {
+                                body.AddTimedBuff(DLC2Content.Buffs.EliteAurelionite.buffIndex, 1);
+                            }
+                            if (equipArray.Contains<EquipmentIndex>(BrassModality.AffixBrassModalityEquipment.equipmentIndex) && !body.HasBuff(BrassModality.AffixBrassModalityBuff.buffIndex))
+                            {
+                                body.AddTimedBuff(BrassModality.AffixBrassModalityBuff.buffIndex, 1);
+                            }
+                            if (equipArray.Contains<EquipmentIndex>(Dredged.AffixDredgedEquipment.equipmentIndex) && !body.HasBuff(Dredged.AffixDredgedBuff.buffIndex))
+                            {
+                                body.AddTimedBuff(Dredged.AffixDredgedBuff.buffIndex, 1);
+                            }
+                            if (equipArray.Contains<EquipmentIndex>(Hasting.AffixHastingEquipment.equipmentIndex) && !body.HasBuff(Hasting.AffixHastingBuff.buffIndex))
+                            {
+                                body.AddTimedBuff(Hasting.AffixHastingBuff.buffIndex, 1);
+                            }
+                            if (equipArray.Contains<EquipmentIndex>(Defender.AffixDefenderEquipment.equipmentIndex) && !body.HasBuff(Defender.AffixDefenderBuff.buffIndex))
+                            {
+                                body.AddTimedBuff(Defender.AffixDefenderBuff.buffIndex, 1);
+                            }*/
                         }
-                        if (equipArray.Contains<EquipmentIndex>(RoR2Content.Equipment.AffixWhite.equipmentIndex) && !body.HasBuff(RoR2Content.Buffs.AffixWhite))
-                        {
-                            body.AddTimedBuff(RoR2Content.Buffs.AffixWhite.buffIndex, 1);
-                        }
-                        if (equipArray.Contains<EquipmentIndex>(RoR2Content.Equipment.AffixPoison.equipmentIndex) && !body.HasBuff(RoR2Content.Buffs.AffixPoison))
-                        {
-                            body.AddTimedBuff(RoR2Content.Buffs.AffixPoison.buffIndex, 1);
-                        }
-                        if (equipArray.Contains<EquipmentIndex>(RoR2Content.Equipment.AffixBlue.equipmentIndex) && !body.HasBuff(RoR2Content.Buffs.AffixBlue))
-                        {
-                            body.AddTimedBuff(RoR2Content.Buffs.AffixBlue.buffIndex, 1);
-                        }
-                        if (equipArray.Contains<EquipmentIndex>(RoR2Content.Equipment.AffixHaunted.equipmentIndex) && !body.HasBuff(RoR2Content.Buffs.AffixHaunted))
-                        {
-                            body.AddTimedBuff(RoR2Content.Buffs.AffixHaunted.buffIndex, 1);
-                        }
-                        if (equipArray.Contains<EquipmentIndex>(RoR2Content.Equipment.AffixLunar.equipmentIndex) && !body.HasBuff(RoR2Content.Buffs.AffixLunar))
-                        {
-                            body.AddTimedBuff(RoR2Content.Buffs.AffixLunar.buffIndex, 1);
-                        }
-                        if (equipArray.Contains<EquipmentIndex>(DLC1Content.Equipment.EliteVoidEquipment.equipmentIndex) && !body.HasBuff(DLC1Content.Buffs.EliteVoid))
-                        {
-                            body.AddTimedBuff(DLC1Content.Buffs.EliteVoid.buffIndex, 1);
-                        }
-                        if (equipArray.Contains<EquipmentIndex>(DLC1Content.Elites.Earth.eliteEquipmentDef.equipmentIndex) && !body.HasBuff(DLC1Content.Buffs.EliteEarth))
-                        {
-                            body.AddTimedBuff(DLC1Content.Buffs.EliteEarth.buffIndex, 1);
-                        }
-                        if (equipArray.Contains<EquipmentIndex>(DLC2Content.Equipment.EliteBeadEquipment.equipmentIndex) && !body.HasBuff(DLC2Content.Buffs.EliteBead.buffIndex))
-                        {
-                            body.AddTimedBuff(DLC2Content.Buffs.EliteBead.buffIndex, 1);
-                        }
-                        if (equipArray.Contains<EquipmentIndex>(DLC2Content.Equipment.EliteAurelioniteEquipment.equipmentIndex) && !body.HasBuff(DLC2Content.Buffs.EliteAurelionite.buffIndex))
-                        {
-                            body.AddTimedBuff(DLC2Content.Buffs.EliteAurelionite.buffIndex, 1);
-                        }
-                        if (equipArray.Contains<EquipmentIndex>(BrassModality.AffixBrassModalityEquipment.equipmentIndex) && !body.HasBuff(BrassModality.AffixBrassModalityBuff.buffIndex))
-                        {
-                            body.AddTimedBuff(BrassModality.AffixBrassModalityBuff.buffIndex, 1);
-                        }
-                        if (equipArray.Contains<EquipmentIndex>(Dredged.AffixDredgedEquipment.equipmentIndex) && !body.HasBuff(Dredged.AffixDredgedBuff.buffIndex))
-                        {
-                            body.AddTimedBuff(Dredged.AffixDredgedBuff.buffIndex, 1);
-                        }
-                        if (equipArray.Contains<EquipmentIndex>(Hasting.AffixHastingEquipment.equipmentIndex) && !body.HasBuff(Hasting.AffixHastingBuff.buffIndex))
-                        {
-                            body.AddTimedBuff(Hasting.AffixHastingBuff.buffIndex, 1);
-                        }
-                        if (equipArray.Contains<EquipmentIndex>(Defender.AffixDefenderEquipment.equipmentIndex) && !body.HasBuff(Defender.AffixDefenderBuff.buffIndex))
-                        {
-                            body.AddTimedBuff(Defender.AffixDefenderBuff.buffIndex, 1);
-                        }*/
                     }
-
-
-
-                    /*if (equipArray.Contains<EquipmentIndex>(DLC1Content.Equipment.MultiShopCard.equipmentIndex) && !body.HasBuff(Buffs.HasCardBuff.HasCardBuffDef) && CapturedPotentialCard.Value)
-                    {
-                        body.AddTimedBuff(HasCardBuff.HasCardBuffDef, 1);
-                    }*/
-                }
-                else
-                {
-                    Debug.Log("test");
-                    Debug.Log(master);
-
-                }
+                
+                
 
             }/*
             public class AssignOwner : INetMessage
@@ -1119,8 +1126,8 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add("CAPTUREDPOTENTIAL_NAME", "Captured Potential");
-            LanguageAPI.Add("CAPTUREDPOTENTIAL_PICKUP", "Gain +1 (+1 per item stack) equipment slot");
-            LanguageAPI.Add("CAPTUREDPOTENTIAL_DESC", "Gain +1 (+1 per item stack) equipment slot");
+            LanguageAPI.Add("CAPTUREDPOTENTIAL_PICKUP", "Gain <style=IsUtility>+1</style> <style=cStack>(+1 per item stack)</style> <style=IsUtility>equipment slot</style>");
+            LanguageAPI.Add("CAPTUREDPOTENTIAL_DESC", "Gain <style=IsUtility>+1</style> <style=cStack>(+1 per item stack)</style> <style=IsUtility>equipment slot</style>");
             LanguageAPI.Add("CAPTUREDPOTENTIAL_LORE", "lol");
         }
     }

@@ -26,6 +26,8 @@ namespace KitchenSanFiero.Items
         public static ConfigEntry<bool> RejectedDaggerEnable;
         public static ConfigEntry<bool> RejectedDaggerAIBlacklist;
         public static ConfigEntry<float> RejectedDaggerTier;
+        public static ConfigEntry<bool> RejectedDaggerAltFunc;
+        public static ConfigEntry<bool> RejectedDaggerGlobalCount;
         public static ConfigEntry<float> RejectedDaggerDamageToAll;
         public static ConfigEntry<float> RejectedDaggerDamageToAllStack;
         /*public static ConfigEntry<int> RejectedDaggerMinEnemyCount;
@@ -75,10 +77,22 @@ namespace KitchenSanFiero.Items
                                          "Item tier",
                                          3f,
                                          "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
+            RejectedDaggerAltFunc = Config.Bind<bool>("Item : " + name,
+                             "Alternative function",
+                             false,
+                             "Enable alternative function?");
+            RejectedDaggerGlobalCount = Config.Bind<bool>("Item : " + name,
+                             "Global count",
+                             false,
+                             "Count all enemies?");
             RejectedDaggerDamageToAll = Config.Bind<float>("Item : " + name,
                                          "Damage sharing to all",
                                          50f,
-                                         "Control the damage sharing multiplier to all enemies of the same type in percentage");
+                                         "Control the final damage in percentage");
+            RejectedDaggerDamageToAllStack = Config.Bind<float>("Item : " + name,
+                                         "Damage sharing to all stack",
+                                         50f,
+                                         "Control the final damage increase per item stack in percentage");
             /*RejectedDaggerMinEnemyCount = Config.Bind<int>("Item : " + name,
                                          "Enemy count",
                                          5,
@@ -94,7 +108,10 @@ namespace KitchenSanFiero.Items
             ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(RejectedDaggerTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerAltFunc));
+            ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerGlobalCount));
             ModSettingsManager.AddOption(new FloatFieldOption(RejectedDaggerDamageToAll));
+            ModSettingsManager.AddOption(new FloatFieldOption(RejectedDaggerDamageToAllStack));
             /*ModSettingsManager.AddOption(new IntFieldOption(RejectedDaggerMinEnemyCount));
             ModSettingsManager.AddOption(new FloatFieldOption(RejectedDaggerDamageToMin));
             ModSettingsManager.AddOption(new FloatFieldOption(RejectedDaggerChampionReduction));*/
@@ -224,7 +241,12 @@ namespace KitchenSanFiero.Items
                         //Debug.Log(characterBody);
                         //Debug.Log(characterBody.teamComponent.teamIndex);
                         //Debug.Log(characterBody.master.masterIndex);
-                        if (victimBody && characterBody && victimBody.teamComponent.teamIndex == characterBody.teamComponent.teamIndex)// && victimBody.master.masterIndex == characterBody.master.masterIndex && victimBody != characterBody)
+                        bool globalCount = true;
+                        if (RejectedDaggerGlobalCount.Value)
+                        {
+                            globalCount = victimBody.master.masterIndex == characterBody.master.masterIndex;
+                        }
+                        if (victimBody && characterBody && victimBody.teamComponent.teamIndex == characterBody.teamComponent.teamIndex && globalCount)// && victimBody.master.masterIndex == characterBody.master.masterIndex && victimBody != characterBody)
                         {
 
                             enemiesLeft++;
@@ -234,24 +256,49 @@ namespace KitchenSanFiero.Items
 
                         }
                     }
-                    foreach (var characterBody in characterBodyArray)
+                    float damageFinal = damageInfo.damage;
+                    if (RejectedDaggerAltFunc.Value)
                     {
+                        damageFinal *= characterBodyArray.Length;
                         DamageInfo damageInfo2 = new DamageInfo
                         {
-                            damage = damageInfo.damage / characterBodyArray.Length * RejectedDaggerDamageToAll.Value * count,
+                            damage = damageFinal * (RejectedDaggerDamageToAll.Value / 100) * ((count - 1) * (RejectedDaggerDamageToAllStack.Value / 100)),
                             damageColorIndex = DamageColorIndex.Item,
                             damageType = DamageType.Silent,
                             attacker = attacker,
                             crit = damageInfo.crit,
                             force = Vector3.zero,
                             inflictor = null,
-                            position = characterBody.transform.position,
+                            position = victimBody.transform.position,
                             procChainMask = damageInfo.procChainMask,
                             procCoefficient = 0f
                         };
-                        //EffectManager.SimpleImpactEffect(HealthComponent.AssetReferences.crowbarImpactEffectPrefab, newDamage.position, -newDamage.force, true);
-                        characterBody.healthComponent.TakeDamage(damageInfo2);
+                        victimBody.healthComponent.TakeDamage(damageInfo2);
                     }
+                    else
+                    {
+                        damageFinal /= characterBodyArray.Length;
+                        foreach (var characterBody in characterBodyArray)
+                        {
+
+                            DamageInfo damageInfo2 = new DamageInfo
+                            {
+                                damage = damageFinal * (RejectedDaggerDamageToAll.Value / 100) * ((count - 1) * (RejectedDaggerDamageToAllStack.Value / 100)),
+                                damageColorIndex = DamageColorIndex.Item,
+                                damageType = DamageType.Silent,
+                                attacker = attacker,
+                                crit = damageInfo.crit,
+                                force = Vector3.zero,
+                                inflictor = null,
+                                position = characterBody.transform.position,
+                                procChainMask = damageInfo.procChainMask,
+                                procCoefficient = 0f
+                            };
+                            //EffectManager.SimpleImpactEffect(HealthComponent.AssetReferences.crowbarImpactEffectPrefab, newDamage.position, -newDamage.force, true);
+                            characterBody.healthComponent.TakeDamage(damageInfo2);
+                        }
+                    }
+                    
                     
                     /*
                     if (enemiesLeft < RejectedDaggerMinEnemyCount.Value)

@@ -22,7 +22,10 @@ namespace KitchenSanFiero.Items
         public static ConfigEntry<bool> EnergyChocolateBarsAIBlacklist;
         public static ConfigEntry<float> EnergyChocolateBarTier;
         public static ConfigEntry<float> EnergyChocolateBuffStats;
-        public static ConfigEntry<float> EnergyChocolateBuffNextStage;
+        public static ConfigEntry<float> EnergyChocolateBuffStatsStack;
+        public static ConfigEntry<bool> EnergyChocolateBarsLuck;
+        public static ConfigEntry<float> EnergyChocolateStageConsumeChance;
+        public static ConfigEntry<float> EnergyChocolateNextStage;
 
         internal static void Init()
         {
@@ -71,15 +74,30 @@ namespace KitchenSanFiero.Items
                                          "Statistics increase",
                                          10f,
                                          "Control how much this item gives all stats increase in percentage");
-            EnergyChocolateBuffNextStage = Config.Bind<float>("Item : Energised Chocolate Bar",
+            EnergyChocolateBuffStatsStack = Config.Bind<float>("Item : Energised Chocolate Bar",
+                                         "Statistics increase stack",
+                                         10f,
+                                         "Control how much this item gives all stats increas per item stacke in percentage");
+            EnergyChocolateNextStage = Config.Bind<float>("Item : Energised Chocolate Bar",
                                          "Next stage behaviour",
                                          1f,
                                          "0: Do nothing\n1: Turn into consumed\n2: Turn into scrap");
+            EnergyChocolateBarsLuck = Config.Bind<bool>("Item : Energised Chocolate Bar",
+                                         "Luck",
+                                         false,
+                                         "Is consuming chance affected by luck?");
+            EnergyChocolateStageConsumeChance = Config.Bind<float>("Item : Energised Chocolate Bar",
+                                         "Consume chance",
+                                         50f,
+                                         "Control the chance of consuming one item upon the next stage");
             ModSettingsManager.AddOption(new CheckBoxOption(EnergyChocolateBarsEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(EnergyChocolateBarsAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(EnergyChocolateBarTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(EnergyChocolateBuffStats));
-            ModSettingsManager.AddOption(new StepSliderOption(EnergyChocolateBuffNextStage, new StepSliderConfig() { min = 0, max = 2, increment = 1f }));
+            ModSettingsManager.AddOption(new FloatFieldOption(EnergyChocolateBuffStatsStack));
+            ModSettingsManager.AddOption(new StepSliderOption(EnergyChocolateNextStage, new StepSliderConfig() { min = 0, max = 2, increment = 1f }));
+            ModSettingsManager.AddOption(new FloatFieldOption(EnergyChocolateStageConsumeChance));
+            ModSettingsManager.AddOption(new CheckBoxOption(EnergyChocolateBarsLuck));
         }
 
         private static void Item()
@@ -107,7 +125,7 @@ namespace KitchenSanFiero.Items
             EnergyChocolateBarItemDef.pickupModelPrefab = EnergyChocolateBarPrefab;
             EnergyChocolateBarItemDef.canRemove = true;
             EnergyChocolateBarItemDef.hidden = false;
-            var tags = new List<ItemTag>() { ItemTag.Damage};
+            var tags = new List<ItemTag>() { ItemTag.Damage, ItemTag.Healing};
             if (EnergyChocolateBarsAIBlacklist.Value)
             {
                 tags.Add(ItemTag.AIBlacklist);
@@ -313,7 +331,7 @@ localScale = new Vector3(1F, 1F, 1F)
                 }
             });
             var displayRules = new ItemDisplayRuleDict(null);
-            ItemAPI.Add(new CustomItem(EnergyChocolateBarItemDef, displayRules));
+            ItemAPI.Add(new CustomItem(EnergyChocolateBarItemDef, rules));
             GetStatCoefficients += Stats;
             On.RoR2.CharacterMaster.OnServerStageBegin += StageStart;
         }
@@ -321,22 +339,36 @@ localScale = new Vector3(1F, 1F, 1F)
         private static void StageStart(On.RoR2.CharacterMaster.orig_OnServerStageBegin orig, CharacterMaster self, Stage stage)
         {
             orig(self, stage);
-            int itemCount = self.inventory ? self.inventory.GetItemCount(EnergyChocolateBarItemDef) : 0; //Backup Plan
-            if (itemCount > 0)
-
+            int itemCount = self.inventory ? self.inventory.GetItemCount(EnergyChocolateBarItemDef) : 0;
+            if (itemCount > 0 && EnergyChocolateNextStage.Value != 0)
+                
             {
-                switch (EnergyChocolateBuffNextStage.Value)
+                int itemsToConsume = 0;
+                float luckDown = self.luck;
+                if (!EnergyChocolateBarsLuck.Value)
+                {
+                    luckDown = 0;
+                }
+                for (int i = 0; i < itemCount; i++)
+                {
+
+                    if (!Util.CheckRoll(EnergyChocolateStageConsumeChance.Value, luckDown))
+                    {
+                        itemsToConsume++;
+                    }
+                }
+                switch (EnergyChocolateNextStage.Value)
                 {
                     case 0:
                         break;
                     case 1:
-                        self.inventory.GiveItem(UsedEnergyChocolateBar.UsedEnergyChocolateBarItemDef, self.inventory.GetItemCount(EnergyChocolateBarItemDef));
-                        self.inventory.RemoveItem(EnergyChocolateBarItemDef, self.inventory.GetItemCount(EnergyChocolateBarItemDef));
+                        self.inventory.GiveItem(UsedEnergyChocolateBar.UsedEnergyChocolateBarItemDef, itemsToConsume);
+                        self.inventory.RemoveItem(EnergyChocolateBarItemDef, itemsToConsume);
                         CharacterMasterNotificationQueue.SendTransformNotification(self, EnergyChocolateBarItemDef.itemIndex, UsedEnergyChocolateBar.UsedEnergyChocolateBarItemDef.itemIndex, CharacterMasterNotificationQueue.TransformationType.Default);
                         break;
                     case 2:
-                        self.inventory.GiveItem(RoR2Content.Items.ScrapWhite, self.inventory.GetItemCount(EnergyChocolateBarItemDef));
-                        self.inventory.RemoveItem(EnergyChocolateBarItemDef, self.inventory.GetItemCount(EnergyChocolateBarItemDef));
+                        self.inventory.GiveItem(RoR2Content.Items.ScrapWhite, itemsToConsume);
+                        self.inventory.RemoveItem(EnergyChocolateBarItemDef, itemsToConsume);
                         CharacterMasterNotificationQueue.SendTransformNotification(self, EnergyChocolateBarItemDef.itemIndex, RoR2Content.Items.ScrapWhite.itemIndex, CharacterMasterNotificationQueue.TransformationType.Default);
                         break;
                 }
@@ -349,23 +381,42 @@ localScale = new Vector3(1F, 1F, 1F)
             float statIncrease = sender.inventory ? sender.inventory.GetItemCount(EnergyChocolateBarItemDef) : 0;// * (EnergyChocolateBuffStats.Value / 100f) + 1;
             if (statIncrease > 0)
             {
-            args.healthMultAdd = statIncrease * (EnergyChocolateBuffStats.Value / 100f);
-            args.baseAttackSpeedAdd = statIncrease * (EnergyChocolateBuffStats.Value / 100f);
-            args.damageMultAdd = statIncrease * (EnergyChocolateBuffStats.Value / 100f);
-            args.moveSpeedMultAdd = statIncrease * (EnergyChocolateBuffStats.Value / 100f);
-            args.armorAdd = statIncrease * EnergyChocolateBuffStats.Value;
-            args.regenMultAdd = statIncrease * (EnergyChocolateBuffStats.Value / 10f);
-            args.critAdd = statIncrease * EnergyChocolateBuffStats.Value;
-            args.cooldownMultAdd = statIncrease * (EnergyChocolateBuffStats.Value / 10f);
+            args.healthMultAdd += EnergyChocolateBuffStats.Value + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 100f));
+            args.baseAttackSpeedAdd += EnergyChocolateBuffStats.Value + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 100f));
+                args.damageMultAdd += EnergyChocolateBuffStats.Value + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 100f));
+                args.moveSpeedMultAdd += EnergyChocolateBuffStats.Value + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 100f));
+                args.armorAdd += EnergyChocolateBuffStats.Value + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value));
+                args.regenMultAdd += EnergyChocolateBuffStats.Value + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 10f));
+                args.critAdd += EnergyChocolateBuffStats.Value + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value));
             }
             
         }
 
         private static void AddLanguageTokens()
         {
+            string nextStageBehaviour = "";
+            if (EnergyChocolateNextStage.Value != 0)
+            {
+                if (EnergyChocolateNextStage.Value == 1)
+                {
+                    nextStageBehaviour = " <style=cEvent>Consume on next stage</style> with " + EnergyChocolateStageConsumeChance.Value + "& chance";
+                }
+                if (EnergyChocolateNextStage.Value == 2)
+                {
+                    nextStageBehaviour = " <style=cEvent>Scrap on next stage</style> with " + EnergyChocolateStageConsumeChance.Value + "& chance";
+                }
+                if (!EnergyChocolateBarsLuck.Value)
+                {
+                    nextStageBehaviour += ". Not affected by luck";
+                }
+            }
+            else
+            {
+                nextStageBehaviour = "";
+            }
             LanguageAPI.Add("ENERGYCHOCOLATEBAR_NAME", "Energised Chocolate Bar");
-            LanguageAPI.Add("ENERGYCHOCOLATEBAR_PICKUP", "Give " + EnergyChocolateBuffStats.Value + "%<style=cStack>(+" + EnergyChocolateBuffStats.Value + "% per item stack)</style> <style=cIsDamage>all stat bonus</style>. <style=cDeath>Consume on next stage</style>");
-            LanguageAPI.Add("ENERGYCHOCOLATEBAR_DESC", "Give " + EnergyChocolateBuffStats.Value + "%<style=cStack>(+" + EnergyChocolateBuffStats.Value + "% per item stack)</style> <style=cIsDamage>all stat bonus</style>. <style=cDeath>Consume on next stage</style>");
+            LanguageAPI.Add("ENERGYCHOCOLATEBAR_PICKUP", "Gain " + EnergyChocolateBuffStats.Value + "%<style=cStack>(+" + EnergyChocolateBuffStatsStack.Value + "% per item stack)</style> to all <style=cIsDamage>all statistics</style>." + nextStageBehaviour);
+            LanguageAPI.Add("ENERGYCHOCOLATEBAR_DESC", "Give " + EnergyChocolateBuffStats.Value + "%<style=cStack>(+" + EnergyChocolateBuffStatsStack.Value + "% per item stack)</style> <style=cIsDamage>all stat bonus</style>." + nextStageBehaviour);
             LanguageAPI.Add("ENERGYCHOCOLATEBAR_LORE", "mmmm yummy");
         }
     }

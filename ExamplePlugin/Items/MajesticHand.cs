@@ -20,6 +20,7 @@ namespace KitchenSanFiero.Items
         internal static GameObject MajesticHandPrefab;
         internal static Sprite MajesticHandIcon;
         public static ItemDef MajesticHandItemDef;
+        public static ConfigEntry<bool> MajesticHandEnable;
         public static ConfigEntry<bool> MajesticHandAIBlacklist;
         public static ConfigEntry<float> MajesticHandTier;
         public static ConfigEntry<bool> MajesticHandFunction;
@@ -52,9 +53,13 @@ namespace KitchenSanFiero.Items
 
         private static void AddConfigs()
         {
+            MajesticHandEnable = Config.Bind<bool>("Item : " + name,
+                             "Activation",
+                             true,
+                             "Enable this item?");
             MajesticHandAIBlacklist = Config.Bind<bool>("Item : " + name,
                              "AI Blacklist",
-                             false,
+                             true,
                              "Blacklist this item from enemies?");
             MajesticHandTier = Config.Bind<float>("Item : " + name,
                                          "Item tier",
@@ -64,6 +69,7 @@ namespace KitchenSanFiero.Items
                                          "Alternative Killswitch function",
                                          false,
                                          "No timer. Kill initializes on Killswitch buff count cap");
+            ModSettingsManager.AddOption(new CheckBoxOption(MajesticHandEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(MajesticHandAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(MajesticHandTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(MajesticHandFunction, new CheckBoxConfig() { restartRequired = true }));

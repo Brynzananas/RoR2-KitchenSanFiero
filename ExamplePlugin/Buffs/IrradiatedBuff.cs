@@ -22,7 +22,11 @@ namespace KitchenSanFiero.Buffs
         public static Color newColor = new Color(0f, 0.98f, 0.41f, 1f);
         internal static Sprite IrradiatedIcon;
         public static float timer2;
+        public static ConfigEntry<bool> IrradiatedDoDamage;
+        public static ConfigEntry<bool> IrradiatedDoDebuff;
+        public static ConfigEntry<bool> IrradiatedCanStack;
         public static ConfigEntry<float> IrradiatedRange;
+        public static ConfigEntry<float> IrradiatedUsualDamage;
         public static ConfigEntry<float> IrradiatedDamage;
         public static ConfigEntry<float> IrradiatedTimer;
         public static ConfigEntry<float> IrradiatedDuration;
@@ -41,27 +45,44 @@ namespace KitchenSanFiero.Buffs
 
         private static void AddConfigs()
         {
+            IrradiatedDoDamage = Config.Bind<bool>("Buff : Irradiated",
+                             "Do damage",
+                             true,
+                             "Does this DOT damages nearby allies?");
+            IrradiatedDoDebuff = Config.Bind<bool>("Buff : Irradiated",
+                             "Do DOT?",
+                             false,
+                             "Does this DOT shares this DOT with nearby allies?");
+            IrradiatedCanStack = Config.Bind<bool>("Buff : Irradiated",
+                             "Can stack?",
+                             false,
+                             "Can this DOT stack, increase all its damage values?");
             IrradiatedRange = Config.Bind<float>("Buff : Irradiated",
                              "Range",
                              0.4f,
                              "Control the range value");
-            IrradiatedDamage = Config.Bind<float>("Buff : Irradiated",
+            IrradiatedUsualDamage = Config.Bind<float>("Buff : Irradiated",
                              "Damage",
-                             0.1f,
-                             "Control the damage value");
+                             1f,
+                             "Control the damage value in percentage");
+            IrradiatedDamage = Config.Bind<float>("Buff : Irradiated",
+                             "DOT damage",
+                             1f,
+                             "Control the DOT damage value in percentage");
             IrradiatedTimer = Config.Bind<float>("Buff : Irradiated",
                  "Interval",
                  1f,
-                 "Control the interval value in seconds");
+                 "Control the DOT interval value in seconds");
             IrradiatedDuration = Config.Bind<float>("Buff : Irradiated",
                  "Duration",
                  5f,
-                 "Control the duration value");
+                 "Control the DOT duration value");
             IrradiatedMaxStack = Config.Bind<int>("Buff : Irradiated",
                  "Max stack",
                  5,
-                 "Control the max stack value");
+                 "Control the DOT max stack value");
             ModSettingsManager.AddOption(new FloatFieldOption(IrradiatedRange));
+            ModSettingsManager.AddOption(new FloatFieldOption(IrradiatedUsualDamage));
             ModSettingsManager.AddOption(new FloatFieldOption(IrradiatedDamage));
             ModSettingsManager.AddOption(new FloatFieldOption(IrradiatedTimer));
             ModSettingsManager.AddOption(new FloatFieldOption(IrradiatedDuration));
@@ -110,24 +131,51 @@ namespace KitchenSanFiero.Buffs
 
                             if (dist < IrradiatedRange.Value && body.teamComponent.teamIndex == characterBody.teamComponent.teamIndex && body != characterBody)
                             {
-                                InflictDotInfo dotInfo = new InflictDotInfo()
+                                float buffCount = 1;
+                                if (IrradiatedCanStack.Value)
                                 {
-                                    attackerObject = body.gameObject,
-                                    victimObject = characterBody.gameObject,
-                                    totalDamage = body.maxHealth * IrradiatedDamage.Value,
-                                    damageMultiplier = body.GetBuffCount(IrradiatedBuff.IrradiatedBuffDef),
-                                    duration = IrradiatedDuration.Value,
-                                    dotIndex = Buffs.IrradiatedBuff.IrradiatedDOTDef,
-                                    maxStacksFromAttacker = (uint?)IrradiatedMaxStack.Value
+                                    buffCount = body.GetBuffCount(IrradiatedBuff.IrradiatedBuffDef);
+                                }
+                                if (IrradiatedDoDamage.Value)
+                                {
+                                    DamageInfo damageInfo2 = new DamageInfo
+                                    {
+                                        damage = characterBody.maxHealth * (IrradiatedUsualDamage.Value / 100) * buffCount,
+                                        damageColorIndex = DamageColorIndex.Item,
+                                        damageType = DamageType.BypassArmor,
+                                        attacker = null,
+                                        crit = false,
+                                        force = Vector3.zero,
+                                        inflictor = null,
+                                        position = characterBody.transform.position,
+                                        procChainMask = default,
+                                        procCoefficient = 0f
+                                    };
+                                    characterBody.healthComponent.TakeDamage(damageInfo2);
+                                }
 
-                                };
-                                StrengthenBurnUtils.CheckDotForUpgrade(body.inventory, ref dotInfo);
-                                DotController.InflictDot(ref dotInfo);
+                                if (IrradiatedDoDebuff.Value)
+                                {
+                                    InflictDotInfo dotInfo = new InflictDotInfo()
+                                    {
+                                        attackerObject = null,
+                                        victimObject = characterBody.gameObject,
+                                        totalDamage = body.maxHealth * (IrradiatedDamage.Value / 100),
+                                        damageMultiplier = buffCount,
+                                        duration = IrradiatedDuration.Value,
+                                        dotIndex = Buffs.IrradiatedBuff.IrradiatedDOTDef,
+                                        maxStacksFromAttacker = (uint?)IrradiatedMaxStack.Value
+
+                                    };
+                                    DotController.InflictDot(ref dotInfo);
+                                }
+
+                                
                             }
 
                         }
                     }
-                    
+
                     timer = 0f;
                 }
 
@@ -136,7 +184,7 @@ namespace KitchenSanFiero.Buffs
 
         private static void IrradiateBehaviourInitialisation(On.RoR2.CharacterBody.orig_OnBuffFirstStackGained orig, CharacterBody self, BuffDef buffDef)
         {
-            orig(self, buffDef);    
+            orig(self, buffDef);
 
         }
         /*

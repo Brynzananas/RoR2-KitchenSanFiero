@@ -350,7 +350,7 @@ localScale = new Vector3(0.05652F, 0.05652F, 0.05652F)
                 }
             });
             var displayRules = new ItemDisplayRuleDict(null);
-            ItemAPI.Add(new CustomItem(PainkillersItemDef, displayRules));
+            ItemAPI.Add(new CustomItem(PainkillersItemDef, rules));
             //On.RoR2.CharacterBody.OnInventoryChanged += HealOnPickup;
             GetStatCoefficients += Stats;
             On.RoR2.HealthComponent.Heal += IncreasedHealing;

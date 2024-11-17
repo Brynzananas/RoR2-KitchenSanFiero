@@ -28,11 +28,16 @@ namespace KitchenSanFiero.Items
         public static ConfigEntry<bool> EmergencyMedicalTreatmentEnable;
         public static ConfigEntry<bool> EmergencyMedicalTreatmentAIBlacklist;
         public static ConfigEntry<float> EmergencyMedicalTreatmentTier;
+        public static ConfigEntry<float> EmergencyMedicalTreatmentHealth;
+        public static ConfigEntry<bool> EmergencyMedicalTreatmentCooldownType;
         public static ConfigEntry<float> EmergencyMedicalTreatmentStartCooldown;
-        public static ConfigEntry<float> EmergencyMedicalTreatmentCooldownReduction;
+        public static ConfigEntry<float> EmergencyMedicalTreatmentFlatCooldownReduction;
+        public static ConfigEntry<float> EmergencyMedicalTreatmentPercentageCooldownReduction;
         public static ConfigEntry<int> EmergencyMedicalTreatmentMaxStackForCooldown;
-        public static ConfigEntry<float> EmergencyMedicalTreatmentInvicibilityMultiplier;
-        public static ConfigEntry<float> EmergencyMedicalTreatmentBarrierMultiplier;
+        public static ConfigEntry<float> EmergencyMedicalTreatmentInvicibilityBase;
+        public static ConfigEntry<float> EmergencyMedicalTreatmentInvicibilityPerStack;
+        public static ConfigEntry<float> EmergencyMedicalTreatmentBarrierBase;
+        public static ConfigEntry<float> EmergencyMedicalTreatmentBarrierPerStack;
 
 
         internal static void Init()
@@ -78,34 +83,59 @@ namespace KitchenSanFiero.Items
                                          "Item tier",
                                          3f,
                                          "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
+            EmergencyMedicalTreatmentHealth = Config.Bind<float>("Item : Emergency Medical Treatment",
+                                         "Health threshold",
+                                         25f,
+                                         "Control on whhich health percentage the item activates");
+            EmergencyMedicalTreatmentCooldownType = Config.Bind<bool>("Item : Emergency Medical Treatment",
+                                         "Cooldown reduction type upon stacking",
+                                         true,
+                                         "Enable: Flat cooldown reduction\nDisable: Percentage cooldown reduction");
             EmergencyMedicalTreatmentStartCooldown = Config.Bind<float>("Item : Emergency Medical Treatment",
                                          "Cooldown to stack off",
                                          260f,
                                          "Set a start cooldown where stacks apply cooldown reduction to");
-            EmergencyMedicalTreatmentCooldownReduction = Config.Bind<float>("Item : Emergency Medical Treatment",
-                                         "Cooldown reduction",
+            EmergencyMedicalTreatmentFlatCooldownReduction = Config.Bind<float>("Item : Emergency Medical Treatment",
+                                         "Cooldown flat reduction",
                                          20f,
-                                         "Control how much cooldown is substructed from a start cooldown per stack");
+                                         "Control how much cooldown is substructed from a start cooldown per stack in seconds");
+            EmergencyMedicalTreatmentPercentageCooldownReduction = Config.Bind<float>("Item : Emergency Medical Treatment",
+                                         "Cooldown percentage reduction",
+                                         15f,
+                                         "Control how much cooldown is substructed from a start cooldown per stack in seconds");
             EmergencyMedicalTreatmentMaxStackForCooldown = Config.Bind<int>("Item : Emergency Medical Treatment",
                                          "Max cooldown reductions",
                                          10,
                                          "Control the maximum amount of item stacks before they stop substructing cooldown");
-            EmergencyMedicalTreatmentInvicibilityMultiplier = Config.Bind<float>("Item : Emergency Medical Treatment",
+            EmergencyMedicalTreatmentInvicibilityPerStack = Config.Bind<float>("Item : Emergency Medical Treatment",
                                          "Invicibility seconds per item stack",
                                          1f,
-                                         "Control invicibility time per item stack seconds");
-            EmergencyMedicalTreatmentBarrierMultiplier = Config.Bind<float>("Item : Emergency Medical Treatment",
+                                         "Control invicibility time per item stack in seconds");
+            EmergencyMedicalTreatmentBarrierPerStack = Config.Bind<float>("Item : Emergency Medical Treatment",
                              "Barrier per item stack",
                              20f,
                              "Control how much you gain barrier per item stack");
+            EmergencyMedicalTreatmentInvicibilityBase = Config.Bind<float>("Item : Emergency Medical Treatment",
+                                         "Invicibility seconds",
+                                         1f,
+                                         "Control base invicibility time in seconds");
+            EmergencyMedicalTreatmentBarrierBase = Config.Bind<float>("Item : Emergency Medical Treatment",
+                             "Barrier",
+                             20f,
+                             "Control how much you gain barrier");
             ModSettingsManager.AddOption(new CheckBoxOption(EmergencyMedicalTreatmentEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(EmergencyMedicalTreatmentAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(EmergencyMedicalTreatmentTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
+            ModSettingsManager.AddOption(new FloatFieldOption(EmergencyMedicalTreatmentHealth));
+            ModSettingsManager.AddOption(new CheckBoxOption(EmergencyMedicalTreatmentCooldownType));
             ModSettingsManager.AddOption(new FloatFieldOption(EmergencyMedicalTreatmentStartCooldown));
-            ModSettingsManager.AddOption(new FloatFieldOption(EmergencyMedicalTreatmentCooldownReduction));
+            ModSettingsManager.AddOption(new FloatFieldOption(EmergencyMedicalTreatmentFlatCooldownReduction));
+            ModSettingsManager.AddOption(new FloatFieldOption(EmergencyMedicalTreatmentPercentageCooldownReduction));
             ModSettingsManager.AddOption(new IntFieldOption(EmergencyMedicalTreatmentMaxStackForCooldown));
-            ModSettingsManager.AddOption(new FloatFieldOption(EmergencyMedicalTreatmentInvicibilityMultiplier));
-            ModSettingsManager.AddOption(new FloatFieldOption(EmergencyMedicalTreatmentBarrierMultiplier));
+            ModSettingsManager.AddOption(new FloatFieldOption(EmergencyMedicalTreatmentInvicibilityBase));
+            ModSettingsManager.AddOption(new FloatFieldOption(EmergencyMedicalTreatmentBarrierBase));
+            ModSettingsManager.AddOption(new FloatFieldOption(EmergencyMedicalTreatmentInvicibilityPerStack));
+            ModSettingsManager.AddOption(new FloatFieldOption(EmergencyMedicalTreatmentBarrierPerStack));
         }
         private static void Item()
         {
@@ -349,19 +379,30 @@ localScale = new Vector3(0.05425F, 0.05425F, 0.05425F)
         {
             if (NetworkServer.active && self.body && damageInfo.damage > 0f)
             {
-                if (self.body.GetBuffCount(Buffs.EmergencyMedicalTreatmentActiveBuff.EmergencyMedicalTreatmentActiveBuffDef) > 0 && self.health - damageInfo.damage <= self.body.maxHealth / 4)
+                if (self.body.GetBuffCount(Buffs.EmergencyMedicalTreatmentActiveBuff.EmergencyMedicalTreatmentActiveBuffDef) > 0 && self.health - damageInfo.damage <= self.body.maxHealth * (EmergencyMedicalTreatmentHealth.Value / 100))
                 {
                     var itemCount = self.body.inventory.GetItemCount(EmergencyMedicalTreatmentItemDef);
-                    float cooldownReduction = 0;
-                    for (int i = 0; i < itemCount && i < EmergencyMedicalTreatmentMaxStackForCooldown.Value; i++)
+                    float cooldown = EmergencyMedicalTreatmentStartCooldown.Value;
+                    if (EmergencyMedicalTreatmentCooldownType.Value)
                     {
-                        cooldownReduction += EmergencyMedicalTreatmentCooldownReduction.Value;
+                        for (int i = 0; i < itemCount && i < EmergencyMedicalTreatmentMaxStackForCooldown.Value; i++)
+                        {
+                            cooldown -= EmergencyMedicalTreatmentFlatCooldownReduction.Value;
+                        }
                     }
+                    else
+                    {
+                        for (int i = 0; i < itemCount && i < EmergencyMedicalTreatmentMaxStackForCooldown.Value; i++)
+                        {
+                            cooldown -= cooldown * EmergencyMedicalTreatmentPercentageCooldownReduction.Value;
+                        }
+                    }
+                    
                     self.body.RemoveBuff(Buffs.EmergencyMedicalTreatmentActiveBuff.EmergencyMedicalTreatmentActiveBuffDef);
-                    self.body.AddTimedBuff(Buffs.EmergencyMedicalTreatmentCooldownBuff.EmergencyMedicalTreatmentCooldownBuffDef, EmergencyMedicalTreatmentStartCooldown.Value - cooldownReduction);
-                    self.body.AddTimedBuff(RoR2Content.Buffs.Immune, itemCount * EmergencyMedicalTreatmentInvicibilityMultiplier.Value);
+                    self.body.AddTimedBuff(Buffs.EmergencyMedicalTreatmentCooldownBuff.EmergencyMedicalTreatmentCooldownBuffDef, EmergencyMedicalTreatmentStartCooldown.Value);
+                    self.body.AddTimedBuff(RoR2Content.Buffs.Immune, itemCount * EmergencyMedicalTreatmentInvicibilityPerStack.Value);
                     Util.CleanseBody(self.body, true, false, false, true, true, true);
-                    self.barrier += itemCount * EmergencyMedicalTreatmentBarrierMultiplier.Value;
+                    self.barrier += EmergencyMedicalTreatmentBarrierBase.Value + ((itemCount - 1) * EmergencyMedicalTreatmentBarrierPerStack.Value);
                     self.HealFraction(0.75f, default(ProcChainMask));
                     self.RechargeShieldFull();
                     damageInfo.rejected = true;
@@ -472,9 +513,18 @@ localScale = new Vector3(0.05425F, 0.05425F, 0.05425F)
 
         private static void AddLanguageTokens()
         {
+            string stackType = "";
+            if (EmergencyMedicalTreatmentCooldownType.Value)
+            {
+                stackType = " <style=cStack>(-" + EmergencyMedicalTreatmentFlatCooldownReduction.Value + "seconds per item stack)</style>";
+            }
+            else
+            {
+                stackType = " <style=cStack>(-" + EmergencyMedicalTreatmentPercentageCooldownReduction.Value + "% per item stack)</style>";
+            }
             LanguageAPI.Add("EMERGENCYMEDICALTREATMENT_NAME", "Emergency Medical Treatment");
-            LanguageAPI.Add("EMERGENCYMEDICALTREATMENT_PICKUP", "On 25% health, fully heal, gain 20 (+20 per item stack) barrier and invicibility for 1 (+1 per item stack) seconds. Recharges in 160(-20 per item stack up to 5 times) seconds");
-            LanguageAPI.Add("EMERGENCYMEDICALTREATMENT_DESC", "On 25% health, fully heal, gain 20 (+20 per item stack) barrier and invicibility for 1 (+1 per item stack) seconds. Recharges in 160(-20 per item stack up to 5 times) seconds");
+            LanguageAPI.Add("EMERGENCYMEDICALTREATMENT_PICKUP", "Taking damage to bellow <style=cIsHealth>" + EmergencyMedicalTreatmentHealth.Value + "% health</style>, <style=cIsHealing>fully heal</style>. Recharges in " + EmergencyMedicalTreatmentStartCooldown.Value + stackType + " seconds");
+            LanguageAPI.Add("EMERGENCYMEDICALTREATMENT_DESC", "Taking damage to bellow <style=cIsHealth>" + EmergencyMedicalTreatmentHealth.Value + "% health</style>, <style=cIsHealing>fully heal</style>. Recharges in " + EmergencyMedicalTreatmentStartCooldown.Value + stackType + " seconds");
             LanguageAPI.Add("EMERGENCYMEDICALTREATMENT_LORE", "Grogon Frmann");
         }
 

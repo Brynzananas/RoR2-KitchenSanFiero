@@ -26,8 +26,12 @@ namespace KitchenSanFiero.Items
         //public static ConfigEntry<float> FragileGiftBoxCurseMultiplier;
         //public static ConfigEntry<int> FragileGiftBoxCurseCleanseNextStage;
         public static ConfigEntry<float> FragileGiftBoxRewardChance;
+        public static ConfigEntry<int> FragileGiftBoxReward;
+        public static ConfigEntry<int> FragileGiftBoxRewardPerStack;
         public static ConfigEntry<float> FragileGiftBoxCurseChance;
         public static ConfigEntry<bool> FragileGiftBoxCurseIsElse;
+        public static ConfigEntry<int> FragileGiftBoxWound;
+        public static ConfigEntry<int> FragileGiftBoxWoundStack;
 
         internal static void Init()
         {
@@ -65,15 +69,23 @@ namespace KitchenSanFiero.Items
             FragileGiftBoxRewardChance = Config.Bind<float>("Item : Fragile Gift Box",
                                          "Reward chance",
                                          50f,
-                                         "Control the chance of getting utems from chests");
+                                         "Control the chance of getting items from chests");
+            FragileGiftBoxReward = Config.Bind<int>("Item : Fragile Gift Box",
+                                         "Items addition",
+                                         2,
+                                         "Control the amount of additional items");
+            FragileGiftBoxRewardPerStack = Config.Bind<int>("Item : Fragile Gift Box",
+                                         "Items addition per stack",
+                                         1,
+                                         "Control the camount of additional items per stack");
             FragileGiftBoxCurseChance = Config.Bind<float>("Item : Fragile Gift Box",
-                                         "Curse chance",
+                                         "Wound chance",
                                          100f,
-                                         "Control the chance of getting a curse from opening chests");
+                                         "Control the chance of getting a Wound from opening chests");
             FragileGiftBoxCurseIsElse = Config.Bind<bool>("Item : Fragile Gift Box",
-                                         "Curse on failure",
+                                         "Wound on failure",
                                          false,
-                                         "Set true to get curse on reward roll failure");
+                                         "Set true to get Wound on reward roll failure");
             ModSettingsManager.AddOption(new CheckBoxOption(FragileGiftBoxEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(FragileGiftBoxAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             //ModSettingsManager.AddOption(new FloatFieldOption(FragileGiftBoxCurseMultiplier));
@@ -114,7 +126,7 @@ namespace KitchenSanFiero.Items
                 {
                     if (Util.CheckRoll(FragileGiftBoxRewardChance.Value))
                     {
-                    self.GetComponent<ChestBehavior>().dropCount += itemCount;
+                    self.GetComponent<ChestBehavior>().dropCount += FragileGiftBoxReward.Value + ((itemCount - 1) * FragileGiftBoxRewardPerStack.Value);
                     }
                     else
                     {
@@ -143,7 +155,7 @@ namespace KitchenSanFiero.Items
                 {
                     if (Util.CheckRoll(FragileGiftBoxRewardChance.Value))
                     {
-                        self.GetComponent<RouletteChestController>().dropCount += itemCount;
+                        self.GetComponent<RouletteChestController>().dropCount += FragileGiftBoxReward.Value + ((itemCount - 1) * FragileGiftBoxRewardPerStack.Value);
                     }
                     else
                     {

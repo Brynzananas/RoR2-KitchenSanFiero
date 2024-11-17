@@ -396,8 +396,8 @@ localScale = new Vector3(0.40697F, 0.40697F, 0.40697F)
         public static void AddLanguageTokens()
         {
             LanguageAPI.Add("ENFORCERHAND_NAME", "Enforcer Hand");
-            LanguageAPI.Add("ENFORCERHAND_PICKUP", "parry");
-            LanguageAPI.Add("ENFORCERHAND_DESC", "parry");
+            LanguageAPI.Add("ENFORCERHAND_PICKUP", "Parry an incoming attack back to the attacker");
+            LanguageAPI.Add("ENFORCERHAND_DESC", "parry an incoming attack back to the attacker");
             LanguageAPI.Add("ENFORCERHAND_LORE", "mmmm yummy");
         }
     }

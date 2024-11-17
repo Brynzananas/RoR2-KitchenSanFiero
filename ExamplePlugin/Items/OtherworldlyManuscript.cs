@@ -341,7 +341,7 @@ localScale = new Vector3(1.44492F, 1.44492F, 1.44492F)
                 }
             });
             var displayRules = new ItemDisplayRuleDict(null);
-            ItemAPI.Add(new CustomItem(OtherworldlyManuscriptItemDef, displayRules));
+            ItemAPI.Add(new CustomItem(OtherworldlyManuscriptItemDef, rules));
             On.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
             On.RoR2.CharacterBody.OnInventoryChanged += GainBuff;
             //On.RoR2.CharacterBody.Start += ReAddBuff;

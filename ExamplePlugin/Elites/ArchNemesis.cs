@@ -52,12 +52,14 @@ namespace KitchenSanFiero.Elites
         public static ConfigEntry<bool> ArchNemesisEnable;
         public static ConfigEntry<float> ArchNemesisHealthMult;
         public static ConfigEntry<float> ArchNemesisDamageMult;
-        public static ConfigEntry<bool> ArchNemesisLoop;
+        public static ConfigEntry<int> ArchNemesisStageBegin;
+        public static ConfigEntry<bool> ArchNemesisAIBlacklistItems;
         public static ConfigEntry<bool> ArchNemesisChampions;
         public static ConfigEntry<bool> ArchNemesisMithrix;
         public static ConfigEntry<bool> ArchNemesisVoidling;
         public static ConfigEntry<bool> ArchNemesisFalseSon;
         public static ConfigEntry<bool> ArchNemesisScavenger;
+        public static ConfigEntry<bool> ArchNemesisLunarScavengers;
         public static ConfigEntry<float> ArchNemesisDropChance;
 
         // RoR2/Base/Common/ColorRamps/texRampWarbanner.png 
@@ -91,7 +93,7 @@ namespace KitchenSanFiero.Elites
             ArchNemesisEnable = Config.Bind<bool>("Elite : Arch Nemesis",
                  "Activation",
                  true,
-                 "Enable Arch Nemesis elite?");
+                 "Enable this elite?");
             ArchNemesisHealthMult = Config.Bind<float>("Elite : Arch Nemesis",
                                          "Health Multiplier",
                                          6f,
@@ -104,40 +106,50 @@ namespace KitchenSanFiero.Elites
                                          "Item drop chance",
                                          100f,
                                          "Control the chance Arch Nemesis elite drops its item");
-            ArchNemesisLoop = Config.Bind<bool>("Elite : Arch Nemesis",
-                                         "Loop separating",
-                                         true,
-                                         "Does Arch Nemesis spawning is divided in pre/past loop?");
+            ArchNemesisStageBegin = Config.Bind<int>("Elite : Arch Nemesis",
+                                         "Stage",
+                                         2,
+                                         "Control from which stage monsters can become an Arch Nemesis");
+            ArchNemesisAIBlacklistItems = Config.Bind<bool>("Elite : Arch Nemesis",
+                                         "AI Blacklisted items",
+                                         false,
+                                         "Can Arch Nemesis get AI Blacklisted items?");
             ArchNemesisChampions = Config.Bind<bool>("Elite : Arch Nemesis",
                                          "Champions",
                                          true,
-                                         "Can champions become Arch Nemesises?");
+                                         "Can champion enemies become an Arch Nemesis?");
             ArchNemesisMithrix = Config.Bind<bool>("Elite : Arch Nemesis",
                                          "Mithrix",
                                          false,
-                                         "Can Mithrix become Arch Nemesis?");
+                                         "Can Mithrix become an Arch Nemesis?");
             ArchNemesisVoidling = Config.Bind<bool>("Elite : Arch Nemesis",
                                          "Voidling",
                                          false,
-                                         "Can Voidling become Arch Nemesis?");
+                                         "Can Voidling become an Arch Nemesis?");
             ArchNemesisFalseSon = Config.Bind<bool>("Elite : Arch Nemesis",
                                          "False Son",
                                          false,
-                                         "Can False Son become Arch Nemesis?");
+                                         "Can False Son become an Arch Nemesis?");
             ArchNemesisScavenger = Config.Bind<bool>("Elite : Arch Nemesis",
                              "Scavenger",
                              false,
-                             "Can Scavenger become Arch Nemesis?");
+                             "Can Scavenger become am Arch Nemesis?");
+            ArchNemesisLunarScavengers = Config.Bind<bool>("Elite : Arch Nemesis",
+                             "Lunar Scavengers",
+                             false,
+                             "Can Lunar Scavengers become an Arch Nemesis?");
             ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisHealthMult));
             ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisDamageMult));
             ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisDropChance));
-            ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisLoop));
+            ModSettingsManager.AddOption(new IntFieldOption(ArchNemesisStageBegin));
+            ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisAIBlacklistItems));
             ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisChampions));
             ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisMithrix));
             ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisVoidling));
             ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisFalseSon));
             ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisScavenger));
+            ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisLunarScavengers));
         }
 
         private static void RespawnArchNemesis(Run run)
@@ -331,7 +343,12 @@ namespace KitchenSanFiero.Elites
                         {
                             string toParse = archNemesisInventoryArray[i + 1];
                             int itemCount = int.Parse(toParse);
-                            self.inventory.GiveItemString(archNemesisInventoryArray[i], itemCount);
+                            if (!ItemCatalog.GetItemDef(ItemCatalog.FindItemIndex(archNemesisInventoryArray[i])).ContainsTag(ItemTag.AIBlacklist) && ArchNemesisAIBlacklistItems.Value)
+                            {
+                                self.inventory.GiveItemString(archNemesisInventoryArray[i], itemCount);
+
+                            }
+
                         }
                         catch (Exception e)
                         {

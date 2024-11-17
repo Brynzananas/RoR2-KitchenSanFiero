@@ -37,6 +37,7 @@ using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using static UnityEngine.UIElements.StylePropertyAnimationSystem;
+using static KitchenSanFiero.Elites.ArchNemesis;
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 [assembly: HG.Reflection.SearchableAttribute.OptIn]
 [assembly: HG.Reflection.SearchableAttribute.OptInAttribute]
@@ -66,6 +67,10 @@ namespace KitchenSanFieroPlugin
         public static GameObject VoidlingBody = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidRaidCrab/VoidRaidCrabMaster.prefab").WaitForCompletion();
         public static GameObject FalseSonBody = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC2/FalseSonBoss/FalseSonBossMaster.prefab").WaitForCompletion();
         public static GameObject ScavengerBody = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Scav/ScavMaster.prefab").WaitForCompletion();
+        public static GameObject LunarScavenger1Body = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ScavLunar/ScavLunar1Master.prefab").WaitForCompletion();
+        public static GameObject LunarScavenger2Body = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ScavLunar/ScavLunar2Master.prefab").WaitForCompletion();
+        public static GameObject LunarScavenger3Body = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ScavLunar/ScavLunar3Master.prefab").WaitForCompletion();
+        public static GameObject LunarScavenger4Body = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ScavLunar/ScavLunar4Master.prefab").WaitForCompletion();
         public static UnityEngine.Vector3 deadPosition;
         public static Inventory deadInventory; 
         
@@ -256,29 +261,40 @@ namespace KitchenSanFieroPlugin
         private void ifItKillsPlayer(On.RoR2.CharacterBody.orig_HandleOnKillEffectsServer orig, CharacterBody self, DamageReport damageReport)
         {
             orig(self, damageReport);
-            if (self && damageReport.victimBody && damageReport.victimBody.isPlayerControlled && damageReport.victimBody.teamComponent.teamIndex == TeamIndex.Player && self.inventory.GetEquipmentIndex() != ArchNemesis.AffixArchNemesisEquipment.equipmentIndex && Stage.instance.sceneDef.stageOrder > 1)
+            if (self && damageReport.victimBody && damageReport.victimBody.isPlayerControlled && damageReport.victimBody.teamComponent.teamIndex == TeamIndex.Player && self.inventory.GetEquipmentIndex() != ArchNemesis.AffixArchNemesisEquipment.equipmentIndex && Stage.instance.sceneDef.stageOrder >= ArchNemesisStageBegin.Value)
             {
-                Debug.Log(self.master.masterIndex);
-                Debug.Log(MithrixBody.GetComponent<CharacterMaster>().masterIndex);
-                if (self.master.masterIndex == MithrixBody.GetComponent<CharacterMaster>().masterIndex)
+                if (self.isChampion && !ArchNemesisChampions.Value)
+                {
+                    Debug.Log("Death by champion");
+                    return;
+                }
+                if (self.master.masterIndex == MithrixBody.GetComponent<CharacterMaster>().masterIndex && !ArchNemesisMithrix.Value)
                 {
                     Debug.Log("Death by Mithrix");
-                    //return;
+                    return;
                 }
-                if (self.master.masterIndex == VoidlingBody.GetComponent<CharacterMaster>().masterIndex)
+                if (self.master.masterIndex == VoidlingBody.GetComponent<CharacterMaster>().masterIndex && ArchNemesisVoidling.Value)
                 {
                     Debug.Log("Death by Voidling");
-                    //return;
+                    return;
                 }
-                if (self.master.masterIndex == FalseSonBody.GetComponent<CharacterMaster>().masterIndex)
+                if (self.master.masterIndex == FalseSonBody.GetComponent<CharacterMaster>().masterIndex && ArchNemesisFalseSon.Value)
                 {
                     Debug.Log("Death by False Son");
-                    //return;
+                    return;
                 }
-                if (self.master.masterIndex == ScavengerBody.GetComponent<CharacterMaster>().masterIndex)
+                if (self.master.masterIndex == ScavengerBody.GetComponent<CharacterMaster>().masterIndex && ArchNemesisScavenger.Value)
                 {
                     Debug.Log("Death by Scavenger");
-                    //return;
+                    return;
+                }
+                if ((self.master.masterIndex == LunarScavenger1Body.GetComponent<CharacterMaster>().masterIndex ||
+                    self.master.masterIndex == LunarScavenger2Body.GetComponent<CharacterMaster>().masterIndex ||
+                    self.master.masterIndex == LunarScavenger3Body.GetComponent<CharacterMaster>().masterIndex ||
+                    self.master.masterIndex == LunarScavenger4Body.GetComponent<CharacterMaster>().masterIndex) && ArchNemesisLunarScavengers.Value)
+                {
+                    Debug.Log("Death by Lunar Scavengers");
+                    return;
                 }
                 //archNemesisMasterPrefab = MasterCatalog.GetMasterPrefab(self.master.masterIndex);
                 //archNemesisInventory = damageReport.victimBody.inventory;
@@ -392,7 +408,7 @@ namespace KitchenSanFieroPlugin
         {
             orig(self);
 
-            if (self && self.teamComponent.teamIndex != TeamIndex.Player)
+            if (self && !self.isPlayerControlled && self.inventory && self.inventory.GetItemCount(RoR2Content.Items.Ghost) <= 0)
             {
 
                 deadPosition = self.transform.position;

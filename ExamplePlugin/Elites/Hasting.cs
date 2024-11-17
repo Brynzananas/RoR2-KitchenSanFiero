@@ -83,7 +83,7 @@ namespace KitchenSanFiero.Elites
             HastingCooldownReductionMult = Config.Bind<float>("Elite : Hasting",
                                          "Base Cooldown Reduction Multiplier",
                                          0.5f,
-                                         "Control the cooldow multiplier of Dredged elite\nDon't touch this if you don't know how it works");
+                                         "Control the cooldown multiplier of Dredged elite\nPS: Don't touch this if you don't know how it works");
             HastingSpeedMultAddition = Config.Bind<float>("Elite : Hasting",
                                          "Extra Speed Multiplier",
                                          1f,
@@ -113,8 +113,8 @@ namespace KitchenSanFiero.Elites
                 {
                     float combinedHealthFraction = sender.healthComponent.combinedHealthFraction;
                     
-                        args.attackSpeedMultAdd =  (HastingAttackSpeedMult.Value - 1) + ((1f - combinedHealthFraction) * HastingAttackSpeedMultAddition.Value);
-                        args.moveSpeedMultAdd =  (HastingSpeedMult.Value - 1) + ((1f - combinedHealthFraction) * HastingSpeedMultAddition.Value);
+                        args.attackSpeedMultAdd += (HastingAttackSpeedMult.Value - 1) + ((1f - combinedHealthFraction) * HastingAttackSpeedMultAddition.Value);
+                        args.moveSpeedMultAdd += (HastingSpeedMult.Value - 1) + ((1f - combinedHealthFraction) * HastingSpeedMultAddition.Value);
                 args.cooldownMultAdd = -HastingCooldownReductionMult.Value;
                     
 

@@ -45,10 +45,13 @@ namespace KitchenSanFiero.Elites
         public static ConfigEntry<float> BrassModalityDamageMultAdditionPlayer;
         public static ConfigEntry<float> BrassModalityAttackSpeedReductionPlayer;
         public static ConfigEntry<float> BrassModalityArmorPlayer;
-        public static ConfigEntry<float> BrassModalityChance;
         public static ConfigEntry<bool> BrassModalityDoWound;
-        public static ConfigEntry<float> BrassModalityWoundTime;
-        public static ConfigEntry<float> BrassModalityWoundAmount;
+        public static ConfigEntry<bool> BrassModalityDoWoundAmount;
+        public static ConfigEntry<bool> BrassModalityDoWoundTime;
+        public static ConfigEntry<float> BrassModalityFlatWoundTime;
+        public static ConfigEntry<float> BrassModalityDamageWoundTime;
+        public static ConfigEntry<int> BrassModalityFlatWoundAmount;
+        public static ConfigEntry<float> BrassModalityDamageWoundAmount;
 
         public static void Init()
         {
@@ -81,10 +84,6 @@ namespace KitchenSanFiero.Elites
                                          "Damage Multiplier",
                                          2f,
                                          "Control the damage multiplier of Brass Modality elite");
-            BrassModalityChance = Config.Bind<float>("Elite : Brass Modality",
-                                         "Affixdrop chance",
-                                         0.00025f,
-                                         "Control the chance Brass Modality elite drops its affix");
             BrassModalityDamageMultAddition = Config.Bind<float>("Elite : Brass Modality",
                                          "Additional damage multiplier",
                                          3f,
@@ -109,26 +108,37 @@ namespace KitchenSanFiero.Elites
                                          "Armor for player users",
                                          20f,
                                          "Control the armor addition of Brass Modality elite for players");
-            BrassModalityDoWound = Config.Bind<bool>("Elite : Brass Modality",
-                                         "Wound on hit",
+            BrassModalityDoWoundAmount = Config.Bind<bool>("Elite : Brass Modality",
+                                         "Wound amount function",
                                          true,
-                                         "Do attacks apply Wound debuff on hit?");
-            BrassModalityWoundTime = Config.Bind<float>("Elite : Brass Modality",
-                                         "Wound time",
+                                         "Enable: Applies flat amount of Wound on hit\nDisable: Applies scaled from damage amount of Wound on Hit");
+            BrassModalityDoWoundTime = Config.Bind<bool>("Elite : Brass Modality",
+                                         "Wound time function",
+                                         true,
+                                         "Enable: Wound lasts flat amount of time\nDisable: Wound lasts based on damage");
+            BrassModalityFlatWoundTime = Config.Bind<float>("Elite : Brass Modality",
+                                         "Flat Wound time",
                                          10f,
                                          "Control the duration of a Wounded debuff in seconds");
-            BrassModalityWoundAmount = Config.Bind<float>("Elite : Brass Modality",
-                                         "Damage to Wound multiplier",
+            BrassModalityDamageWoundTime = Config.Bind<float>("Elite : Brass Modality",
+                                         "Damage to Wound time",
                                          0.1f,
-                                         "Controls the multiplier upon converting damage to Wound");
+                                         "Control the multiplier upon converting damage to Wound time");
+            BrassModalityFlatWoundTime = Config.Bind<float>("Elite : Brass Modality",
+                                         "Flat Wound amount",
+                                         10f,
+                                         "Control the amount of Wound per hit");
+            BrassModalityDamageWoundAmount = Config.Bind<float>("Elite : Brass Modality",
+                                         "Damage to Wound amount",
+                                         0.1f,
+                                         "Control the multiplier upon converting damage to Wound amount");
             BrassModalityEnable = Config.Bind<bool>("Elite : Brass Modality",
                              "Activation",
                              true,
-                             "Enable Brass Modality elite?");
+                             "Enable this elite?");
             ModSettingsManager.AddOption(new CheckBoxOption(BrassModalityEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityHealthMult));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityDamageMult));
-            ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityChance));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityDamageMultAddition));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityAttackSpeedReduction));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityArmor));
@@ -136,20 +146,44 @@ namespace KitchenSanFiero.Elites
             ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityAttackSpeedReductionPlayer));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityArmorPlayer));
             ModSettingsManager.AddOption(new CheckBoxOption(BrassModalityDoWound));
-            ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityWoundTime));
-            ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityWoundAmount));
+            ModSettingsManager.AddOption(new CheckBoxOption(BrassModalityDoWoundTime));
+            ModSettingsManager.AddOption(new CheckBoxOption(BrassModalityDoWoundAmount));
+            ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityDamageWoundTime));
+            ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityDamageWoundAmount));
+            ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityFlatWoundTime));
+            ModSettingsManager.AddOption(new IntFieldOption(BrassModalityFlatWoundAmount));
         }
         private static void WoundThem(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim)
         {
             orig(self, damageInfo, victim);
-            if (damageInfo.attacker && !damageInfo.rejected && damageInfo.attacker.GetComponent<CharacterBody>().HasBuff(AffixBrassModalityBuff))
+            if (damageInfo.attacker && !damageInfo.rejected && damageInfo.attacker.GetComponent<CharacterBody>().HasBuff(AffixBrassModalityBuff) && BrassModalityDoWound.Value)
             {
-
-                for (int i = 0; i < Math.Ceiling(damageInfo.damage * BrassModalityWoundAmount.Value) * damageInfo.procCoefficient; i++)
+                float timer = 0;
+                if (BrassModalityDoWoundTime.Value)
                 {
-                victim.GetComponent<CharacterBody>().AddTimedBuff(WoundedBuff.WoundedBuffDef, 10f);
-
+                    timer = BrassModalityFlatWoundTime.Value * damageInfo.procCoefficient;
                 }
+                else
+                {
+                    timer = damageInfo.damage * BrassModalityDamageWoundTime.Value * damageInfo.procCoefficient;
+                }
+                if (BrassModalityDoWoundAmount.Value)
+                {
+                    for (int i = 0; i < BrassModalityFlatWoundAmount.Value; i++)
+                    {
+                    victim.GetComponent<CharacterBody>().AddTimedBuff(WoundedBuff.WoundedBuffDef, timer);
+
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < Math.Ceiling(damageInfo.damage * BrassModalityDamageWoundAmount.Value); i++)
+                    {
+                        victim.GetComponent<CharacterBody>().AddTimedBuff(WoundedBuff.WoundedBuffDef, timer);
+
+                    }
+                }
+                
             }
         }
         private static void Stats(CharacterBody sender, StatHookEventArgs args)

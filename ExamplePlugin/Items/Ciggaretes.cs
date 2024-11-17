@@ -26,9 +26,17 @@ namespace KitchenSanFiero.Items
         public static ConfigEntry<bool> PackOfCiggaretesEnable;
         public static ConfigEntry<bool> PackOfCiggaretesAIBlacklist;
         public static ConfigEntry<float> PackOfCiggaretesTier;
+        public static ConfigEntry<float> PackOfCiggaretesConversion;
         public static ConfigEntry<float> PackOfCiggaretesTotalDamage;
         public static ConfigEntry<float> PackOfCiggaretesDamage;
         public static ConfigEntry<float> PackOfCiggaretesDuration;
+       // public static ConfigEntry<float> PackOfCiggaretesIgniteTankNerf;
+        public static ConfigEntry<bool> PackOfCiggaretesSmokeOnHit;
+        public static ConfigEntry<bool> PackOfCiggaretesIgniteOnHit;
+        public static ConfigEntry<float> PackOfCiggaretesTotalDamageOld;
+        public static ConfigEntry<float> PackOfCiggaretesDamageOld;
+        public static ConfigEntry<float> PackOfCiggaretesDurationOld;
+        //public static ConfigEntry<float> PackOfCiggaretesIgniteTankNerfOld;
         private static GameObject CiggaretePrefab;
 
         internal static void Init()
@@ -76,16 +84,48 @@ namespace KitchenSanFiero.Items
                                          "1: Common/White\n2: Uncommon/Green\n3: Rare/Red");
             PackOfCiggaretesDamage = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Burn damage multiplier",
-                                         0.6f,
-                                         "Change the burn damage multiplier");
+                                         60f,
+                                         "Change the burn damage multiplier in percentage");
+            PackOfCiggaretesConversion = Config.Bind<float>("Item : Pack of Siggaretes",
+                                         "Conversion",
+                                         400f,
+                                         "Control the damage required for the conversion in percentage");
             PackOfCiggaretesTotalDamage = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Burn total damage",
-                                         0.5f,
-                                         "Change the burn total damage");
+                                         50f,
+                                         "Change the burn total damage in percentage");
             PackOfCiggaretesDuration = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Duration",
                                          5f,
-                                         "Change the burn duration in hit instances");
+                                         "Change the burn duration");
+            /*PackOfCiggaretesIgniteTankNerf = Config.Bind<float>("Item : Pack of Siggaretes",
+                                         "Ignition tank nerf",
+                                         0f,
+                                         "Control damage increase from Ignition Tank burn upgrade in percentage\nSet it to zero to use standart value");*/
+            PackOfCiggaretesIgniteOnHit = Config.Bind<bool>("Item : Pack of Siggaretes",
+                                         "Smoke on hit",
+                                         true,
+                                         "Smoke enemies on hit?\nPS: New function");
+            PackOfCiggaretesIgniteOnHit = Config.Bind<bool>("Item : Pack of Siggaretes",
+                                         "Ihnite on hit",
+                                         false,
+                                         "Ignite enemies on hit?\nPS: Old function");
+            PackOfCiggaretesDamageOld = Config.Bind<float>("Item : Pack of Siggaretes",
+                                         "Burn damage multiplier (Old)",
+                                         60f,
+                                         "Change the burn damage multiplier in percentage");
+            PackOfCiggaretesTotalDamageOld = Config.Bind<float>("Item : Pack of Siggaretes",
+                                         "Burn total damage (Old)",
+                                         50f,
+                                         "Change the burn total damage in percentage");
+            PackOfCiggaretesDurationOld = Config.Bind<float>("Item : Pack of Siggaretes",
+                                         "Duration (Old)",
+                                         5f,
+                                         "Change the burn duration");
+            /*PackOfCiggaretesIgniteTankNerfOld = Config.Bind<float>("Item : Pack of Siggaretes",
+                                         "Ignition tank nerf (Old)",
+                                         150f,
+                                         "Control damage increase from Ignition Tank burn upgrade in percentage\nSet it to zero to use standart value");*/
             ModSettingsManager.AddOption(new CheckBoxOption(PackOfCiggaretesEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(PackOfCiggaretesAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(PackOfCiggaretesTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
@@ -342,47 +382,52 @@ localScale = new Vector3(0.01019F, 0.01019F, 0.01019F)
                 if (damageInfo.attacker && !damageInfo.rejected)
                 {
                     CharacterBody victimBody = victim.GetComponent<CharacterBody>();
-                    if (Util.CheckRoll(damageInfo.procCoefficient * 100))
+                    if (PackOfCiggaretesSmokeOnHit.Value)
                     {
-                    victimBody.AddBuff(SmokingBuff.SmokingBuffDef);
+                        if (Util.CheckRoll(damageInfo.procCoefficient * 100))
+                        {
+                            victimBody.AddBuff(SmokingBuff.SmokingBuffDef);
 
-                    }
-                    if (damageInfo.damage / body.damage >= 4f)
-                    {
-                        InflictDotInfo dotInfo = new InflictDotInfo()
+                        }
+                        if (damageInfo.damage / body.damage >= PackOfCiggaretesConversion.Value / 100)
                         {
-                            attackerObject = damageInfo.attacker,
-                            victimObject = victim,
-                            totalDamage = damageInfo.damage * PackOfCiggaretesTotalDamage.Value * victimBody.GetBuffCount(SmokingBuff.SmokingBuffDef),
-                            damageMultiplier = PackOfCiggaretesDamage.Value,
-                            duration = PackOfCiggaretesDuration.Value,
-                            dotIndex = DotController.DotIndex.Burn,
-                            maxStacksFromAttacker = 69
-                        };
-                        StrengthenBurnUtils.CheckDotForUpgrade(body.inventory, ref dotInfo);
-                        DotController.InflictDot(ref dotInfo);
-                        victimBody.SetBuffCount(SmokingBuff.SmokingBuffDef.buffIndex, 0);
+                            InflictDotInfo dotInfo = new InflictDotInfo()
+                            {
+                                attackerObject = damageInfo.attacker,
+                                victimObject = victim,
+                                totalDamage = damageInfo.damage * (PackOfCiggaretesTotalDamage.Value / 100) * victimBody.GetBuffCount(SmokingBuff.SmokingBuffDef),
+                                damageMultiplier = PackOfCiggaretesDamage.Value / 100,
+                                duration = PackOfCiggaretesDuration.Value,
+                                dotIndex = DotController.DotIndex.Burn,
+                                maxStacksFromAttacker = 69
+                            };
+                            StrengthenBurnUtils.CheckDotForUpgrade(body.inventory, ref dotInfo);
+                            DotController.InflictDot(ref dotInfo);
+                            victimBody.SetBuffCount(SmokingBuff.SmokingBuffDef.buffIndex, 0);
+                        }
                     }
-                    /*
-                    float duration = PackOfCiggaretesDuration.Value;
-                    if (body.inventory.GetItemCount(DLC1Content.Items.StrengthenBurn.itemIndex) > 0)
+                    
+                    
+                    if (PackOfCiggaretesIgniteOnHit.Value)
                     {
-                        
-                        float tankAmount = body.inventory.GetItemCount(DLC1Content.Items.StrengthenBurn.itemIndex) * 2f;
-                        InflictDotInfo dotInfo = new InflictDotInfo()
-                        {
-                            attackerObject = damageInfo.attacker,
-                            victimObject = victim,
-                            totalDamage = damageInfo.damage * PackOfCiggaretesTotalDamage.Value,
-                            damageMultiplier = PackOfCiggaretesDamage.Value * tankAmount * damageInfo.procCoefficient,
-                            duration = PackOfCiggaretesDuration.Value,
-                            dotIndex = DotController.DotIndex.StrongerBurn,
-                            maxStacksFromAttacker = (uint?)count
-                        };
-                        DotController.InflictDot(ref dotInfo);
-                    }
-                    else
-                    {
+                        /*if (body.inventory.GetItemCount(DLC1Content.Items.StrengthenBurn.itemIndex) > 0)
+                                            {
+
+                                                float tankAmount = body.inventory.GetItemCount(DLC1Content.Items.StrengthenBurn.itemIndex) * 2f;
+                                                InflictDotInfo dotInfo = new InflictDotInfo()
+                                                {
+                                                    attackerObject = damageInfo.attacker,
+                                                    victimObject = victim,
+                                                    totalDamage = damageInfo.damage * (PackOfCiggaretesTotalDamage.Value / 100),
+                                                    damageMultiplier = PackOfCiggaretesDamage.Value * tankAmount * damageInfo.procCoefficient,
+                                                    duration = PackOfCiggaretesDuration.Value,
+                                                    dotIndex = DotController.DotIndex.StrongerBurn,
+                                                    maxStacksFromAttacker = (uint?)count
+                                                };
+                                                DotController.InflictDot(ref dotInfo);
+                                            }
+                                            else
+                                            {*/
                         InflictDotInfo dotInfo = new InflictDotInfo()
                         {
                             attackerObject = damageInfo.attacker,
@@ -393,11 +438,12 @@ localScale = new Vector3(0.01019F, 0.01019F, 0.01019F)
                             dotIndex = DotController.DotIndex.Burn,
                             maxStacksFromAttacker = (uint?)count
                         };
-                        //StrengthenBurnUtils.CheckDotForUpgrade(body.inventory, ref dotInfo);
+                        StrengthenBurnUtils.CheckDotForUpgrade(body.inventory, ref dotInfo);
                         DotController.InflictDot(ref dotInfo);
 
                         //}
-                    }*/
+                    }
+
                 }
 
                 //var InventoryCount = GetCount(body);
@@ -451,8 +497,8 @@ localScale = new Vector3(0.01019F, 0.01019F, 0.01019F)
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add("CIGGARETS_NAME", "Pack of Ciggaretes");
-            LanguageAPI.Add("CIGGARETS_PICKUP", "On hit <style=cIsDamage>ignite enemies for " + PackOfCiggaretesDamage.Value + "% base damage</style>. Burn stacks up to 1<style=cStack>(+1 per item stack)</style>");
-            LanguageAPI.Add("CIGGARETS_DESC", "On hit <style=cIsDamage>ignite enemies for " + PackOfCiggaretesDamage.Value + "% base damage</style>. Burn stacks up to 1<style=cStack>(+1 per item stack)</style>");
+            LanguageAPI.Add("CIGGARETS_PICKUP", "On hit <style=cIsUtility>Smoke</style> enemies <style=cStack>(+1 per item stack)</style>. Hits that deal <style=cIsDamage>more than " + PackOfCiggaretesConversion.Value + "% damage</style> convert all <style=cIsUtility>Smoke</style> to <style=cIsDamage>Burn</style>");
+            LanguageAPI.Add("CIGGARETS_DESC", "On hit <style=cIsUtility>Smoke</style> enemies <style=cStack>(+1 per item stack)</style>. Hits that deal <style=cIsDamage>more than " + PackOfCiggaretesConversion.Value + "% damage</style> convert all <style=cIsUtility>Smoke</style> to <style=cIsDamage>Burn</style>");
             LanguageAPI.Add("CIGGARETS_LORE", "Но если есть в кармане пачка сигарет\r\nЗначит, всё не так уж плохо на сегодняшний день\r\nИ билет на самолёт с серебристым крылом\r\nЧто, взлетая, оставляет земле лишь тень");
         }
 

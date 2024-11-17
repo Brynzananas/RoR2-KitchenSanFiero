@@ -40,6 +40,7 @@ namespace KitchenSanFiero.Elites
         public static ConfigEntry<float> DefenderHealthMult;
         public static ConfigEntry<float> DefenderDamageMult;
         public static ConfigEntry<float> DefenderStunChance;
+        public static ConfigEntry<float> DefenderDazzledTime;
         public static ConfigEntry<bool> DefenderEnable;
         public static string name = "Defender";
         public static void Init()
@@ -75,14 +76,21 @@ namespace KitchenSanFiero.Elites
             DefenderStunChance = Config.Bind<float>("Elite : " + name,
                                          "Stun chance",
                                          2f,
-                                         "Control the stun chance of " + name + " elite on enemys skill use");
+                                         "Control the stun chance on enemy skill use");
+            DefenderDazzledTime = Config.Bind<float>("Elite : " + name,
+                                         "Dazzled time",
+                                         5f,
+                                         "Control the Dazzled time");
+
             DefenderEnable = Config.Bind<bool>("Elite : " + name,
                  "Activation",
                  true,
-                 "Enable " + name + " elite?");
+                 "Enable this elite?");
             ModSettingsManager.AddOption(new CheckBoxOption(DefenderEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderHealthMult));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderDamageMult));
+            ModSettingsManager.AddOption(new FloatFieldOption(DefenderStunChance));
+            ModSettingsManager.AddOption(new FloatFieldOption(DefenderDazzledTime));
         }
         private static void CombatDirector_Init(On.RoR2.CombatDirector.orig_Init orig)
         {
@@ -142,7 +150,7 @@ namespace KitchenSanFiero.Elites
                             EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
 
                         }
-                        self.AddTimedBuff(DazzledBuff.DazzledBuffDef, 3f);
+                        self.AddTimedBuff(DazzledBuff.DazzledBuffDef, DefenderDazzledTime.Value);
                     }
                 }
             }

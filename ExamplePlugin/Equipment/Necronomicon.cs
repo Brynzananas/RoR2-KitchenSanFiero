@@ -61,7 +61,7 @@ namespace KitchenSanFiero.Equipment
                                          20,
                                          "Control the damage boost in 10%");
             NecronomiconHealthDrain = Config.Bind<int>("Equipment : Necronomicon",
-                                         "Health drain",
+                                         "Ghost duration",
                                          30,
                                          "Control how long ghosts last in seconds");
             NecronomiconDoInventoryCopy = Config.Bind<bool>("Equipment : Necronomicon",
@@ -81,7 +81,7 @@ namespace KitchenSanFiero.Equipment
                                          20,
                                          "Control the damage boost in 10% for non player users");
             NecronomiconHealthDrainNoPlayer = Config.Bind<int>("Equipment : Necronomicon",
-                                         "Health drain for non player users",
+                                         "Ghost duration for non player users",
                                          20,
                                          "Control how long ghosts last in seconds for non player users");
             NecronomiconDoInventoryCopyNoPlayer = Config.Bind<bool>("Equipment : Necronomicon",
@@ -453,8 +453,8 @@ localScale = new Vector3(0.29592F, 0.29592F, 0.29592F)
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add("NECRONOMICON_NAME", "Necronomicon");
-            LanguageAPI.Add("NECRONOMICON_PICKUP", "Revive 5 last dead monsters to your side");
-            LanguageAPI.Add("NECRONOMICON_DESC", "Revive 5 last dead monsters to your side");
+            LanguageAPI.Add("NECRONOMICON_PICKUP", "Revive <style=cIsDamage>" + NecronomiconSpawnAmount.Value + "</style> last dead monsters to <style=cIsStyle>your side</style>");
+            LanguageAPI.Add("NECRONOMICON_DESC", "Revive <style=cIsDamage>\" + NecronomiconSpawnAmount.Value + \"</style> last dead monsters to <style=cIsStyle>your side</style>");
             LanguageAPI.Add("NECRONOMICON_LORE", "Dark and griddy");
         }
     }

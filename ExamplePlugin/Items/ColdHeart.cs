@@ -49,7 +49,7 @@ namespace KitchenSanFiero.Items
             ColdHeartRegenerate = Config.Bind<bool>("Item : Cold Heart",
                                          "Regenerate",
                                          false,
-                                         "Control if this item turns into The Dredged affix");
+                                         "Control if this item turns into The Dredged affix\nWIP: Does not work");
 
             ModSettingsManager.AddOption(new FloatFieldOption(ColdHeartDamage));
             ModSettingsManager.AddOption(new FloatFieldOption(ColdHeartHealth));
@@ -273,9 +273,9 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
             var displayRules = new ItemDisplayRuleDict(null);
             ItemAPI.Add(new CustomItem(ColdHeartDef, displayRules));
             GetStatCoefficients += Stats;
-            On.RoR2.CharacterMaster.OnServerStageBegin += StageStart;
+            //On.RoR2.CharacterMaster.OnServerStageBegin += StageStart;
         }
-
+        /*
         private static void StageStart(On.RoR2.CharacterMaster.orig_OnServerStageBegin orig, CharacterMaster self, Stage stage)
         {
             orig(self, stage);
@@ -288,7 +288,7 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
                     self.inventory.RemoveItem(ColdHeartDef);
                 }
             }
-        }
+        }*/
 
         private static void Stats(CharacterBody sender, StatHookEventArgs args)
         {
@@ -303,9 +303,9 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
         public static void AddLanguageTokens()
         {
             LanguageAPI.Add("COLDHEART_NAME", "Cold Heart");
-            LanguageAPI.Add("COLDHEART_PICKUP", "It's an eternity here...");
-            LanguageAPI.Add("COLDHEART_DESC", "It's an eternity here...");
-            LanguageAPI.Add("COLDHEART_LORE", "It's an eternity here...");
+            LanguageAPI.Add("COLDHEART_PICKUP", "<style=cMono>It's an eternity here...</style>");
+            LanguageAPI.Add("COLDHEART_DESC", "<style=cMono>It's an eternity here...</style>");
+            LanguageAPI.Add("COLDHEART_LORE", "<style=cMono>It's an eternity here...</style>");
         }
     }
 }

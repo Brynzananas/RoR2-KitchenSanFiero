@@ -28,8 +28,11 @@ namespace KitchenSanFiero.Items
         public static ConfigEntry<bool> BrassBellAIBlacklist;
         public static ConfigEntry<float> BrassBellTier;
         public static ConfigEntry<float> BrassBellCooldown;
+        public static ConfigEntry<float> BrassBellCooldownStack;
         public static ConfigEntry<float> BrassBellEffectTime;
+        public static ConfigEntry<float> BrassBellEffectTimeStack;
         public static ConfigEntry<float> BrassBellDamageIncrease;
+        public static ConfigEntry<float> BrassBellDamageIncreaseStack;
         public static ConfigEntry<bool> BrassBellIsReloadSecondary;
         public static ConfigEntry<bool> BrassBellIsReloadutility;
         public static ConfigEntry<bool> BrassBellIsReloadSpecial;
@@ -72,7 +75,7 @@ namespace KitchenSanFiero.Items
             BrassBellEnable = Config.Bind<bool>("Item : " + name,
                  "Activation",
                  true,
-                 "Enable " + name + " item?");
+                 "Enable this item?");
 
             BrassBellAIBlacklist = Config.Bind<bool>("Item : " + name,
                                          "AI Blacklist",
@@ -86,14 +89,26 @@ namespace KitchenSanFiero.Items
                                          "Interval between effects",
                                          15f,
                                          "Control the interval for this item activation");
+            BrassBellCooldownStack = Config.Bind<float>("Item : " + name,
+                                         "Interval reduction",
+                                         0f,
+                                         "Control the interval reduction per stack in percentage\nSet to 0 to disable stacking");
             BrassBellEffectTime = Config.Bind<float>("Item : " + name,
                                          "Effect time",
                                          1f,
                                          "Control how long this item effect lasts in seconds");
+            BrassBellEffectTimeStack = Config.Bind<float>("Item : " + name,
+                                         "Effect time stack",
+                                         0f,
+                                         "Control addition effect duration in seconds");
             BrassBellDamageIncrease = Config.Bind<float>("Item : " + name,
-                                         "Damage increase multiplier",
-                                         100f,
+                                         "Damage increase",
+                                         42f,
                                          "Control the damage increase in percentage");
+            BrassBellDamageIncreaseStack = Config.Bind<float>("Item : " + name,
+                                         "Damage increase stack",
+                                         42f,
+                                         "Control the damage increase stack in percentage");
             BrassBellIsReloadSecondary = Config.Bind<bool>("Item : " + name,
                                          "Secondary skill reload",
                                          true,
@@ -115,8 +130,11 @@ namespace KitchenSanFiero.Items
             ModSettingsManager.AddOption(new CheckBoxOption(BrassBellAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(BrassBellTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassBellCooldown));
+            ModSettingsManager.AddOption(new FloatFieldOption(BrassBellCooldownStack));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassBellEffectTime));
+            ModSettingsManager.AddOption(new FloatFieldOption(BrassBellEffectTimeStack));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassBellDamageIncrease));
+            ModSettingsManager.AddOption(new FloatFieldOption(BrassBellDamageIncreaseStack));
             ModSettingsManager.AddOption(new CheckBoxOption(BrassBellIsReloadSecondary));
             ModSettingsManager.AddOption(new CheckBoxOption(BrassBellIsReloadutility));
             ModSettingsManager.AddOption(new CheckBoxOption(BrassBellIsReloadSpecial));
@@ -374,6 +392,7 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
                     int count = stack;
                     if (count > 0 && !body.HasBuff(BrassBoostedBuff.BrassBoostedBuffDef) && !body.HasBuff(BrassTimerBuff.BrassTimerBuffDef))
                     {
+                        /*
                         if (body.skillLocator.secondary.stock <= 0 && BrassBell.BrassBellIsReloadSecondary.Value)
                         {
                             body.skillLocator.secondary.AddOneStock();
@@ -388,8 +407,17 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
                         {
                             body.skillLocator.secondary.AddOneStock();
 
+                        }*/
+                        float cooldown = BrassBellCooldown.Value;
+                        if (BrassBellCooldownStack.Value != 0)
+                        {
+                            for (int i = 0; i < count - 1; i++)
+                            {
+                                cooldown -= cooldown * (BrassBellCooldownStack.Value / 100);
+                            }
                         }
-                        body.AddTimedBuff(BrassTimerBuff.BrassTimerBuffDef, BrassBellCooldown.Value);
+                        
+                        body.AddTimedBuff(BrassTimerBuff.BrassTimerBuffDef, cooldown);
 
                     }
 
@@ -434,7 +462,7 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
             string configSkills = ".";
             if (BrassBellIsReloadSecondary.Value || BrassBellIsReloadutility.Value || BrassBellIsReloadSpecial.Value)
             {
-                configSkills += "<style=cIsUtility>Reload ";
+                configSkills += " <style=cIsUtility>Reload ";
 
                 if (BrassBellIsReloadSecondary.Value)
                 {
@@ -462,7 +490,7 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
             }
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_NAME", name);
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "Every " + BrassBellCooldown.Value + " seconds <style=cIsDamage>increase your damage by " + BrassBellDamageIncrease.Value + "%</style> <style=cStack>(+" + BrassBellDamageIncrease.Value + "% per item stack)</style> for " + BrassBellEffectTime.Value + " seconds" + configSkills);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "Every " + BrassBellCooldown.Value + " seconds increase your damage by " + BrassBellDamageIncrease.Value + "% (+" + BrassBellDamageIncrease.Value + "% per item stack) for " + BrassBellEffectTime.Value + " seconds" + configSkills);
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "Every " + BrassBellCooldown.Value + " seconds <style=cIsDamage>increase your damage by " + BrassBellDamageIncrease.Value + "%</style> <style=cStack>(+" + BrassBellDamageIncrease.Value + "% per item stack)</style> for " + BrassBellEffectTime.Value + " seconds" + configSkills);
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_LORE", "mmmm yummy");
         }
     }

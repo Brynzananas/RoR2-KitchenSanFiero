@@ -190,7 +190,9 @@ namespace KitchenSanFiero.Elites
                         }
                     }
 
+                    }
                 }
+                
             }
             
         }

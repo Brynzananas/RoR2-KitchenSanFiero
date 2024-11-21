@@ -195,7 +195,8 @@ namespace KitchenSanFiero.Elites
                 
             }
             
-        }
+        
+
         private static void Stats(CharacterBody sender, StatHookEventArgs args)
         {
 

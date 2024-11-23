@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 
-namespace KitchenSanFiero.Buffs
+namespace CaeliImperium.Buffs
 {
     internal static class TalismanCooldownBuff
     {
@@ -24,7 +24,7 @@ namespace KitchenSanFiero.Buffs
         private static void Buff()
         {
             TalismanCooldownBuffDef = ScriptableObject.CreateInstance<BuffDef>();
-            TalismanCooldownBuffDef.name = "ksfTalismanCooldwon";
+            TalismanCooldownBuffDef.name = "ciTalismanCooldwon";
             TalismanCooldownBuffDef.buffColor = Color.grey;
             TalismanCooldownBuffDef.canStack = true;
             TalismanCooldownBuffDef.isDebuff = true;

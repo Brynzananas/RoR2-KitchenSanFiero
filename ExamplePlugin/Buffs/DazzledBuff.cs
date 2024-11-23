@@ -1,4 +1,4 @@
-﻿using KitchenSanFiero.Items;
+﻿using CaeliImperium.Items;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -6,12 +6,12 @@ using System.Text;
 using static R2API.RecalculateStatsAPI;
 using UnityEngine;
 using RoR2;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using RiskOfOptions.Options;
 using RiskOfOptions;
 using BepInEx.Configuration;
 
-namespace KitchenSanFiero.Buffs
+namespace CaeliImperium.Buffs
 {
     internal static class DazzledBuff
     {
@@ -25,7 +25,7 @@ namespace KitchenSanFiero.Buffs
             DazzledDamageIncrease = Config.Bind<float>("Buff : Dazzled",
                              "Damage increase",
                              50f,
-                             "Control how much Dazzled increases incoming damage in percentage per buff stack");
+                             "Control how much Dazzled increases incoming damage in percentage");
             ModSettingsManager.AddOption(new FloatFieldOption(DazzledDamageIncrease));
             DazzledIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/Dazzled.png");
 
@@ -35,7 +35,7 @@ namespace KitchenSanFiero.Buffs
         private static void Buff()
         {
             DazzledBuffDef = ScriptableObject.CreateInstance<BuffDef>();
-            DazzledBuffDef.name = "ksfDazzled";
+            DazzledBuffDef.name = "ciDazzled";
             DazzledBuffDef.buffColor = Color.white;
             DazzledBuffDef.canStack = true;
             DazzledBuffDef.isDebuff = true;

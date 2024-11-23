@@ -1,6 +1,6 @@
 ﻿using BepInEx.Configuration;
 using IL.RoR2.Items;
-using KitchenSanFiero.Buffs;
+using CaeliImperium.Buffs;
 using R2API;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
@@ -11,12 +11,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using System.Runtime.CompilerServices;
-using static KitchenSanFiero.Items.EmergencyMedicalTreatment;
+using static CaeliImperium.Items.EmergencyMedicalTreatment;
 using RoR2.Audio;
 
-namespace KitchenSanFiero.Items
+namespace CaeliImperium.Items
 {
     public static class BrassBell
     {
@@ -167,6 +167,7 @@ namespace KitchenSanFiero.Items
             BrassBellItemDef.pickupModelPrefab = BrassBellPrefab;
             BrassBellItemDef.canRemove = true;
             BrassBellItemDef.hidden = false;
+            BrassBellItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Damage };
             if (BrassBellAIBlacklist.Value)
             {
@@ -489,9 +490,9 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
 
             }
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_NAME", name);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "Every " + BrassBellCooldown.Value + " seconds <style=cIsDamage>increase your damage by " + BrassBellDamageIncrease.Value + "%</style> <style=cStack>(+" + BrassBellDamageIncrease.Value + "% per item stack)</style> for " + BrassBellEffectTime.Value + " seconds" + configSkills);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "Every " + BrassBellCooldown.Value + " seconds <style=cIsDamage>increase your damage by " + BrassBellDamageIncrease.Value + "%</style> <style=cStack>(+" + BrassBellDamageIncrease.Value + "% per item stack)</style> for " + BrassBellEffectTime.Value + " seconds" + configSkills);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_LORE", "mmmm yummy");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "Every " + BrassBellCooldown.Value + " <style=cStack>(-" + BrassBellCooldownStack.Value + "% per item stack)</style> seconds increase your damage by <style=cIsDamage>" + BrassBellDamageIncrease.Value + "%</style> <style=cStack>(+" + BrassBellDamageIncrease.Value + "% per item stack)</style> for " + BrassBellEffectTime.Value + " <style=cStack>(+" + BrassBellEffectTimeStack.Value + ")</style> seconds" + configSkills);
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "Every " + BrassBellCooldown.Value + " <style=cStack>(-" + BrassBellCooldownStack.Value + "% per item stack)</style> seconds increase your damage by <style=cIsDamage>" + BrassBellDamageIncrease.Value + "%</style> <style=cStack>(+" + BrassBellDamageIncrease.Value + "% per item stack)</style> for " + BrassBellEffectTime.Value + " <style=cStack>(+" + BrassBellEffectTimeStack.Value + ")</style> seconds" + configSkills);
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_LORE", "");
         }
     }
 }

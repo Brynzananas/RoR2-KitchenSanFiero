@@ -1,4 +1,4 @@
-﻿using KitchenSanFiero.Items;
+﻿using CaeliImperium.Items;
 using R2API;
 using RiskOfOptions.Options;
 using RiskOfOptions;
@@ -8,11 +8,11 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using static R2API.RecalculateStatsAPI;
 using BepInEx.Configuration;
 
-namespace KitchenSanFiero.Buffs
+namespace CaeliImperium.Buffs
 {
     internal static class WoundedBuff
     {
@@ -46,7 +46,7 @@ namespace KitchenSanFiero.Buffs
         private static void Buff()
         {
             WoundedBuffDef = ScriptableObject.CreateInstance<BuffDef>();
-            WoundedBuffDef.name = "ksfWounded";
+            WoundedBuffDef.name = "ciWounded";
             WoundedBuffDef.buffColor = Color.white;
             WoundedBuffDef.canStack = true;
             WoundedBuffDef.isDebuff = false;

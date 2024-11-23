@@ -8,16 +8,16 @@ using UnityEngine;
 using System.Reflection;
 using UnityEngine.Diagnostics;
 using static UnityEngine.RemoteConfigSettingsHelper;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using BepInEx.Configuration;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
 using RiskOfOptions;
-using KitchenSanFiero.Buffs;
+using CaeliImperium.Buffs;
 using UnityEngine.UIElements;
 using static R2API.RecalculateStatsAPI;
 
-namespace KitchenSanFiero.Items
+namespace CaeliImperium.Items
 {
     internal static class Ciggaretes //: ItemBase<FirstItem>
     {
@@ -70,6 +70,7 @@ namespace KitchenSanFiero.Items
             Item();
 
             AddLanguageTokens();
+            SmokingBuff.Init();
         }
 
         public static void AddConfigs()
@@ -172,6 +173,7 @@ namespace KitchenSanFiero.Items
             CiggaretesItemDef.pickupModelPrefab = CiggaretesPrefab;
             CiggaretesItemDef.canRemove = true;
             CiggaretesItemDef.hidden = false;
+            CiggaretesItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Damage };
             if (PackOfCiggaretesAIBlacklist.Value)
             {

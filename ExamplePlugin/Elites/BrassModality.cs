@@ -12,14 +12,14 @@ using Object = UnityEngine.Object;
 using UnityEngine.UIElements;
 using UnityEngine.XR;
 using static RoR2.MasterSpawnSlotController;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using RiskOfOptions.Options;
 using RiskOfOptions;
 using BepInEx.Configuration;
-using KitchenSanFiero.Buffs;
+using CaeliImperium.Buffs;
 using RiskOfOptions.OptionConfigs;
 
-namespace KitchenSanFiero.Elites
+namespace CaeliImperium.Elites
 {
     public static class BrassModality
     {
@@ -313,9 +313,8 @@ namespace KitchenSanFiero.Elites
             AffixBrassModalityEquipment.passiveBuffDef = AffixBrassModalityBuff;
             AffixBrassModalityEquipment.dropOnDeathChance = affixDropChance;
             AffixBrassModalityEquipment.enigmaCompatible = false;
-            AffixBrassModalityEquipment.pickupModelPrefab = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteFire/PickupEliteFire.prefab").WaitForCompletion(), "PickupAffixBrassModality", false);
-            foreach (Renderer componentsInChild in AffixBrassModalityEquipment.pickupModelPrefab.GetComponentsInChildren<Renderer>())
-                componentsInChild.material = brassModalityMat;
+            AffixBrassModalityEquipment.requiredExpansion = CaeliImperiumExpansionDef;
+            AffixBrassModalityEquipment.pickupModelPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixBrassModality.prefab");
             AffixBrassModalityEquipment.pickupIconSprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/EliteIce/texAffixWhiteIcon.png").WaitForCompletion();
         }
 

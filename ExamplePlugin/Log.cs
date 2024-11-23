@@ -1,6 +1,6 @@
 ﻿using BepInEx.Logging;
 
-namespace KitchenSanFieroPlugin
+namespace ReignFromGreatBeyondPlugin
 {
     internal static class Log
     {

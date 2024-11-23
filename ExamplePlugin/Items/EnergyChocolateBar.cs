@@ -3,7 +3,7 @@ using RoR2;
 using static R2API.RecalculateStatsAPI;
 using UnityEngine.AddressableAssets;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using BepInEx.Configuration;
 using System;
 using RiskOfOptions.OptionConfigs;
@@ -11,7 +11,7 @@ using RiskOfOptions.Options;
 using RiskOfOptions;
 using System.Collections.Generic;
 
-namespace KitchenSanFiero.Items
+namespace CaeliImperium.Items
 {
     internal static class EnergyChocolateBar //: ItemBase<FirstItem>
     {
@@ -125,6 +125,7 @@ namespace KitchenSanFiero.Items
             EnergyChocolateBarItemDef.pickupModelPrefab = EnergyChocolateBarPrefab;
             EnergyChocolateBarItemDef.canRemove = true;
             EnergyChocolateBarItemDef.hidden = false;
+            EnergyChocolateBarItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Damage, ItemTag.Healing};
             if (EnergyChocolateBarsAIBlacklist.Value)
             {
@@ -362,9 +363,9 @@ localScale = new Vector3(1F, 1F, 1F)
                     case 0:
                         break;
                     case 1:
-                        self.inventory.GiveItem(UsedEnergyChocolateBar.UsedEnergyChocolateBarItemDef, itemsToConsume);
+                        self.inventory.GiveItem(UsedEnergyChocolateBar.ConsumedEnergyChocolateBarItemDef, itemsToConsume);
                         self.inventory.RemoveItem(EnergyChocolateBarItemDef, itemsToConsume);
-                        CharacterMasterNotificationQueue.SendTransformNotification(self, EnergyChocolateBarItemDef.itemIndex, UsedEnergyChocolateBar.UsedEnergyChocolateBarItemDef.itemIndex, CharacterMasterNotificationQueue.TransformationType.Default);
+                        CharacterMasterNotificationQueue.SendTransformNotification(self, EnergyChocolateBarItemDef.itemIndex, UsedEnergyChocolateBar.ConsumedEnergyChocolateBarItemDef.itemIndex, CharacterMasterNotificationQueue.TransformationType.Default);
                         break;
                     case 2:
                         self.inventory.GiveItem(RoR2Content.Items.ScrapWhite, itemsToConsume);

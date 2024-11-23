@@ -1,6 +1,6 @@
 ﻿using BepInEx.Configuration;
 using IL.RoR2.Items;
-using KitchenSanFiero.Buffs;
+using CaeliImperium.Buffs;
 using R2API;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
@@ -11,17 +11,17 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using static R2API.RecalculateStatsAPI;
-using KitchenSanFiero.Elites;
+using CaeliImperium.Elites;
 
-namespace KitchenSanFiero.Items
+namespace CaeliImperium.Items
 {
     public static class ColdHeart
     {
         internal static GameObject ColdHeartPrefab;
         internal static Sprite ColdHeartIcon;
-        public static ItemDef ColdHeartDef;
+        public static ItemDef ColdHeartItemDef;
         public static ConfigEntry<float> ColdHeartDamage;
         public static ConfigEntry<float> ColdHeartHealth;
         public static ConfigEntry<bool> ColdHeartRegenerate;
@@ -29,7 +29,7 @@ namespace KitchenSanFiero.Items
         {
             AddConfigs();
 
-            string tier = "Assets/Icons/BrassBellIcon.png";
+            string tier = "Assets/Icons/ColdHeart.png";
             ColdHeartPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/ColdHeart.prefab");
             ColdHeartIcon = MainAssets.LoadAsset<Sprite>(tier);
             Item();
@@ -58,19 +58,20 @@ namespace KitchenSanFiero.Items
         public static void Item()
         {
 
-            ColdHeartDef = ScriptableObject.CreateInstance<ItemDef>();
-            ColdHeartDef.name = "ColdHeart";
-            ColdHeartDef.nameToken = "COLDHEART_NAME";
-            ColdHeartDef.pickupToken = "COLDHEART_PICKUP";
-            ColdHeartDef.descriptionToken = "COLDHEART_DESC";
-            ColdHeartDef.loreToken = "COLDHEART_LORE";
-            ColdHeartDef.deprecatedTier = ItemTier.Boss;
-            ColdHeartDef.pickupIconSprite = ColdHeartIcon;
-            ColdHeartDef.pickupModelPrefab = ColdHeartPrefab;
-            ColdHeartDef.canRemove = false;
-            ColdHeartDef.hidden = false;
+            ColdHeartItemDef = ScriptableObject.CreateInstance<ItemDef>();
+            ColdHeartItemDef.name = "ColdHeart";
+            ColdHeartItemDef.nameToken = "COLDHEART_NAME";
+            ColdHeartItemDef.pickupToken = "COLDHEART_PICKUP";
+            ColdHeartItemDef.descriptionToken = "COLDHEART_DESC";
+            ColdHeartItemDef.loreToken = "COLDHEART_LORE";
+            ColdHeartItemDef.deprecatedTier = ItemTier.Boss;
+            ColdHeartItemDef.pickupIconSprite = ColdHeartIcon;
+            ColdHeartItemDef.pickupModelPrefab = ColdHeartPrefab;
+            ColdHeartItemDef.canRemove = false;
+            ColdHeartItemDef.hidden = false;
+            ColdHeartItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.WorldUnique, ItemTag.CannotDuplicate, ItemTag.CannotSteal};
-            ColdHeartDef.tags = tags.ToArray();
+            ColdHeartItemDef.tags = tags.ToArray();
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
             rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
@@ -271,7 +272,7 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
                 }
             });
             var displayRules = new ItemDisplayRuleDict(null);
-            ItemAPI.Add(new CustomItem(ColdHeartDef, displayRules));
+            ItemAPI.Add(new CustomItem(ColdHeartItemDef, displayRules));
             GetStatCoefficients += Stats;
             //On.RoR2.CharacterMaster.OnServerStageBegin += StageStart;
         }
@@ -292,7 +293,7 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
 
         private static void Stats(CharacterBody sender, StatHookEventArgs args)
         {
-            int itemCount = sender.inventory ? sender.inventory.GetItemCount(ColdHeartDef) : 0;
+            int itemCount = sender.inventory ? sender.inventory.GetItemCount(ColdHeartItemDef) : 0;
             if (itemCount > 0)
             {
                 args.damageMultAdd += ColdHeartDamage.Value / 100;

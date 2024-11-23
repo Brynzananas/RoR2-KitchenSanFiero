@@ -1,4 +1,4 @@
-﻿using KitchenSanFiero.Items;
+﻿using CaeliImperium.Items;
 using R2API;
 using RoR2;
 using System;
@@ -6,12 +6,12 @@ using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
-using KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using CaeliImperium;
 using UnityEngine.Networking;
 using RoR2.Audio;
 
-namespace KitchenSanFiero.Buffs
+namespace CaeliImperium.Buffs
 {
     internal static class BrassTimerBuff
     {
@@ -30,7 +30,7 @@ namespace KitchenSanFiero.Buffs
         private static void Buff()
         {
             BrassTimerBuffDef = ScriptableObject.CreateInstance<BuffDef>();
-            BrassTimerBuffDef.name = "ksfBellTimer";
+            BrassTimerBuffDef.name = "ciBellTimer";
             BrassTimerBuffDef.buffColor = Color.grey;
             BrassTimerBuffDef.canStack = false;
             BrassTimerBuffDef.isDebuff = false;

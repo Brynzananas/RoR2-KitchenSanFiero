@@ -1,4 +1,4 @@
-﻿using KitchenSanFiero.Items;
+﻿using CaeliImperium.Items;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -6,10 +6,10 @@ using System.Text;
 using static R2API.RecalculateStatsAPI;
 using UnityEngine;
 using RoR2;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using System.Runtime.CompilerServices;
 
-namespace KitchenSanFiero.Buffs
+namespace CaeliImperium.Buffs
 {
     internal static class KillswitchBuff
 
@@ -29,7 +29,7 @@ namespace KitchenSanFiero.Buffs
         private static void Buff()
         {
             KillSwitchBuffDef = ScriptableObject.CreateInstance<BuffDef>();
-            KillSwitchBuffDef.name = "ksfKillSwitch";
+            KillSwitchBuffDef.name = "ciKillSwitch";
             KillSwitchBuffDef.buffColor = Color.white;
             KillSwitchBuffDef.canStack = true;
             KillSwitchBuffDef.isDebuff = false;

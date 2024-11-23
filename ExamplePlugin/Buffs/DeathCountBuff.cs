@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 
-namespace KitchenSanFiero.Buffs
+namespace CaeliImperium.Buffs
 {
     internal static class DeathCountBuff
     {
@@ -24,7 +24,7 @@ namespace KitchenSanFiero.Buffs
         private static void Buff()
         {
             DeathCountBuffDef = ScriptableObject.CreateInstance<BuffDef>();
-            DeathCountBuffDef.name = "ksfDeathCount";
+            DeathCountBuffDef.name = "ciDeathCount";
             DeathCountBuffDef.buffColor = Color.black;
             DeathCountBuffDef.canStack = true;
             DeathCountBuffDef.isDebuff = false;

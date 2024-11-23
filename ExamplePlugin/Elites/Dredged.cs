@@ -9,8 +9,8 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.Diagnostics;
 using static R2API.RecalculateStatsAPI;
 using static UnityEngine.UIElements.ListViewDragger;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
-using KitchenSanFiero.Buffs;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using CaeliImperium.Buffs;
 using Object = UnityEngine.Object;
 using JetBrains.Annotations;
 using BepInEx.Configuration;
@@ -18,10 +18,10 @@ using RiskOfOptions.Options;
 using RiskOfOptions;
 using UnityEngine.XR;
 using UnityEngine.Networking;
-using KitchenSanFiero.Items;
+using CaeliImperium.Items;
 using RiskOfOptions.OptionConfigs;
 
-namespace KitchenSanFiero.Elites
+namespace CaeliImperium.Elites
 {
     public static class Dredged
     {
@@ -64,6 +64,8 @@ namespace KitchenSanFiero.Elites
             SetupEquipment();
             SetupElite();
             AddContent();
+            ColdHeart.Init();
+            DeathCountBuff.Init();
             EliteRamp.AddRamp(AffixDredgedElite, eliteRamp);
             ContentAddition.AddEquipmentDef(AffixDredgedEquipment);
             On.RoR2.CharacterBody.OnBuffFirstStackGained += CharacterBody_OnBuffFirstStackGained;
@@ -121,7 +123,7 @@ namespace KitchenSanFiero.Elites
         }
         public static void DredgedRespawn(CharacterMaster self)
         {
-            CharacterMasterNotificationQueue.SendTransformNotification(self, RoR2Content.Items.ExtraLife.itemIndex, ColdHeart.ColdHeartDef.itemIndex, CharacterMasterNotificationQueue.TransformationType.Default);
+            CharacterMasterNotificationQueue.SendTransformNotification(self, RoR2Content.Items.ExtraLife.itemIndex, ColdHeart.ColdHeartItemDef.itemIndex, CharacterMasterNotificationQueue.TransformationType.Default);
             Vector3 vector = self.deathFootPosition;
             if (self.killedByUnsafeArea)
             {
@@ -196,7 +198,7 @@ namespace KitchenSanFiero.Elites
                     if (body.inventory.GetEquipmentIndex() == AffixDredgedEquipment.equipmentIndex)
                     {
                         DredgedRespawn(self); //DredgedRespawn(self, body);
-                        body.inventory.GiveItem(ColdHeart.ColdHeartDef, 1);
+                        body.inventory.GiveItem(ColdHeart.ColdHeartItemDef, 1);
                         body.inventory.SetEquipmentIndex(EquipmentIndex.None);
 
                         if (self.IsInvoking("RespawnExtraLife"))
@@ -387,9 +389,8 @@ namespace KitchenSanFiero.Elites
             AffixDredgedEquipment.passiveBuffDef = AffixDredgedBuff;
             AffixDredgedEquipment.dropOnDeathChance = affixDropChance;
             AffixDredgedEquipment.enigmaCompatible = false;
-            AffixDredgedEquipment.pickupModelPrefab = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteFire/PickupEliteFire.prefab").WaitForCompletion(), "PickupAffixDredged", false);
-            foreach (Renderer componentsInChild in AffixDredgedEquipment.pickupModelPrefab.GetComponentsInChildren<Renderer>())
-                componentsInChild.material = dredgedMat;
+            AffixDredgedEquipment.requiredExpansion = CaeliImperiumExpansionDef;
+            AffixDredgedEquipment.pickupModelPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixDredgedModel.prefab");
             AffixDredgedEquipment.pickupIconSprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/EliteIce/texAffixWhiteIcon.png").WaitForCompletion();
 
             AffixDredgedEquipment.nameToken = "EQUIPMENT_AFFIX_DREDGED_NAME";

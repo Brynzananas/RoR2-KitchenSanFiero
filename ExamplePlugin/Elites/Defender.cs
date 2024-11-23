@@ -12,15 +12,15 @@ using Object = UnityEngine.Object;
 using UnityEngine.UIElements;
 using UnityEngine.XR;
 using static RoR2.MasterSpawnSlotController;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using RiskOfOptions.Options;
 using RiskOfOptions;
 using BepInEx.Configuration;
-using KitchenSanFiero.Buffs;
+using CaeliImperium.Buffs;
 using Rewired;
 using RiskOfOptions.OptionConfigs;
 
-namespace KitchenSanFiero.Elites
+namespace CaeliImperium.Elites
 {
     public static class Defender
     {
@@ -34,7 +34,7 @@ namespace KitchenSanFiero.Elites
         public static float affixDropChance = 0.00025f;
         private static GameObject DefenderWard = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteHaunted/AffixHauntedWard.prefab").WaitForCompletion(), "BrassModalityWard");
         private static Material DefenderMat = Addressables.LoadAssetAsync<Material>("RoR2/Base/Common/VFX/matOpaqueDustLarge_BrassContraption_opt.mat").WaitForCompletion();
-        private static Texture2D eliteRamp = MainAssets.LoadAsset<Texture2D>("Assets/Textures/brass_modality_ramp.png");
+        private static Texture2D eliteRamp = MainAssets.LoadAsset<Texture2D>("Assets/Textures/defender_ramp.png");
         private static Sprite eliteIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/guardian_elite_icon.png");
         // RoR2/Base/Common/ColorRamps/texRampWarbanner.png 
         public static ConfigEntry<float> DefenderHealthMult;
@@ -42,6 +42,8 @@ namespace KitchenSanFiero.Elites
         public static ConfigEntry<float> DefenderStunChance;
         public static ConfigEntry<float> DefenderDazzledTime;
         public static ConfigEntry<bool> DefenderEnable;
+        public static ConfigEntry<bool> DefenderEnableDamageAbsorb;
+        public static ConfigEntry<float> DefenderArmor;
         public static string name = "Defender";
         public static void Init()
         {
@@ -62,17 +64,26 @@ namespace KitchenSanFiero.Elites
             On.RoR2.CharacterBody.OnBuffFinalStackLost += CharacterBody_OnBuffFinalStackLost;
             On.RoR2.CombatDirector.Init += CombatDirector_Init;
             On.RoR2.CharacterBody.OnSkillActivated += OnEnemySkillUse;
+            On.RoR2.HealthComponent.TakeDamageProcess += AbsorbDamage;
+            GetStatCoefficients += Stats;
         }
+
+        
+
         private static void AddConfigs()
         {
             DefenderHealthMult = Config.Bind<float>("Elite : " + name,
                                          "Health Multiplier",
                                          4f,
-                                         "Control the health multiplier of " + name + " elite");
+                                         "Control the health multiplier of this elite");
             DefenderDamageMult = Config.Bind<float>("Elite : " + name,
                                          "Damage Multiplier",
                                          2f,
-                                         "Control the damage multiplier of " + name + " elite");
+                                         "Control the damage multiplier of this elite");
+            DefenderArmor = Config.Bind<float>("Elite : " + name,
+                                         "Armor",
+                                         500f,
+                                         "Control the armor of this elite");
             DefenderStunChance = Config.Bind<float>("Elite : " + name,
                                          "Stun chance",
                                          2f,
@@ -86,11 +97,17 @@ namespace KitchenSanFiero.Elites
                  "Activation",
                  true,
                  "Enable this elite?");
+            DefenderEnableDamageAbsorb = Config.Bind<bool>("Elite : " + name,
+                 "Damage absorb",
+                 true,
+                 "Enable damage absorbing?");
             ModSettingsManager.AddOption(new CheckBoxOption(DefenderEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderHealthMult));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderDamageMult));
+            ModSettingsManager.AddOption(new FloatFieldOption(DefenderArmor));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderStunChance));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderDazzledTime));
+            ModSettingsManager.AddOption(new CheckBoxOption(DefenderEnableDamageAbsorb));
         }
         private static void CombatDirector_Init(On.RoR2.CombatDirector.orig_Init orig)
         {
@@ -114,6 +131,56 @@ namespace KitchenSanFiero.Elites
                 elites.Add(AffixDefenderElite);
                 targetTier.eliteTypes = elites.ToArray();
             }
+        }
+        private static void Stats(CharacterBody sender, StatHookEventArgs args)
+        {
+            if (sender.HasBuff(AffixDefenderBuff))
+            {
+                args.armorAdd += DefenderArmor.Value;
+            }
+        }
+
+        private static void AbsorbDamage(On.RoR2.HealthComponent.orig_TakeDamageProcess orig, HealthComponent self, DamageInfo damageInfo)
+        {
+            if (DefenderEnableDamageAbsorb.Value && damageInfo.attacker && !self.body.HasBuff(AffixDefenderBuff))
+            {
+                int eliteCount = 0;
+                CharacterBody[] eliteArray = new CharacterBody[0];
+                foreach (var characterBody in CharacterBody.readOnlyInstancesList)
+                {
+                    if (characterBody.HasBuff(AffixDefenderBuff) && characterBody.teamComponent.teamIndex == self.body.teamComponent.teamIndex)
+                    {
+                        eliteCount++;
+                        Array.Resize(ref eliteArray, eliteCount);
+                        eliteArray.SetValue(characterBody, eliteCount - 1);
+                    }
+                }
+                if (eliteCount > 0)
+                {
+                    
+                    damageInfo.rejected = true;
+
+                    foreach (var elite in eliteArray)
+                    {
+                        DamageInfo damageInfo2 = new DamageInfo
+                        {
+                            damage = damageInfo.damage / eliteCount,
+                            damageColorIndex = damageInfo.damageColorIndex,
+                            damageType = damageInfo.damageType,
+                            attacker = damageInfo.attacker,
+                            crit = damageInfo.crit,
+                            force = Vector3.zero,
+                            inflictor = damageInfo.inflictor,
+                            position = elite.transform.position,
+                            procChainMask = damageInfo.procChainMask,
+                            procCoefficient = damageInfo.procCoefficient,
+                        };
+                        elite.healthComponent.TakeDamage(damageInfo2);
+                    }
+                }
+            }
+
+            orig(self, damageInfo);
         }
         private static void OnEnemySkillUse(On.RoR2.CharacterBody.orig_OnSkillActivated orig, CharacterBody self, GenericSkill skill)
         {
@@ -226,9 +293,8 @@ namespace KitchenSanFiero.Elites
             AffixDefenderEquipment.passiveBuffDef = AffixDefenderBuff;
             AffixDefenderEquipment.dropOnDeathChance = affixDropChance;
             AffixDefenderEquipment.enigmaCompatible = false;
-            AffixDefenderEquipment.pickupModelPrefab = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteFire/PickupEliteFire.prefab").WaitForCompletion(), "PickupAffix" + name.Replace(" ", ""), false);
-            foreach (Renderer componentsInChild in AffixDefenderEquipment.pickupModelPrefab.GetComponentsInChildren<Renderer>())
-                componentsInChild.material = DefenderMat;
+            AffixDefenderEquipment.requiredExpansion = CaeliImperiumExpansionDef;
+            AffixDefenderEquipment.pickupModelPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixDefender.prefab");
             AffixDefenderEquipment.pickupIconSprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/EliteIce/texAffixWhiteIcon.png").WaitForCompletion();
         }
 

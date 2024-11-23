@@ -6,11 +6,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
-using static KitchenSanFiero.Equipment.EnforcerHand;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperium.Equipment.EnforcerHand;
 using static RoR2.MasterSpawnSlotController;
 
-namespace KitchenSanFiero.Buffs
+namespace CaeliImperium.Buffs
 {
     internal static class ParryNextDamageBuff
     {
@@ -29,7 +29,7 @@ namespace KitchenSanFiero.Buffs
         private static void Buff()
         {
             ParryNextDamageBuffDef = ScriptableObject.CreateInstance<BuffDef>();
-            ParryNextDamageBuffDef.name = "ksfParryNextDamage";
+            ParryNextDamageBuffDef.name = "ciParryNextDamage";
             ParryNextDamageBuffDef.buffColor = Color.white;
             ParryNextDamageBuffDef.canStack = false;
             ParryNextDamageBuffDef.isDebuff = false;

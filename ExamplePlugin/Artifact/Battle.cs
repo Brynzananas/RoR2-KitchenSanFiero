@@ -1,6 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
-using KitchenSanFieroPlugin;
+using ReignFromGreatBeyondPlugin;
 using R2API;
 using RiskOfOptions;
 using RiskOfOptions.Components.Misc;
@@ -13,9 +13,9 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.XR;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 
-namespace KitchenSanFiero.Artifact
+namespace CaeliImperium.Artifact
 {
     internal static class Battle
     {

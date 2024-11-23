@@ -9,11 +9,11 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UIElements;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
-using KitchenSanFiero.Buffs;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using CaeliImperium.Buffs;
 using UnityEngine.Networking;
 
-namespace KitchenSanFiero.Items
+namespace CaeliImperium.Items
 {
     public static class OtherworldlyManuscript
     {
@@ -135,6 +135,7 @@ namespace KitchenSanFiero.Items
             OtherworldlyManuscriptItemDef.pickupModelPrefab = OtherworldlyManuscriptPrefab;
             OtherworldlyManuscriptItemDef.canRemove = true;
             OtherworldlyManuscriptItemDef.hidden = false;
+            OtherworldlyManuscriptItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Damage };
             if (OtherworldlyManuscriptAIBlacklist.Value)
             {

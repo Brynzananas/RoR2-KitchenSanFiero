@@ -1,4 +1,4 @@
-﻿using KitchenSanFiero.Items;
+﻿using CaeliImperium.Items;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -6,9 +6,9 @@ using System.Text;
 using static R2API.RecalculateStatsAPI;
 using UnityEngine;
 using RoR2;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 
-namespace KitchenSanFiero.Buffs
+namespace CaeliImperium.Buffs
 {
     internal static class KeyBuff
     {
@@ -27,7 +27,7 @@ namespace KitchenSanFiero.Buffs
         private static void Buff()
         {
             KeyBuffDef = ScriptableObject.CreateInstance<BuffDef>();
-            KeyBuffDef.name = "ksfKeyBuff";
+            KeyBuffDef.name = "ciKeyBuff";
             KeyBuffDef.buffColor = Color.white;
             KeyBuffDef.canStack = true;
             KeyBuffDef.isDebuff = false;

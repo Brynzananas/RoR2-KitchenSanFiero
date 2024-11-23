@@ -8,15 +8,15 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using RoR2.Orbs;
-using KitchenSanFiero.Buffs;
+using CaeliImperium.Buffs;
 using static R2API.RecalculateStatsAPI;
 using Rewired;
 using UnityEngine.UIElements;
 using static R2API.DamageAPI;
 
-namespace KitchenSanFiero.Items
+namespace CaeliImperium.Items
 {
     internal static class RejectedDagger
     {
@@ -148,6 +148,7 @@ namespace KitchenSanFiero.Items
                 tags.Add(ItemTag.AIBlacklist);
             }
             RejectedDaggerItemDef.tags = tags.ToArray();
+            RejectedDaggerItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var displayRules = new ItemDisplayRuleDict(null);
             ItemAPI.Add(new CustomItem(RejectedDaggerItemDef, displayRules));
             On.RoR2.GlobalEventManager.OnHitEnemy += ShareDamage;
@@ -231,21 +232,22 @@ namespace KitchenSanFiero.Items
                     var victimBody = victim.GetComponent<CharacterBody>();
                     CharacterBody[] characterBodyArray = new CharacterBody[0];
                     int enemiesLeft = 0;
-                    //Debug.Log(victim);
-                    //Debug.Log(victimBody);
-                    //Debug.Log(victimBody.teamComponent.teamIndex);
-                    //Debug.Log(victimBody.master.masterIndex);
+                    //Debug.Log("Victim: " + victim);
+                    //Debug.Log("VictimBody:" + victimBody);
+                    //Debug.Log("VictimTeam:" + victimBody.teamComponent.teamIndex);
+                    //Debug.Log("VictimMaster: " + victimBody.master.masterIndex);
 
                     foreach (var characterBody in CharacterBody.readOnlyInstancesList)
                     {
-                        //Debug.Log(characterBody);
-                        //Debug.Log(characterBody.teamComponent.teamIndex);
-                        //Debug.Log(characterBody.master.masterIndex);
+                        //Debug.Log("CharacterBody: " + characterBody);
+                        //Debug.Log("CharacterTeam: " + characterBody.teamComponent.teamIndex);
+                        //Debug.Log("CharacterTeam " + characterBody.master.masterIndex);
                         bool globalCount = true;
-                        if (RejectedDaggerGlobalCount.Value)
+                        if (!RejectedDaggerGlobalCount.Value)
                         {
                             globalCount = victimBody.master.masterIndex == characterBody.master.masterIndex;
                         }
+                        //Debug.Log("GlobalCount: " +  globalCount);
                         if (victimBody && characterBody && victimBody.teamComponent.teamIndex == characterBody.teamComponent.teamIndex && globalCount)// && victimBody.master.masterIndex == characterBody.master.masterIndex && victimBody != characterBody)
                         {
 
@@ -257,12 +259,14 @@ namespace KitchenSanFiero.Items
                         }
                     }
                     float damageFinal = damageInfo.damage;
+                    //Debug.Log("1Damage: " + damageFinal);
                     if (RejectedDaggerAltFunc.Value)
                     {
                         damageFinal *= characterBodyArray.Length;
+                        //Debug.Log("2Damage: " + damageFinal);
                         DamageInfo damageInfo2 = new DamageInfo
                         {
-                            damage = damageFinal * (RejectedDaggerDamageToAll.Value / 100) * ((count - 1) * (RejectedDaggerDamageToAllStack.Value / 100)),
+                            damage = damageFinal * (RejectedDaggerDamageToAll.Value / 100) + ((count - 1) * (RejectedDaggerDamageToAllStack.Value / 100)),
                             damageColorIndex = DamageColorIndex.Item,
                             damageType = DamageType.Silent,
                             attacker = attacker,
@@ -278,12 +282,13 @@ namespace KitchenSanFiero.Items
                     else
                     {
                         damageFinal /= characterBodyArray.Length;
+                        //Debug.Log("2Damage: " + damageFinal);
                         foreach (var characterBody in characterBodyArray)
                         {
 
                             DamageInfo damageInfo2 = new DamageInfo
                             {
-                                damage = damageFinal * (RejectedDaggerDamageToAll.Value / 100) * ((count - 1) * (RejectedDaggerDamageToAllStack.Value / 100)),
+                                damage = damageFinal * (RejectedDaggerDamageToAll.Value / 100) + ((count - 1) * (RejectedDaggerDamageToAllStack.Value / 100)),
                                 damageColorIndex = DamageColorIndex.Item,
                                 damageType = DamageType.Silent,
                                 attacker = attacker,

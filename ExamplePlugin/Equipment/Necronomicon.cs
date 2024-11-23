@@ -10,10 +10,10 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Assertions.Must;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using BepInEx.Configuration;
 
-namespace KitchenSanFiero.Equipment
+namespace CaeliImperium.Equipment
 {
     internal static class Necronomicon
     {

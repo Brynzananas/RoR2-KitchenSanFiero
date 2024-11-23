@@ -8,12 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using RoR2.Orbs;
-using KitchenSanFiero.Buffs;
+using CaeliImperium.Buffs;
 using static R2API.RecalculateStatsAPI;
 
-namespace KitchenSanFiero.Items
+namespace CaeliImperium.Items
 {
     internal static class MajesticHand
     {
@@ -45,10 +45,14 @@ namespace KitchenSanFiero.Items
             }
             MajesticHandPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/revengeitem.prefab");
             MajesticHandIcon = MainAssets.LoadAsset<Sprite>(tier);
-
+            if (!MajesticHandEnable.Value)
+            {
+                return;
+            }
             Item();
 
             AddLanguageTokens();
+            KillswitchBuff.Init();
         }
 
         private static void AddConfigs()
@@ -106,6 +110,7 @@ namespace KitchenSanFiero.Items
                 tags.Add(ItemTag.AIBlacklist);
             }
             MajesticHandItemDef.tags = tags.ToArray();
+            MajesticHandItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var displayRules = new ItemDisplayRuleDict(null);
             ItemAPI.Add(new CustomItem(MajesticHandItemDef, displayRules));
             On.RoR2.CharacterBody.Start += Die;

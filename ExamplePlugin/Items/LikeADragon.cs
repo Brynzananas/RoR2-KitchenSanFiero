@@ -8,13 +8,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using RoR2.Orbs;
-using KitchenSanFiero.Buffs;
+using CaeliImperium.Buffs;
 using static R2API.RecalculateStatsAPI;
 using Rewired;
 
-namespace KitchenSanFiero.Items
+namespace CaeliImperium.Items
 {
     internal static class LikeADragon
     {
@@ -36,17 +36,17 @@ namespace KitchenSanFiero.Items
         internal static void Init()
         {
             AddConfigs();
-            string tier = "Assets/Icons/BrassBellIcon.png";
+            string tier = "Assets/Icons/LikeADragonTier1.png";
             switch (LikeADragonTier.Value)
             {
                 case 1:
-                    tier = "Assets/Icons/BrassBellIconTier1.png";
+                    tier = "Assets/Icons/LikeADragonTier1.png";
                     break;
                 case 2:
-                    tier = "Assets/Icons/BrassBellIcon.png";
+                    tier = "Assets/Icons/LikeADragonTier2.png";
                     break;
                 case 3:
-                    tier = "Assets/Icons/BrassBellIconTier3.png";
+                    tier = "Assets/Icons/LikeADragonTier3.png";
                     break;
 
             }
@@ -140,6 +140,7 @@ namespace KitchenSanFiero.Items
             LikeADragonItemDef.pickupModelPrefab = LikeADragonPrefab;
             LikeADragonItemDef.canRemove = true;
             LikeADragonItemDef.hidden = false;
+            LikeADragonItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Damage };
             if (LikeADragonAIBlacklist.Value)
             {
@@ -178,7 +179,7 @@ namespace KitchenSanFiero.Items
 
         private static void AddLanguageTokens()
         {
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name.Replace(" ", ""));
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name);
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", "");
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", "");
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "mmmm yummy");

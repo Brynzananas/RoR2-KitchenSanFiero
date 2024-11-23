@@ -1,5 +1,5 @@
 ﻿using BepInEx.Configuration;
-using KitchenSanFiero.Buffs;
+using CaeliImperium.Buffs;
 using R2API;
 using RoR2;
 using RoR2.Items;
@@ -10,12 +10,12 @@ using System.Text;
 using UnityEngine;
 using RiskOfOptions.Options;
 using RiskOfOptions;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using BepInEx;
 using RiskOfOptions.OptionConfigs;
 using UnityEngine.Networking;
 
-namespace KitchenSanFiero.Items
+namespace CaeliImperium.Items
 {
     public static class SkullGammaGun
     {
@@ -23,7 +23,7 @@ namespace KitchenSanFiero.Items
         
         internal static GameObject MicrowavePrefab;
         internal static Sprite MicrowaveIcon;
-        public static ItemDef MicrowaveItemDef;
+        public static ItemDef SkullGammaGunItemDef;
         public static ConfigEntry<bool> SkullGammaGunEnable;
         public static ConfigEntry<bool> SkullGammaGunAIBlacklist;
         public static ConfigEntry<float> SkullGammaGunTier;
@@ -60,6 +60,10 @@ namespace KitchenSanFiero.Items
             }
             MicrowavePrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/SkullGammaGun.prefab");
             MicrowaveIcon = MainAssets.LoadAsset<Sprite>(tier);
+            if (!SkullGammaGunEnable.Value)
+            {
+                return;
+            }
             Item();
             //FixedUpdate();
             AddLanguageTokens();
@@ -84,19 +88,19 @@ namespace KitchenSanFiero.Items
                                          "Control the interval this item applies the debuff in seconds");
             SkullGammaGunAngle = Config.Bind<float>("Item : Skull Gamma Gun",
                                          "Base angle",
-                                         30f,
+                                         60f,
                                          "Control the base angle value");
             SkullGammaGunAngleStack = Config.Bind<float>("Item : Skull Gamma Gun",
                                          "Angle per stack",
-                                         15f,
+                                         30f,
                                          "Control the angle increase per item stack");
             SkullGammaGunRange = Config.Bind<float>("Item : Skull Gamma Gun",
                                          "Base range",
-                                         6f,
+                                         18f,
                                          "Control the base range value");
             SkullGammaGunRangeStack = Config.Bind<float>("Item : Skull Gamma Gun",
                                          "Range per stack",
-                                         4f,
+                                         6f,
                                          "Control the range increase per item stack");
             SkullGammaGunDamage = Config.Bind<float>("Item : Skull Gamma Gun",
                              "Damage",
@@ -139,35 +143,37 @@ namespace KitchenSanFiero.Items
         }
         private static void Item()
         {
-            MicrowaveItemDef = ScriptableObject.CreateInstance<ItemDef>();
-            MicrowaveItemDef.name = "SkullGammaGun";
-            MicrowaveItemDef.nameToken = "SKULLGAMMAGUN_NAME";
-            MicrowaveItemDef.pickupToken = "SKULLGAMMAGUN_PICKUP";
-            MicrowaveItemDef.descriptionToken = "SKULLGAMMAGUN_DESC";
-            MicrowaveItemDef.loreToken = "SKULLGAMMAGUN_LORE";
+            SkullGammaGunItemDef = ScriptableObject.CreateInstance<ItemDef>();
+            SkullGammaGunItemDef.name = "SkullGammaGun";
+            SkullGammaGunItemDef.nameToken = "SKULLGAMMAGUN_NAME";
+            SkullGammaGunItemDef.pickupToken = "SKULLGAMMAGUN_PICKUP";
+            SkullGammaGunItemDef.descriptionToken = "SKULLGAMMAGUN_DESC";
+            SkullGammaGunItemDef.loreToken = "SKULLGAMMAGUN_LORE";
             switch (SkullGammaGunTier.Value)
             {
                 case 1:
-                    MicrowaveItemDef.deprecatedTier = ItemTier.Tier1;
+                    SkullGammaGunItemDef.deprecatedTier = ItemTier.Tier1;
                     break;
                 case 2:
-                    MicrowaveItemDef.deprecatedTier = ItemTier.Tier2;
+                    SkullGammaGunItemDef.deprecatedTier = ItemTier.Tier2;
                     break;
                 case 3:
-                    MicrowaveItemDef.deprecatedTier = ItemTier.Tier3;
+                    SkullGammaGunItemDef.deprecatedTier = ItemTier.Tier3;
                     break;
 
             }
-            MicrowaveItemDef.pickupIconSprite = MicrowaveIcon;
-            MicrowaveItemDef.pickupModelPrefab = MicrowavePrefab;
-            MicrowaveItemDef.canRemove = true;
-            MicrowaveItemDef.hidden = false;
+            SkullGammaGunItemDef.pickupIconSprite = MicrowaveIcon;
+            SkullGammaGunItemDef.pickupModelPrefab = MicrowavePrefab;
+            SkullGammaGunItemDef.canRemove = true;
+            SkullGammaGunItemDef.hidden = false;
+            SkullGammaGunItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Damage };
             if (SkullGammaGunAIBlacklist.Value)
             {
                 tags.Add(ItemTag.AIBlacklist);
             }
-            MicrowaveItemDef.tags = tags.ToArray();
+            SkullGammaGunItemDef.tags = tags.ToArray();
+            
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
             rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
@@ -368,7 +374,7 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                 }
             });
             var displayRules = new ItemDisplayRuleDict(null);
-            ItemAPI.Add(new CustomItem(MicrowaveItemDef, rules));
+            ItemAPI.Add(new CustomItem(SkullGammaGunItemDef, rules));
             On.RoR2.CharacterBody.OnInventoryChanged += ActivateBehaviour;
             //On.RoR2.CharacterBody.FixedUpdate += BUUURNN;
         }
@@ -377,7 +383,7 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
         {
             if (NetworkServer.active)
             {
-                    self.AddItemBehavior<SkullGammaGunBehaviour>(self.inventory.GetItemCount(MicrowaveItemDef));
+                    self.AddItemBehavior<SkullGammaGunBehaviour>(self.inventory.GetItemCount(SkullGammaGunItemDef));
             }
             orig(self);
         }
@@ -390,7 +396,7 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
 
             private static ItemDef GetItemDef()
             {
-                return MicrowaveItemDef;
+                return SkullGammaGunItemDef;
             }
             private void Awake()
             {
@@ -431,7 +437,7 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                                 Vector3 position2 = characterBody.transform.position;
                                 DamageInfo damageInfo2 = new DamageInfo
                                 {
-                                    damage = damage * (SkullGammaGunDamage.Value / 100) * ((stack - 1) * (SkullGammaGunDamageStack.Value / 100)) * (SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2),
+                                    damage = damage * (SkullGammaGunDamage.Value / 100) + ((stack - 1) * (SkullGammaGunDamageStack.Value / 100)) * (SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2),
                                     damageColorIndex = DamageColorIndex.Item,
                                     damageType = DamageType.BypassArmor,
                                     attacker = body.gameObject,

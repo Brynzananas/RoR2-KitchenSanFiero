@@ -8,24 +8,28 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using RoR2.Orbs;
-using KitchenSanFiero.Buffs;
+using CaeliImperium.Buffs;
 using static R2API.RecalculateStatsAPI;
 using Rewired;
 
-namespace KitchenSanFiero.Items
+namespace CaeliImperium.Items
 {
     internal static class Keychain
     {
         internal static GameObject KeychainPrefab;
         internal static Sprite KeychainIcon;
         public static ItemDef KeychainItemDef;
+        public static ConfigEntry<bool> KeychainEnable;
         public static ConfigEntry<bool> KeychainAIBlacklist;
         public static ConfigEntry<float> keychainTier;
         public static ConfigEntry<float> keychainInitialCritIncrease;
+        public static ConfigEntry<float> keychainInitialCritIncreaseStack;
         public static ConfigEntry<float> keychainChancePerItemStack;
-        public static ConfigEntry<bool> KeychainDoElite;
+        public static ConfigEntry<float> keychainChance;
+        public static ConfigEntry<int> KeychainDoElite;
+        public static ConfigEntry<int> KeychainDoChampion;
         public static ConfigEntry<float> keychainCritChancePerBuff;
         public static ConfigEntry<float> keychainCritDamagePerBuff;
         public static string name = "Keychain";
@@ -33,17 +37,17 @@ namespace KitchenSanFiero.Items
         internal static void Init()
         {
             AddConfigs();
-            string tier = "Assets/Icons/BrassBellIcon.png";
+            string tier = "Assets/Icons/KeyChainTier1.png";
             switch (keychainTier.Value)
             {
                 case 1:
-                    tier = "Assets/Icons/BrassBellIconTier1.png";
+                    tier = "Assets/Icons/KeyChainTier1.png";
                     break;
                 case 2:
-                    tier = "Assets/Icons/BrassBellIcon.png";
+                    tier = "Assets/Icons/KeyChainTier2.png";
                     break;
                 case 3:
-                    tier = "Assets/Icons/BrassBellIconTier3.png";
+                    tier = "Assets/Icons/KeyChainTier3.png";
                     break;
 
             }
@@ -53,10 +57,15 @@ namespace KitchenSanFiero.Items
             Item();
 
             AddLanguageTokens();
+            KeyBuff.Init();
         }
 
         private static void AddConfigs()
         {
+            KeychainEnable = Config.Bind<bool>("Item : " + name,
+                             "Activation",
+                             false,
+                             "Enable this item?");
             KeychainAIBlacklist = Config.Bind<bool>("Item : " + name,
                              "AI Blacklist",
                              false,
@@ -68,15 +77,27 @@ namespace KitchenSanFiero.Items
             keychainInitialCritIncrease = Config.Bind<float>("Item : " + name,
                                          "Crit chance addition",
                                          5f,
-                                         "Control how much this item gives crit chance addition on all stacks");
-            keychainChancePerItemStack = Config.Bind<float>("Item : " + name,
+                                         "Control how much this item gives crit chance");
+            keychainInitialCritIncreaseStack = Config.Bind<float>("Item : " + name,
+                                         "Crit chance addition stack",
+                                         0f,
+                                         "Control how much this item gives crit chance per item stack");
+            keychainChance = Config.Bind<float>("Item : " + name,
                                          "On kill buff chance",
                                          5f,
-                                         "Control the chance of getting a buff on enemy kill per item stack");
-            KeychainAIBlacklist = Config.Bind<bool>("Item : " + name,
-                             "On elite kill",
-                             true,
-                             "Always get buff on elite kill?");
+                                         "Control the chance of getting a buff on enemy kill in percentage");
+            keychainChancePerItemStack = Config.Bind<float>("Item : " + name,
+                                         "On kill buff chance stack",
+                                         5f,
+                                         "Control the chance of getting a buff on enemy kill per item stack in percentage");
+            KeychainDoElite = Config.Bind<int>("Item : " + name,
+                             "Elite kill",
+                             1,
+                             "Control how many buffs you get per for an elite kill");
+            KeychainDoChampion = Config.Bind<int>("Item : " + name,
+                             "Champion kill",
+                             3,
+                             "Control how many buffs you get per for a champion kill");
             keychainCritChancePerBuff = Config.Bind<float>("Item : " + name,
                                          "Buff crit chance increase",
                                          2.5f,
@@ -85,6 +106,7 @@ namespace KitchenSanFiero.Items
                                          "Buff crit damage increase",
                                          5f,
                                          "Control the crit damage percentage increase per every buff stack");
+            ModSettingsManager.AddOption(new CheckBoxOption(KeychainEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(KeychainAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(keychainTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
         }
@@ -120,6 +142,7 @@ namespace KitchenSanFiero.Items
                 tags.Add(ItemTag.AIBlacklist);
             }
             KeychainItemDef.tags = tags.ToArray();
+            KeychainItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var displayRules = new ItemDisplayRuleDict(null);
             ItemAPI.Add(new CustomItem(KeychainItemDef, displayRules));
             On.RoR2.CharacterBody.HandleOnKillEffectsServer += OnKillElite;
@@ -144,7 +167,21 @@ namespace KitchenSanFiero.Items
 
                 if (itemCount > 0)
                 {
-                    if (Util.CheckRoll(itemCount * keychainChancePerItemStack.Value, self.master) || (damageReport.victimBody.isElite && KeychainDoElite.Value))
+
+                    int superRoll = (int)Math.Floor((float)(itemCount / 10));
+                    if (damageReport.victim.body.isElite)
+                    {
+                        superRoll += KeychainDoElite.Value;
+                    }
+                    if (damageReport.victim.body.isChampion)
+                    {
+                        superRoll += KeychainDoChampion.Value;
+                    }
+                    for (int i = 0; i < superRoll; i++)
+                    {
+                        self.AddBuff(KeyBuff.KeyBuffDef);
+                    }
+                    if (Util.CheckRoll(itemCount * 10 - (superRoll * 100), self.master))
                     {
                         self.AddBuff(KeyBuff.KeyBuffDef);
                     }
@@ -157,9 +194,9 @@ namespace KitchenSanFiero.Items
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name.Replace(" ", ""));
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", "On kill 5% (+5% per item stack) gain a buff, that increases crit chance by 2.5% (+2.5% per buff stack) and crit damage by 5% (+5% per buff stack)");
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", "On kill 5% (+5% per item stack) gain a buff, that increases crit chance by 2.5% (+2.5% per buff stack) and crit damage by 5% (+5% per buff stack)");
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "mmmm yummy");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", keychainChance.Value + "% <style=cStack>(+" + keychainChancePerItemStack.Value + "% per item stack)</style> to gain a <style=cIsDamage>buff</style> on kill, that increases <style=cIsDamage>>crit chance</style> by <style=cIsDamage>" + keychainCritChancePerBuff.Value + "%</style> <style=cStack>(+" + keychainCritChancePerBuff.Value + "% per buff stack)</style> and <style=cIsDamage>crit damage<style> by <style=cIsDamage>" + keychainCritDamagePerBuff.Value + "%</style> <style=cStack>(+" + keychainCritDamagePerBuff.Value + "% per buff stack)</style>");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", keychainChance.Value + "% <style=cStack>(+" + keychainChancePerItemStack.Value + "% per item stack)</style> to gain a <style=cIsDamage>buff</style> on kill, that increases <style=cIsDamage>>crit chance</style> by <style=cIsDamage>" + keychainCritChancePerBuff.Value + "%</style> <style=cStack>(+" + keychainCritChancePerBuff.Value + "% per buff stack)</style> and <style=cIsDamage>crit damage<style> by <style=cIsDamage>" + keychainCritDamagePerBuff.Value + "%</style> <style=cStack>(+" + keychainCritDamagePerBuff.Value + "% per buff stack)</style>");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "\"What the hell keychain is for?\"");
         }
     }
 }

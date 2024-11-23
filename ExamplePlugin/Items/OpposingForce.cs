@@ -8,13 +8,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using RoR2.Orbs;
-using KitchenSanFiero.Buffs;
+using CaeliImperium.Buffs;
 using static R2API.RecalculateStatsAPI;
 using Rewired;
 
-namespace KitchenSanFiero.Items
+namespace CaeliImperium.Items
 {
     internal static class OpposingForce
     {
@@ -33,17 +33,17 @@ namespace KitchenSanFiero.Items
         internal static void Init()
         {
             AddConfigs();
-            string tier = "Assets/Icons/BrassBellIcon.png";
+            string tier = "Assets/Icons/OpposingForceTier1.png";
             switch (OpposingForceTier.Value)
             {
                 case 1:
-                    tier = "Assets/Icons/BrassBellIconTier1.png";
+                    tier = "Assets/Icons/OpposingForceTier1.png";
                     break;
                 case 2:
-                    tier = "Assets/Icons/BrassBellIcon.png";
+                    tier = "Assets/Icons/OpposingForceTier2.png";
                     break;
                 case 3:
-                    tier = "Assets/Icons/BrassBellIconTier3.png";
+                    tier = "Assets/Icons/OpposingForceTier3.png";
                     break;
 
             }
@@ -74,16 +74,16 @@ namespace KitchenSanFiero.Items
                                          "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
             OpposingForceArmorGain = Config.Bind<float>("Item : " + name,
                                          "Armor",
-                                         6f,
+                                         5f,
                                          "Control the armor gain");
             OpposingForceArmorGainStack = Config.Bind<float>("Item : " + name,
                                          "Armor stack",
-                                         4f,
+                                         5f,
                                          "Control the armor gain per item stack");
             OpposingForceDamage = Config.Bind<float>("Item : " + name,
                                          "Damage",
                                          100f,
-                                         "Control the final damage in percentage");
+                                         "Control the damage in percentage");
             OpposingForceDamageStack = Config.Bind<float>("Item : " + name,
                                          "Damage stack",
                                          100f,
@@ -122,7 +122,8 @@ namespace KitchenSanFiero.Items
             OpposingForceItemDef.pickupModelPrefab = OpposingForcePrefab;
             OpposingForceItemDef.canRemove = true;
             OpposingForceItemDef.hidden = false;
-            var tags = new List<ItemTag>() { ItemTag.Damage };
+            OpposingForceItemDef.requiredExpansion = CaeliImperiumExpansionDef;
+            var tags = new List<ItemTag>() { ItemTag.Damage, ItemTag.BrotherBlacklist };
             if (OpposingForceAIBlacklist.Value)
             {
                 tags.Add(ItemTag.AIBlacklist);
@@ -148,7 +149,7 @@ namespace KitchenSanFiero.Items
 
                     DamageInfo damageInfo2 = new DamageInfo
                     {
-                        damage = damageInfo.damage * (1 - (100 / (100 + victimBody.armor))) * (OpposingForceDamage.Value / 100) * ((itemCount - 1) / 100),
+                        damage = damageInfo.damage * (1 - (100 / (100 + victimBody.armor))) * (OpposingForceDamage.Value / 100) + ((itemCount - 1) / 100),
                         damageColorIndex = DamageColorIndex.Item,
                         damageType = DamageType.Silent,
                         attacker = victim,
@@ -175,7 +176,7 @@ namespace KitchenSanFiero.Items
 
         private static void AddLanguageTokens()
         {
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name.Replace(" ", ""));
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name);
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", "");
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", "");
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "mmmm yummy");

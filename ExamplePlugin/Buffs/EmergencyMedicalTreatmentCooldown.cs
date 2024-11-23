@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 
-namespace KitchenSanFiero.Buffs
+namespace CaeliImperium.Buffs
 {
     internal static class EmergencyMedicalTreatmentCooldownBuff
     {
@@ -26,7 +26,7 @@ namespace KitchenSanFiero.Buffs
         private static void Buff()
         {
             EmergencyMedicalTreatmentCooldownBuffDef = ScriptableObject.CreateInstance<BuffDef>();
-            EmergencyMedicalTreatmentCooldownBuffDef.name = "ksfEmergencyMedicalTreatmentCooldown";
+            EmergencyMedicalTreatmentCooldownBuffDef.name = "ciEmergencyMedicalTreatmentCooldown";
             EmergencyMedicalTreatmentCooldownBuffDef.buffColor = Color.grey;
             EmergencyMedicalTreatmentCooldownBuffDef.canStack = false;
             EmergencyMedicalTreatmentCooldownBuffDef.isDebuff = false;

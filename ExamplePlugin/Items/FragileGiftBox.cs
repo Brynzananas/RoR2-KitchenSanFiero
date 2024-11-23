@@ -5,16 +5,16 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine.AddressableAssets;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using System.ComponentModel;
-using KitchenSanFiero.Buffs;
+using CaeliImperium.Buffs;
 using UnityEngine.Diagnostics;
 using BepInEx.Configuration;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
 using RiskOfOptions;
 
-namespace KitchenSanFiero.Items
+namespace CaeliImperium.Items
 {
     internal static class FragileGiftBox //: ItemBase<FirstItem>
     {
@@ -108,6 +108,7 @@ namespace KitchenSanFiero.Items
             FragileGiftBoxItemDef.pickupModelPrefab = FragileGiftBoxPrefab;
             FragileGiftBoxItemDef.canRemove = true;
             FragileGiftBoxItemDef.hidden = false;
+            FragileGiftBoxItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var displayRules = new ItemDisplayRuleDict(null);
             ItemAPI.Add(new CustomItem(FragileGiftBoxItemDef, displayRules));
             On.RoR2.PurchaseInteraction.OnInteractionBegin += OnChestOpen;

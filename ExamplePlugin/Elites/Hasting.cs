@@ -9,13 +9,13 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.Diagnostics;
 using static R2API.RecalculateStatsAPI;
 using Object = UnityEngine.Object;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using RiskOfOptions.Options;
 using RiskOfOptions;
 using BepInEx.Configuration;
 using RiskOfOptions.OptionConfigs;
 
-namespace KitchenSanFiero.Elites
+namespace CaeliImperium.Elites
 {
     public class Hasting : BaseItemBodyBehavior
     {
@@ -241,9 +241,10 @@ namespace KitchenSanFiero.Elites
             AffixHastingEquipment.passiveBuffDef = AffixHastingBuff;
             AffixHastingEquipment.dropOnDeathChance = affixDropChance;
             AffixHastingEquipment.enigmaCompatible = false;
-            AffixHastingEquipment.pickupModelPrefab = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteFire/PickupEliteFire.prefab").WaitForCompletion(), "PickupAffixHasting", false);
+            AffixHastingEquipment.requiredExpansion = CaeliImperiumExpansionDef;
+            AffixHastingEquipment.pickupModelPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixHasting.prefab");/*PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteFire/PickupEliteFire.prefab").WaitForCompletion(), "PickupAffixHasting", false);
             foreach (Renderer componentsInChild in AffixHastingEquipment.pickupModelPrefab.GetComponentsInChildren<Renderer>())
-                componentsInChild.material = hastingMat;
+                componentsInChild.material = hastingMat;*/
             AffixHastingEquipment.pickupIconSprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/EliteIce/texAffixWhiteIcon.png").WaitForCompletion();
             
             AffixHastingEquipment.nameToken = "EQUIPMENT_AFFIX_HASTING_NAME";

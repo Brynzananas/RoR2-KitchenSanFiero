@@ -1,4 +1,4 @@
-﻿using KitchenSanFiero.Buffs;
+﻿using CaeliImperium.Buffs;
 using R2API;
 using RoR2;
 using System;
@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using BepInEx.Configuration;
 using static BepInEx.Configuration.ConfigFile;
 using BepInEx;
@@ -15,10 +15,10 @@ using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
 using RiskOfOptions;
 using BepInEx.Bootstrap;
-using KitchenSanFieroPlugin;
+using ReignFromGreatBeyondPlugin;
 using static R2API.RecalculateStatsAPI;
 
-namespace KitchenSanFiero.Items
+namespace CaeliImperium.Items
 {
     public static class EmergencyMedicalTreatment
     {
@@ -162,6 +162,7 @@ namespace KitchenSanFiero.Items
             EmergencyMedicalTreatmentItemDef.pickupModelPrefab = EmergencyMedicalTreatmentPrefab;
             EmergencyMedicalTreatmentItemDef.canRemove = true;
             EmergencyMedicalTreatmentItemDef.hidden = false;
+            EmergencyMedicalTreatmentItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Healing, ItemTag.LowHealth };
             if (EmergencyMedicalTreatmentAIBlacklist.Value)
             {

@@ -1,5 +1,5 @@
 ﻿using IL.RoR2.Items;
-using KitchenSanFiero.Buffs;
+using CaeliImperium.Buffs;
 using R2API;
 using RoR2;
 using RoR2.Items;
@@ -7,14 +7,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using static RoR2.MasterSpawnSlotController;
-using static KitchenSanFiero.Elites.ArchNemesis;
+using static CaeliImperium.Elites.ArchNemesis;
 using UnityEngine.Diagnostics;
 using static RoR2.MasterCatalog;
 using System.IO;
 
-namespace KitchenSanFiero.Items
+namespace CaeliImperium.Items
 {
     public static class CoolHat
     {
@@ -46,6 +46,7 @@ namespace KitchenSanFiero.Items
             CoolHatItemDef.pickupModelPrefab = CoolHatPrefab;
             CoolHatItemDef.canRemove = false;
             CoolHatItemDef.hidden = false;
+            CoolHatItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Damage, ItemTag.AIBlacklist, ItemTag.WorldUnique, ItemTag.RebirthBlacklist, ItemTag.BrotherBlacklist };
             CoolHatItemDef.tags = tags.ToArray();
             var displayRules = new ItemDisplayRuleDict(null);

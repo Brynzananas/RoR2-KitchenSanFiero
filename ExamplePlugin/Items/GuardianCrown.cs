@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine.AddressableAssets;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using RoR2.Stats;
-using KitchenSanFieroPlugin;
+using ReignFromGreatBeyondPlugin;
 using BepInEx.Configuration;
 using static R2API.RecalculateStatsAPI;
 using RoR2.Items;
@@ -17,7 +17,7 @@ using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
 using RiskOfOptions;
 
-namespace KitchenSanFiero.Items
+namespace CaeliImperium.Items
 {
 
     internal static class GuardianCrown
@@ -137,6 +137,7 @@ namespace KitchenSanFiero.Items
             GuardianCrownItemDef.pickupModelPrefab = GuardianCrownPrefab;
             GuardianCrownItemDef.canRemove = true;
             GuardianCrownItemDef.hidden = false;
+            GuardianCrownItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Utility, ItemTag.Damage };
             if (GuardianCrownAIBlacklist.Value)
             {

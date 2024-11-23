@@ -5,16 +5,16 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine.AddressableAssets;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using static R2API.RecalculateStatsAPI;
 using BepInEx.Configuration;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
 using RiskOfOptions;
 using UnityEngine.Networking;
-using KitchenSanFiero.Buffs;
+using CaeliImperium.Buffs;
 
-namespace KitchenSanFiero.Items
+namespace CaeliImperium.Items
 {
     internal static class Painkillers //: ItemBase<FirstItem>
     {
@@ -144,6 +144,7 @@ namespace KitchenSanFiero.Items
             PainkillersItemDef.pickupModelPrefab = PainkillersPrefab;
             PainkillersItemDef.canRemove = true;
             PainkillersItemDef.hidden = false;
+            PainkillersItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Healing };
             if (PainkillersAIBlacklist.Value)
             {

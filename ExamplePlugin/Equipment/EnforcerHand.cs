@@ -1,6 +1,6 @@
 ﻿using BepInEx.Configuration;
-using KitchenSanFiero.Elites;
-using KitchenSanFiero.Items;
+using CaeliImperium.Elites;
+using CaeliImperium.Items;
 using R2API;
 using RiskOfOptions.Options;
 using RiskOfOptions;
@@ -11,9 +11,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using CaeliImperium.Buffs;
 
-namespace KitchenSanFiero.Equipment
+namespace CaeliImperium.Equipment
 {
     public static class EnforcerHand
     {
@@ -49,6 +50,7 @@ namespace KitchenSanFiero.Equipment
             Item();
             CreateSound();
             AddLanguageTokens();
+            ParryNextDamageBuff.Init();
         }
         public static void AddConfigs()
         {
@@ -211,7 +213,7 @@ localPos = new Vector3(-0.08653F, 0.17649F, -0.10837F),
 localAngles = new Vector3(0F, 0F, 0F),
 localScale = new Vector3(0.40697F, 0.40697F, 0.40697F)
                 }
-            });/*
+            });
             rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -321,9 +323,9 @@ localScale = new Vector3(0.40697F, 0.40697F, 0.40697F)
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(1f, 1f, 1f)
                 }
-            });*/
+            });
             var displayRules = new ItemDisplayRuleDict(null);
-            ItemAPI.Add(new CustomEquipment(EnforcerHandEquipDef, displayRules));
+            ItemAPI.Add(new CustomEquipment(EnforcerHandEquipDef, rules));
             On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformAction;
         }
 

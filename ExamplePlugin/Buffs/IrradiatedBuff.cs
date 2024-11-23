@@ -8,11 +8,11 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking.Match;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using static R2API.DotAPI;
 using JetBrains.Annotations;
 
-namespace KitchenSanFiero.Buffs
+namespace CaeliImperium.Buffs
 {
     internal static class IrradiatedBuff
     {
@@ -102,7 +102,7 @@ namespace KitchenSanFiero.Buffs
         private static void Buff()
         {
             IrradiatedBuffDef = ScriptableObject.CreateInstance<BuffDef>();
-            IrradiatedBuffDef.name = "ksfIrradiated";
+            IrradiatedBuffDef.name = "ciIrradiated";
             IrradiatedBuffDef.buffColor = Color.white;
             IrradiatedBuffDef.canStack = true;
             IrradiatedBuffDef.isDebuff = false;

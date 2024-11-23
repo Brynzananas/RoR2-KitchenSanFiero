@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 
-namespace KitchenSanFiero.Buffs
+namespace CaeliImperium.Buffs
 {
     internal static class EmergencyMedicalTreatmentActiveBuff
     {
@@ -24,7 +24,7 @@ namespace KitchenSanFiero.Buffs
         private static void Buff()
         {
             EmergencyMedicalTreatmentActiveBuffDef = ScriptableObject.CreateInstance<BuffDef>();
-            EmergencyMedicalTreatmentActiveBuffDef.name = "ksfEmergencyMedicalTreatmentActive";
+            EmergencyMedicalTreatmentActiveBuffDef.name = "ciEmergencyMedicalTreatmentActive";
             EmergencyMedicalTreatmentActiveBuffDef.buffColor = Color.white;
             EmergencyMedicalTreatmentActiveBuffDef.canStack = false;
             EmergencyMedicalTreatmentActiveBuffDef.isDebuff = false;

@@ -10,24 +10,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using static Rewired.InputMapper;
 using UnityEngine.Networking;
 using HG;
-using KitchenSanFiero.Elites;
-using static KitchenSanFiero.Artifact.Battle;
+using CaeliImperium.Elites;
+using static CaeliImperium.Artifact.Battle;
 using UnityEngine.PlayerLoop;
 using R2API.Networking.Interfaces;
 using TMPro;
 using UnityEngine.AddressableAssets;
 using System.Collections;
-using KitchenSanFiero.Buffs;
+using CaeliImperium.Buffs;
 using System.Threading;
 using R2API.Utils;
 using ProperSave;
 using System.Runtime.Serialization;
 
-namespace KitchenSanFiero.Items
+namespace CaeliImperium.Items
 {
     internal static class CapturedPotential //: ItemBase<FirstItem>
     {
@@ -146,6 +146,7 @@ namespace KitchenSanFiero.Items
             CapturedPotentialItemDef.pickupModelPrefab = CapturedPotentialPrefab;
             CapturedPotentialItemDef.canRemove = true;
             CapturedPotentialItemDef.hidden = false;
+            CapturedPotentialItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Utility, ItemTag.AIBlacklist, ItemTag.BrotherBlacklist, ItemTag.EquipmentRelated };
             CapturedPotentialItemDef.tags = tags.ToArray();
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
@@ -714,11 +715,7 @@ private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, 
                         int itemCount = master.inventory ? master.inventory.GetItemCount(CapturedPotentialItemDef) : 0;
                         if (itemCount > 0)
                         {
-                            itemCount += CapturedPotentialEquipSlots.Value - 1;
-                            if (itemCount > 1)
-                            {
-                                itemCount += CapturedPotentialEquipSlotsStack.Value * (itemCount - 1);
-                            }
+                            itemCount = CapturedPotentialEquipSlots.Value + ((master.inventory.GetItemCount(CapturedPotentialItemDef) - 1) * CapturedPotentialEquipSlotsStack.Value);
                         }
                         //var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray;
                         if (itemCount < equipArray.Length)
@@ -1126,9 +1123,71 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add("CAPTUREDPOTENTIAL_NAME", "Captured Potential");
-            LanguageAPI.Add("CAPTUREDPOTENTIAL_PICKUP", "Gain <style=IsUtility>+1</style> <style=cStack>(+1 per item stack)</style> <style=IsUtility>equipment slot</style>");
-            LanguageAPI.Add("CAPTUREDPOTENTIAL_DESC", "Gain <style=IsUtility>+1</style> <style=cStack>(+1 per item stack)</style> <style=IsUtility>equipment slot</style>");
-            LanguageAPI.Add("CAPTUREDPOTENTIAL_LORE", "lol");
+            LanguageAPI.Add("CAPTUREDPOTENTIAL_PICKUP", "Gain <style=cIsUtility>+" + CapturedPotentialEquipSlots.Value + "</style> <style=cStack>(+" + CapturedPotentialEquipSlotsStack.Value + " per item stack)</style> <style=IsUtility>equipment slots</style>");
+            LanguageAPI.Add("CAPTUREDPOTENTIAL_DESC", "Gain <style=cIsUtility>+" + CapturedPotentialEquipSlots.Value + "</style> <style=cStack>(+" + CapturedPotentialEquipSlotsStack.Value + " per item stack)</style> <style=IsUtility>equipment slots</style>");
+            LanguageAPI.Add("CAPTUREDPOTENTIAL_LORE", "<style=cMono>//--ATTEMPT № 45123--//</style>" +
+                "\n" +
+                "Void: 67.23%" +
+                "\n" +
+                "Pressure: 921%" +
+                "\n" +
+                "Status: <style=cDeath>FAILURE</style>" +
+                "\n" +
+                "<style=cMono>//--ATTEMPT № 45123--//</style>" +
+                "\n" +
+                "Void: 67.23%" +
+                "\n" +
+                "Pressure: 922%" +
+                "\n" +
+                "Status: <style=cDeath>FAILURE</style>" +
+                "\n" +
+                "<style=cMono>//--ATTEMPT № 45123--//</style>" +
+                "\n" +
+                "Void: 67.23%" +
+                "\n" +
+                "Pressure: 923%" +
+                "\n" +
+                "<style=cDeath>FAILURE</style>" +
+                "\n" +
+                "<style=cMono>//--ATTEMPT № 45123--//</style>" +
+                "\n" +
+                "Void: 67.23%" +
+                "\n" +
+                "Pressure: 924%" +
+                "\n" +
+                "Status: <style=cDeath>FAILURE</style>" +
+                "\n" +
+                "<style=cMono>//--ATTEMPT № 45123--//</style>" +
+                "\n" +
+                "Void: 67.23%" +
+                "\n" +
+                "Pressure: 925%" +
+                "\n" +
+                "Status: <style=cArtifact>「SUCC?SS』</style>" +
+                "\n" +
+                "<style=cMono>//--ATTEMPT № 45124--//</style>" +
+                "\n" +
+                "<style=cArtifact>「Vo?d』</style>: 45.452%" +
+                "\n" +
+                "Pressure: 926%" + 
+                "\n" +
+                "<style=cArtifact>Stat?s: 「??IL?RE』</style>" +
+                "\n" +
+                "<style=cMono>//--ATTEMPT № 45125--//</style>" +
+                "\n" +
+                "<style=cArtifact>「Vo?d』: ?3.0?%</style>" +
+                "\n" +
+                "<style=cArtifact>「P??ssu??』</style>: 927%" +
+                "\n" +
+                "<style=cArtifact>??a??s: 「??I????』</style>" +
+                "\n" +
+                "<style=cArtifact>/  /  -  -  ?  P  ?  ?  L  ?  ?     ?     ?  ?  E   ?  ?  -  -  /  /</style>" +
+                "\n" +
+                "<style=cArtifact>「?A?S』: 「??.E%』</style>" +
+                "\n" +
+                "<style=cArtifact>「?H??E?L?』: 「??P%』</style>" +
+                "\n" +
+                "<style=cArtifact>「??????』: 「??ME???』</style>");
         }
     }
 }

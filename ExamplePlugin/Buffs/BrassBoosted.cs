@@ -1,4 +1,4 @@
-﻿using KitchenSanFiero.Items;
+﻿using CaeliImperium.Items;
 using R2API;
 using RoR2;
 using RoR2.Audio;
@@ -6,10 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using static R2API.RecalculateStatsAPI;
 
-namespace KitchenSanFiero.Buffs
+namespace CaeliImperium.Buffs
 {
     internal static class BrassBoostedBuff
     {
@@ -28,7 +28,7 @@ namespace KitchenSanFiero.Buffs
         private static void Buff()
         {
             BrassBoostedBuffDef = ScriptableObject.CreateInstance<BuffDef>();
-            BrassBoostedBuffDef.name = "ksfBellBoosted";
+            BrassBoostedBuffDef.name = "ciBellBoosted";
             BrassBoostedBuffDef.buffColor = Color.white;
             BrassBoostedBuffDef.canStack = false;
             BrassBoostedBuffDef.isDebuff = false;

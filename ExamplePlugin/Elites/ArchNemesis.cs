@@ -9,14 +9,14 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.Diagnostics;
 using static R2API.RecalculateStatsAPI;
 using static UnityEngine.UIElements.ListViewDragger;
-using static KitchenSanFiero.Equipment.Necronomicon;
+using static CaeliImperium.Equipment.Necronomicon;
 using Object = UnityEngine.Object;
 using UnityEngine.UIElements;
 using UnityEngine.XR;
 using static RoR2.MasterSpawnSlotController;
-using static KitchenSanFieroPlugin.KitchenSanFiero;
+using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using UnityEngine.Networking;
-using KitchenSanFiero.Items;
+using CaeliImperium.Items;
 using BepInEx.Configuration;
 using RiskOfOptions;
 using RiskOfOptions.Options;
@@ -27,7 +27,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using RiskOfOptions.OptionConfigs;
 using RoR2.Navigation;
 
-namespace KitchenSanFiero.Elites
+namespace CaeliImperium.Elites
 {
     public static class ArchNemesis
     {
@@ -77,6 +77,7 @@ namespace KitchenSanFiero.Elites
             SetupEquipment();
             SetupElite();
             AddContent();
+            CoolHat.Init();
             EliteRamp.AddRamp(AffixArchNemesisElite, eliteRamp);
             ContentAddition.AddEquipmentDef(AffixArchNemesisEquipment);
             On.RoR2.CharacterBody.OnBuffFirstStackGained += CharacterBody_OnBuffFirstStackGained;
@@ -424,7 +425,8 @@ namespace KitchenSanFiero.Elites
             AffixArchNemesisEquipment.passiveBuffDef = AffixArchNemesisBuff;
             AffixArchNemesisEquipment.dropOnDeathChance = affixDropChance;
             AffixArchNemesisEquipment.enigmaCompatible = false;
-            AffixArchNemesisEquipment.pickupModelPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/archnemesishat.prefab");
+            AffixArchNemesisEquipment.requiredExpansion = CaeliImperiumExpansionDef;
+            AffixArchNemesisEquipment.pickupModelPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixArchNemesisModel.prefab"); ;
             AffixArchNemesisEquipment.pickupIconSprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/EliteIce/texAffixWhiteIcon.png").WaitForCompletion();
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
             rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]{

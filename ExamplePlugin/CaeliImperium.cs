@@ -8,14 +8,14 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using RiskOfOptions.OptionConfigs;
-using KitchenSanFiero.Buffs;
-using KitchenSanFiero.Items;
-using KitchenSanFiero.Equipment;
-using KitchenSanFiero.Elites;
+using CaeliImperium.Buffs;
+using CaeliImperium.Items;
+using CaeliImperium.Equipment;
+using CaeliImperium.Elites;
 using System;
-using KitchenSanFiero.Artifact;
+using CaeliImperium.Artifact;
 using R2API.Networking;
-using KitchenSanFiero;
+using CaeliImperium;
 using System.IO;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -27,7 +27,7 @@ using System.Linq;
 using PSTinyJson;
 using System.Security.Permissions;
 using UnityEngine.Networking;
-using static KitchenSanFiero.Items.CapturedPotential;
+using static CaeliImperium.Items.CapturedPotential;
 using ShaderSwapper;
 using R2API.Networking.Interfaces;
 using Mono.Cecil.Cil;
@@ -37,11 +37,12 @@ using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using static UnityEngine.UIElements.StylePropertyAnimationSystem;
-using static KitchenSanFiero.Elites.ArchNemesis;
+using static CaeliImperium.Elites.ArchNemesis;
+using RoR2.ExpansionManagement;
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 [assembly: HG.Reflection.SearchableAttribute.OptIn]
 [assembly: HG.Reflection.SearchableAttribute.OptInAttribute]
-namespace KitchenSanFieroPlugin
+namespace ReignFromGreatBeyondPlugin
 {
     
     [BepInDependency(ItemAPI.PluginGUID)]
@@ -50,13 +51,14 @@ namespace KitchenSanFieroPlugin
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     [System.Serializable]
     
-    public class KitchenSanFiero : BaseUnityPlugin
+    public class CaeliImperium : BaseUnityPlugin
     {
-        public const string PluginGUID = PluginAuthor + "KithcenSanFiero" + PluginName;
+        public const string PluginGUID = PluginAuthor + PluginName;
         public const string PluginAuthor = "Brynzananas";
-        public const string PluginName = "KitchenSanFiero";
-        public const string PluginVersion = "0.1.0";
+        public const string PluginName = "CaeliImperium";
+        public const string PluginVersion = "0.7.0";
         public static string SavesDirectory { get; } = System.IO.Path.Combine(Application.persistentDataPath, "ArchNemesis");
+        public static ExpansionDef CaeliImperiumExpansionDef = ScriptableObject.CreateInstance<ExpansionDef>();
         public static AssetBundle MainAssets;
         public static ConfigFile Config;
         public static UnityEngine.Vector3[] deadPositionArray = new Vector3[420];
@@ -118,13 +120,13 @@ namespace KitchenSanFieroPlugin
         public void Awake()
         {
 
-            Config = new ConfigFile(Paths.ConfigPath + "\\BrynzananasKithcenSanFieroKitchenSanFiero.cfg", true);
+            Config = new ConfigFile(Paths.ConfigPath + "\\BrynzananasCaeliImperium.cfg", true);
 
             ModLogger = Logger;
             
 
 
-            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("KitchenSanFiero.assets"))
+            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CaeliImperium.assets"))
             {
                 MainAssets = AssetBundle.LoadFromStream(stream);
             }/*
@@ -141,7 +143,8 @@ namespace KitchenSanFieroPlugin
                 }
             }*/
             //ShaderConversion(MainAssets);
-            using (var bankStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("KitchenSanFiero.KSFsounds.bnk"))
+            GenerateExpansionDef();
+            using (var bankStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CaeliImperium.KSFsounds.bnk"))
             {
                 var bytes = new byte[bankStream.Length];
                 bankStream.Read(bytes, 0, bytes.Length);
@@ -153,6 +156,7 @@ namespace KitchenSanFieroPlugin
             //VoidLunarTier.Init();
             WoundedBuff.Init();
             IrradiatedBuff.Init();
+            DazzledBuff.Init();
             Ciggaretes.Init();
             GuardianCrown.Init();
             Painkillers.Init();
@@ -162,44 +166,35 @@ namespace KitchenSanFieroPlugin
             new Hasting();
             BrassModality.Init();
             Dredged.Init();
-            DeathCountBuff.Init();
             EmergencyMedicalTreatment.Init();
             EnforcerHand.Init();
-            ParryNextDamageBuff.Init();
             CapturedPotential.Init();
             Battle.Init();
             SkullGammaGun.Init();
             BrassBell.Init();
             OtherworldlyManuscript.Init();
             ArchNemesis.Init();
-            CoolHat.Init();
-            ColdHeart.Init();
             Keychain.Init();
-            KeyBuff.Init();
             MajesticHand.Init();
             Defender.Init();
             RejectedDagger.Init();
-            KillswitchBuff.Init();
-            DazzledBuff.Init();
-            HasCardBuff.Init();
-            SmokingBuff.Init();
             LikeADragon.Init();
             OpposingForce.Init();
         }
-        public static void ShaderConversion(AssetBundle assets)
-        {
-            var materialAssets = assets.LoadAllAssets<Material>().Where(material => material.shader.name.StartsWith("Fake RoR"));
+        //public static void ShaderConversion(AssetBundle assets)
+        //{
+        //    var materialAssets = assets.LoadAllAssets<Material>().Where(material => material.shader.name.StartsWith("Fake RoR"));
 
-            foreach (Material material in materialAssets)
-            {
-                var replacementShader = LegacyResourcesAPI.Load<Shader>(ShaderLookup2[material.shader.name.ToLowerInvariant()]);
-                if (replacementShader)
-                {
-                    material.shader = replacementShader;
-                    SwappedMaterials.Add(material);
-                }
-            }
-        }
+        //    foreach (Material material in materialAssets)
+        //    {
+        //        var replacementShader = LegacyResourcesAPI.Load<Shader>(ShaderLookup2[material.shader.name.ToLowerInvariant()]);
+        //        if (replacementShader)
+        //        {
+        //            material.shader = replacementShader;
+        //            SwappedMaterials.Add(material);
+        //        }
+        //    }
+        //}
 
         private void Update()
         {
@@ -218,6 +213,20 @@ namespace KitchenSanFieroPlugin
                 }
             }
         }
+
+        public void GenerateExpansionDef()
+        {
+            LanguageAPI.Add("CAELI_IMPERIUM_EXPANSION_DEF_NAME", "Caeli Imperium");
+            LanguageAPI.Add("CAELI_IMPERIUM_EXPANSION_DEF_DESCRIPTION", "Brynzananas content mod");
+
+            CaeliImperiumExpansionDef.descriptionToken = "CAELI_IMPERIUM_EXPANSION_DEF_DESCRIPTION";
+            CaeliImperiumExpansionDef.nameToken = "CAELI_IMPERIUM_EXPANSION_DEF_NAME";
+            CaeliImperiumExpansionDef.iconSprite = MainAssets.LoadAsset<Sprite>("Assets/Icons/ModIcon.png");
+            CaeliImperiumExpansionDef.disabledIconSprite = MainAssets.LoadAsset<Sprite>("Assets/Icons/ModIconDisabled.png");
+
+            R2API.ContentAddition.AddExpansionDef(CaeliImperiumExpansionDef);
+        }
+
 
         public static class ProperSaveCompatibility
         {
@@ -378,7 +387,7 @@ namespace KitchenSanFieroPlugin
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError("KitchenSanFieroLog: failed to save Arch Nemesis");
+                    Debug.LogError("Failed to save Arch Nemesis");
                     Debug.LogError(e);
                 }
             }

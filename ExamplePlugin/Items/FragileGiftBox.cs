@@ -75,17 +75,25 @@ namespace CaeliImperium.Items
                                          2,
                                          "Control the amount of additional items");
             FragileGiftBoxRewardPerStack = Config.Bind<int>("Item : Fragile Gift Box",
-                                         "Items addition per stack",
+                                         "Items addition stack",
                                          1,
-                                         "Control the camount of additional items per stack");
+                                         "Control the amount of additional items per item stack");
             FragileGiftBoxCurseChance = Config.Bind<float>("Item : Fragile Gift Box",
                                          "Wound chance",
                                          100f,
                                          "Control the chance of getting a Wound from opening chests");
+            FragileGiftBoxWound = Config.Bind<int>("Item : Fragile Gift Box",
+                                         "Wound",
+                                         2,
+                                         "Control the amount of Wound");
+            FragileGiftBoxWoundStack = Config.Bind<int>("Item : Fragile Gift Box",
+                                         "Wound stack",
+                                         1,
+                                         "Control the amount of Wound per item stack");
             FragileGiftBoxCurseIsElse = Config.Bind<bool>("Item : Fragile Gift Box",
                                          "Wound on failure",
                                          false,
-                                         "Set true to get Wound on reward roll failure");
+                                         "Would reward failure grant Wounded?");
             ModSettingsManager.AddOption(new CheckBoxOption(FragileGiftBoxEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(FragileGiftBoxAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             //ModSettingsManager.AddOption(new FloatFieldOption(FragileGiftBoxCurseMultiplier));
@@ -118,9 +126,6 @@ namespace CaeliImperium.Items
         {
             orig(self, activator);
             int itemCount = activator.GetComponent<CharacterBody>().inventory.GetItemCount(FragileGiftBoxItemDef);
-            int buffCount = activator.GetComponent<CharacterBody>().GetBuffCount(RoR2Content.Buffs.PermanentCurse);
-            //int num2 = 0;
-            //float num3 = 1f;
             if (itemCount > 0)
             {
                 if (self.GetComponent<ChestBehavior>())
@@ -134,10 +139,9 @@ namespace CaeliImperium.Items
                         self.GetComponent<ChestBehavior>().dropCount = 0;
                         if (FragileGiftBoxCurseIsElse.Value)
                         {
-                            for (var i = 0; i < itemCount; i++)
+                            for (var i = 0; i < FragileGiftBoxWound.Value + ((itemCount - 1) * FragileGiftBoxWoundStack.Value); i++)
                             {
                                 activator.GetComponent<CharacterBody>().AddBuff(WoundedBuff.WoundedBuffDef);
-
                             }
 
 
@@ -145,10 +149,10 @@ namespace CaeliImperium.Items
                     }
                     if (Util.CheckRoll(FragileGiftBoxCurseChance.Value))
                     {
-                    for (var i = 0; i < itemCount; i++)
-                    {
-                        activator.GetComponent<CharacterBody>().AddBuff(WoundedBuff.WoundedBuffDef);
-                    }
+                        for (var i = 0; i < FragileGiftBoxWound.Value + ((itemCount - 1) * FragileGiftBoxWoundStack.Value); i++)
+                        {
+                            activator.GetComponent<CharacterBody>().AddBuff(WoundedBuff.WoundedBuffDef);
+                        }
                     }
 
                 }
@@ -163,14 +167,17 @@ namespace CaeliImperium.Items
                         self.GetComponent<RouletteChestController>().dropCount = 0;
                         if (FragileGiftBoxCurseIsElse.Value)
                         {
-                            activator.GetComponent<CharacterBody>().AddBuff(WoundedBuff.WoundedBuffDef);
+                            for (var i = 0; i < FragileGiftBoxWound.Value + ((itemCount - 1) * FragileGiftBoxWoundStack.Value); i++)
+                            {
+                                activator.GetComponent<CharacterBody>().AddBuff(WoundedBuff.WoundedBuffDef);
+                            }
 
                         }
                     }
 
                     if (Util.CheckRoll(FragileGiftBoxCurseChance.Value))
                     {
-                        for (var i = 0; i < itemCount; i++)
+                        for (var i = 0; i < FragileGiftBoxWound.Value + ((itemCount - 1) * FragileGiftBoxWoundStack.Value); i++)
                         {
                             activator.GetComponent<CharacterBody>().AddBuff(WoundedBuff.WoundedBuffDef);
                         }
@@ -183,9 +190,15 @@ namespace CaeliImperium.Items
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add("FRAGILEGIFTBOX_NAME", "Fragile Gift Box");
-            LanguageAPI.Add("FRAGILEGIFTBOX_PICKUP", "Gain more items from chests. 50% chance to receive all or nothing. Get permanent damage on chest opening");
-            LanguageAPI.Add("FRAGILEGIFTBOX_DESC", "Gain more items from chests. 50% chance to receive all or nothing. Get permanent damage on chest opening");
-            LanguageAPI.Add("FRAGILEGIFTBOX_LORE", "I never thought you are also a cook, brother");
+            LanguageAPI.Add("FRAGILEGIFTBOX_PICKUP", "Gain +" + FragileGiftBoxReward.Value + " <style=cStack>(+" + FragileGiftBoxRewardPerStack.Value + " per item stack)</style> more items from chests. " + FragileGiftBoxRewardChance.Value + "& chance to receive all or nothing. Get Wound on chest opening");
+            LanguageAPI.Add("FRAGILEGIFTBOX_DESC", "Gain +" + FragileGiftBoxReward.Value + " <style=cStack>(+" + FragileGiftBoxRewardPerStack.Value + " per item stack)</style> more items from chests. " + FragileGiftBoxRewardChance.Value + "& chance to receive all or nothing. Get Wound on chest opening");
+            LanguageAPI.Add("FRAGILEGIFTBOX_LORE", "\"Pick\"" +
+                "\n" +
+                "He picks the left one. The other one gives him what appears to be a gift box, made out of glass. The receiver looks at him badly, takes the box, takes the breath and crushes it, covering his arms in blood. Inside it there was a blue cupcake, he takes it, examines it and proceeds to consume it. His eyes fills with joy and pleasure." +
+                "\n" +
+                "\"Such a delicious meal. I never thought you are also a cook, brother... May I ask you what's also on your right hand?\"" +
+                "\n" +
+                "The \"brother\" then serrves him another box of it. He immediately took and smashed the box. On this time, it appears to be nothing inside of it.");
         }
 
     }

@@ -149,7 +149,7 @@ namespace CaeliImperium.Items
 
                     DamageInfo damageInfo2 = new DamageInfo
                     {
-                        damage = damageInfo.damage * (1 - (100 / (100 + victimBody.armor))) * (OpposingForceDamage.Value / 100) + ((itemCount - 1) / 100),
+                        damage = damageInfo.damage * (1 - (100 / (100 + victimBody.armor))) * (OpposingForceDamage.Value / 100) + ((itemCount - 1) * OpposingForceDamageStack.Value / 100),
                         damageColorIndex = DamageColorIndex.Item,
                         damageType = DamageType.Silent,
                         attacker = victim,
@@ -177,9 +177,9 @@ namespace CaeliImperium.Items
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name);
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", "");
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", "");
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "mmmm yummy");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", "Reflect <style=cIsDamage>" + OpposingForceDamage.Value + "%</style> <style=cStack>(+ " + OpposingForceDamageStack.Value +"% per item stack)</style> multiplied to the <style=cIsHealing>armor</style> percentage. Gain <style=cIsHealing>+" + OpposingForceArmorGain.Value + "</style> <style=cStack>(+" + OpposingForceArmorGainStack.Value + " per item stack)</style> <style=cIsHealing>armor</style>");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", "Reflect <style=cIsDamage>" + OpposingForceDamage.Value + "%</style> <style=cStack>(+ " + OpposingForceDamageStack.Value + "% per item stack)</style> multiplied to the <style=cIsHealing>armor</style> percentage. Gain <style=cIsHealing>+" + OpposingForceArmorGain.Value + "</style> <style=cStack>(+" + OpposingForceArmorGainStack.Value + " per item stack)</style> <style=cIsHealing>armor</style>");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "");
         }
     }
 }

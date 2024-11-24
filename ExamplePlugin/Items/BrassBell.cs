@@ -424,6 +424,14 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
 
                 }
             }
+            public void OnDisable()
+            {
+                if (body)
+                {
+                    body.RemoveBuff(BrassTimerBuff.BrassTimerBuffDef);
+                    body.RemoveBuff(BrassBoostedBuff.BrassBoostedBuffDef);
+                }
+            }
         }/*
         private static void ReAddBuff(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
         {

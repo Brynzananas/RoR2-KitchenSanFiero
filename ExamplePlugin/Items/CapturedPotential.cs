@@ -1133,6 +1133,7 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
                 "\n" +
                 "Status: <style=cDeath>FAILURE</style>" +
                 "\n" +
+                "\n" +
                 "<style=cMono>//--ATTEMPT № 45123--//</style>" +
                 "\n" +
                 "Void: 67.23%" +
@@ -1140,6 +1141,7 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
                 "Pressure: 922%" +
                 "\n" +
                 "Status: <style=cDeath>FAILURE</style>" +
+                "\n" +
                 "\n" +
                 "<style=cMono>//--ATTEMPT № 45123--//</style>" +
                 "\n" +
@@ -1149,6 +1151,7 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
                 "\n" +
                 "<style=cDeath>FAILURE</style>" +
                 "\n" +
+                "\n" +
                 "<style=cMono>//--ATTEMPT № 45123--//</style>" +
                 "\n" +
                 "Void: 67.23%" +
@@ -1156,6 +1159,7 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
                 "Pressure: 924%" +
                 "\n" +
                 "Status: <style=cDeath>FAILURE</style>" +
+                "\n" +
                 "\n" +
                 "<style=cMono>//--ATTEMPT № 45123--//</style>" +
                 "\n" +
@@ -1165,6 +1169,7 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
                 "\n" +
                 "Status: <style=cArtifact>「SUCC?SS』</style>" +
                 "\n" +
+                "\n" +
                 "<style=cMono>//--ATTEMPT № 45124--//</style>" +
                 "\n" +
                 "<style=cArtifact>「Vo?d』</style>: 45.452%" +
@@ -1173,13 +1178,14 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
                 "\n" +
                 "<style=cArtifact>Stat?s: 「??IL?RE』</style>" +
                 "\n" +
+                "\n" +
                 "<style=cMono>//--ATTEMPT № 45125--//</style>" +
                 "\n" +
                 "<style=cArtifact>「Vo?d』: ?3.0?%</style>" +
                 "\n" +
                 "<style=cArtifact>「P??ssu??』</style>: 927%" +
                 "\n" +
-                "<style=cArtifact>??a??s: 「??I????』</style>" +
+                "<style=cArtifact>??a??s: 「??I????』</style>"/* +
                 "\n" +
                 "<style=cArtifact>/  /  -  -  ?  P  ?  ?  L  ?  ?     ?     ?  ?  E   ?  ?  -  -  /  /</style>" +
                 "\n" +
@@ -1187,7 +1193,7 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
                 "\n" +
                 "<style=cArtifact>「?H??E?L?』: 「??P%』</style>" +
                 "\n" +
-                "<style=cArtifact>「??????』: 「??ME???』</style>");
+                "<style=cArtifact>「??????』: 「??ME???』</style>"*/);
         }
     }
 }

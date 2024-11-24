@@ -154,7 +154,7 @@ namespace CaeliImperium.Items
             int itemCount = sender.inventory ? sender.inventory.GetItemCount(KeychainItemDef) : 0;
             if (itemCount > 0)
             {
-                args.critAdd += keychainInitialCritIncrease.Value;
+                args.critAdd += keychainInitialCritIncrease.Value + ((itemCount - 1) * keychainInitialCritIncreaseStack.Value);
             }
         }
 
@@ -168,7 +168,9 @@ namespace CaeliImperium.Items
                 if (itemCount > 0)
                 {
 
-                    int superRoll = (int)Math.Floor((float)(itemCount / 10));
+                    
+                    float rollChance = keychainChance.Value + ((itemCount - 1) * keychainChancePerItemStack.Value);
+                    int superRoll = (int)Math.Floor((float)(rollChance / 100));
                     if (damageReport.victim.body.isElite)
                     {
                         superRoll += KeychainDoElite.Value;
@@ -181,7 +183,7 @@ namespace CaeliImperium.Items
                     {
                         self.AddBuff(KeyBuff.KeyBuffDef);
                     }
-                    if (Util.CheckRoll(itemCount * 10 - (superRoll * 100), self.master))
+                    if (Util.CheckRoll(rollChance - (superRoll * 100), self.master))
                     {
                         self.AddBuff(KeyBuff.KeyBuffDef);
                     }
@@ -194,9 +196,9 @@ namespace CaeliImperium.Items
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name.Replace(" ", ""));
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", keychainChance.Value + "% <style=cStack>(+" + keychainChancePerItemStack.Value + "% per item stack)</style> to gain a <style=cIsDamage>buff</style> on kill, that increases <style=cIsDamage>>crit chance</style> by <style=cIsDamage>" + keychainCritChancePerBuff.Value + "%</style> <style=cStack>(+" + keychainCritChancePerBuff.Value + "% per buff stack)</style> and <style=cIsDamage>crit damage<style> by <style=cIsDamage>" + keychainCritDamagePerBuff.Value + "%</style> <style=cStack>(+" + keychainCritDamagePerBuff.Value + "% per buff stack)</style>");
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", keychainChance.Value + "% <style=cStack>(+" + keychainChancePerItemStack.Value + "% per item stack)</style> to gain a <style=cIsDamage>buff</style> on kill, that increases <style=cIsDamage>>crit chance</style> by <style=cIsDamage>" + keychainCritChancePerBuff.Value + "%</style> <style=cStack>(+" + keychainCritChancePerBuff.Value + "% per buff stack)</style> and <style=cIsDamage>crit damage<style> by <style=cIsDamage>" + keychainCritDamagePerBuff.Value + "%</style> <style=cStack>(+" + keychainCritDamagePerBuff.Value + "% per buff stack)</style>");
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "\"What the hell keychain is for?\"");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", keychainChance.Value + "% <style=cStack>(+" + keychainChancePerItemStack.Value + "% per item stack)</style> to gain a <style=cIsDamage>buff</style> on enemy kill, that increases <style=cIsDamage>>crit chance</style> by <style=cIsDamage>" + keychainCritChancePerBuff.Value + "%</style> <style=cStack>(+" + keychainCritChancePerBuff.Value + "% per buff stack)</style> and <style=cIsDamage>crit damage<style> by <style=cIsDamage>" + keychainCritDamagePerBuff.Value + "%</style> <style=cStack>(+" + keychainCritDamagePerBuff.Value + "% per buff stack)</style>");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", keychainChance.Value + "% <style=cStack>(+" + keychainChancePerItemStack.Value + "% per item stack)</style> to gain a <style=cIsDamage>buff</style> on enemy kill, that increases <style=cIsDamage>>crit chance</style> by <style=cIsDamage>" + keychainCritChancePerBuff.Value + "%</style> <style=cStack>(+" + keychainCritChancePerBuff.Value + "% per buff stack)</style> and <style=cIsDamage>crit damage<style> by <style=cIsDamage>" + keychainCritDamagePerBuff.Value + "%</style> <style=cStack>(+" + keychainCritDamagePerBuff.Value + "% per buff stack)</style>");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "\"What the hell this keychain is for?\"");
         }
     }
 }

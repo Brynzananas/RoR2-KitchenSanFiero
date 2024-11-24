@@ -379,15 +379,15 @@ localScale = new Vector3(1F, 1F, 1F)
 
         private static void Stats(CharacterBody sender, StatHookEventArgs args)
         {
-            float statIncrease = sender.inventory ? sender.inventory.GetItemCount(EnergyChocolateBarItemDef) : 0;// * (EnergyChocolateBuffStats.Value / 100f) + 1;
+            int statIncrease = sender.inventory ? sender.inventory.GetItemCount(EnergyChocolateBarItemDef) : 0;// * (EnergyChocolateBuffStats.Value / 100f) + 1;
             if (statIncrease > 0)
             {
-            args.healthMultAdd += EnergyChocolateBuffStats.Value + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 100f));
-            args.baseAttackSpeedAdd += EnergyChocolateBuffStats.Value + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 100f));
-                args.damageMultAdd += EnergyChocolateBuffStats.Value + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 100f));
-                args.moveSpeedMultAdd += EnergyChocolateBuffStats.Value + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 100f));
+            args.healthMultAdd += (EnergyChocolateBuffStats.Value / 100f) + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 100f));
+            args.baseAttackSpeedAdd += (EnergyChocolateBuffStats.Value / 100f) + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 100f));
+                args.damageMultAdd += (EnergyChocolateBuffStats.Value / 100f) + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 100f));
+                args.moveSpeedMultAdd += (EnergyChocolateBuffStats.Value / 100f) + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 100f));
                 args.armorAdd += EnergyChocolateBuffStats.Value + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value));
-                args.regenMultAdd += EnergyChocolateBuffStats.Value + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 10f));
+                args.regenMultAdd += (EnergyChocolateBuffStats.Value / 10f) + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 10f));
                 args.critAdd += EnergyChocolateBuffStats.Value + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value));
             }
             

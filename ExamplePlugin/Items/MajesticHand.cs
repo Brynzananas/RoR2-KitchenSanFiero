@@ -23,7 +23,9 @@ namespace CaeliImperium.Items
         public static ConfigEntry<bool> MajesticHandEnable;
         public static ConfigEntry<bool> MajesticHandAIBlacklist;
         public static ConfigEntry<float> MajesticHandTier;
-        public static ConfigEntry<bool> MajesticHandFunction;
+        public static ConfigEntry<float> MajesticHandChance;
+        public static ConfigEntry<float> MajesticHandDoDamage;
+        //public static ConfigEntry<bool> MajesticHandFunction;
         public static string name = "Majestic Hand";
 
         internal static void Init()
@@ -69,14 +71,24 @@ namespace CaeliImperium.Items
                                          "Item tier",
                                          2f,
                                          "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
-            MajesticHandFunction = Config.Bind<bool>("Item : " + name,
-                                         "Alternative Killswitch function",
-                                         false,
-                                         "No timer. Kill initializes on Killswitch buff count cap");
+            MajesticHandChance = Config.Bind<float>("Item : " + name,
+                                         "Death chance",
+                                         5f,
+                                         "Control the death chance in percerntage\nSet to 0 to disable this effect");
+            MajesticHandDoDamage = Config.Bind<float>("Item : " + name,
+                             "Damage increase",
+                             42f,
+                             "Control how much damage increases based on the targets remaining health percentage in percentage\nSet to 0 to disable this effect");
+            //MajesticHandFunction = Config.Bind<bool>("Item : " + name,
+            //                             "Alternative Killswitch function",
+            //                             false,
+            //                             "No timer. Kill initializes on Killswitch buff count cap");
             ModSettingsManager.AddOption(new CheckBoxOption(MajesticHandEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(MajesticHandAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(MajesticHandTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
-            ModSettingsManager.AddOption(new CheckBoxOption(MajesticHandFunction, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new FloatFieldOption(MajesticHandChance));
+            ModSettingsManager.AddOption(new FloatFieldOption(MajesticHandDoDamage));
+            //ModSettingsManager.AddOption(new CheckBoxOption(MajesticHandFunction, new CheckBoxConfig() { restartRequired = true }));
         }
 
         private static void Item()
@@ -114,92 +126,119 @@ namespace CaeliImperium.Items
             var displayRules = new ItemDisplayRuleDict(null);
             ItemAPI.Add(new CustomItem(MajesticHandItemDef, displayRules));
             On.RoR2.CharacterBody.Start += Die;
-            On.RoR2.GlobalEventManager.OnHitEnemy += KillswitchChance;
+            //On.RoR2.GlobalEventManager.OnHitEnemy += KillswitchChance;
+            On.RoR2.HealthComponent.TakeDamageProcess += IncreaseDamage;
         }
 
-        private static void KillswitchChance(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim)
+        private static void IncreaseDamage(On.RoR2.HealthComponent.orig_TakeDamageProcess orig, HealthComponent self, DamageInfo damageInfo)
         {
-            orig(self, damageInfo, victim);
-            var attacker = damageInfo.attacker;
-            var body = attacker ? attacker.GetComponent<CharacterBody>() : null;
-            int count = 0;
-            if (body != null)
+            if (MajesticHandDoDamage.Value > 0 && damageInfo.attacker && !damageInfo.rejected)
             {
-                count = body.inventory.GetItemCount(MajesticHandItemDef);
-
-            }
-            if (count > 0)
-            {
-                if (damageInfo.attacker && !damageInfo.rejected)
+                var attackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
+                int itemCount = attackerBody.inventory ? attackerBody.inventory.GetItemCount(MajesticHandItemDef) : 0;
+                if (itemCount > 0)
                 {
-                    if (MajesticHandFunction.Value)
-                    {
-                        if (Util.CheckRoll(Util.ConvertAmplificationPercentageIntoReductionPercentage(count * 4) / 4, attacker.GetComponent<CharacterMaster>().luck / 4))
-                        {
-
-                            victim.GetComponent<CharacterBody>().AddBuff(KillswitchBuff.KillSwitchBuffDef);
-
-                        }
-                    }
-                    else
-                    {
-                        int superRoll = (int)Math.Floor((float)(count / 10));
-                        for (int i = 0; i < superRoll ; i++)
-                        {
-                                victim.GetComponent<CharacterBody>().RemoveBuff(KillswitchBuff.KillSwitchBuffDef);
-                        }
-                        if (Util.CheckRoll(count * 10 - (superRoll * 100), attacker.GetComponent<CharacterMaster>()))
-                        {
-                            victim.GetComponent<CharacterBody>().RemoveBuff(KillswitchBuff.KillSwitchBuffDef);
-                        }
-
-                    }
-
+                    damageInfo.damage *= 1 + ((1 - self.combinedHealthFraction) * itemCount * (MajesticHandDoDamage.Value / 100));
                 }
             }
+            orig(self, damageInfo);
         }
-        public class KillswitchComponent : MonoBehaviour
-        {
-            public CharacterBody body;
-            public float timer = 0;
-            public void Awake()
-            {
-                //body = gameObject.GetComponent<CharacterBody>();
-                //timer = 0;
-            }
-            public void FixedUpdate()
-            {
-                if (body)
-                {
-                    int buffCount = body.GetBuffCount(KillswitchBuff.KillSwitchBuffDef);
-                    if (buffCount > 0)
-                    {
-                        timer += Time.fixedDeltaTime;
-                        if (timer > 1f)
-                        {
-                            body.RemoveBuff(KillswitchBuff.KillSwitchBuffDef);
-                            timer = 0;
-                        }
-                    }
-                }
-            }
-        }
+
+        /*
+private static void KillswitchChance(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim)
+{
+   orig(self, damageInfo, victim);
+   var attacker = damageInfo.attacker;
+   var body = attacker ? attacker.GetComponent<CharacterBody>() : null;
+   int count = 0;
+   if (body != null)
+   {
+       count = body.inventory.GetItemCount(MajesticHandItemDef);
+
+   }
+   if (count > 0)
+   {
+       if (damageInfo.attacker && !damageInfo.rejected)
+       {
+           if (MajesticHandFunction.Value)
+           {
+               if (Util.CheckRoll(Util.ConvertAmplificationPercentageIntoReductionPercentage(count * 4) / 4, attacker.GetComponent<CharacterMaster>().luck / 4))
+               {
+
+                   victim.GetComponent<CharacterBody>().AddBuff(KillswitchBuff.KillSwitchBuffDef);
+
+               }
+           }
+           else
+           {
+               int superRoll = (int)Math.Floor((float)(count / 10));
+               for (int i = 0; i < superRoll ; i++)
+               {
+                       victim.GetComponent<CharacterBody>().RemoveBuff(KillswitchBuff.KillSwitchBuffDef);
+               }
+               if (Util.CheckRoll(count * 10 - (superRoll * 100), attacker.GetComponent<CharacterMaster>()))
+               {
+                   victim.GetComponent<CharacterBody>().RemoveBuff(KillswitchBuff.KillSwitchBuffDef);
+               }
+
+           }
+
+       }
+   }
+}
+public class KillswitchComponent : MonoBehaviour
+{
+   public CharacterBody body;
+   public float timer = 0;
+   public void Awake()
+   {
+       //body = gameObject.GetComponent<CharacterBody>();
+       //timer = 0;
+   }
+   public void FixedUpdate()
+   {
+       if (body)
+       {
+           int buffCount = body.GetBuffCount(KillswitchBuff.KillSwitchBuffDef);
+           if (buffCount > 0)
+           {
+               timer += Time.fixedDeltaTime;
+               if (timer > 1f)
+               {
+                   body.RemoveBuff(KillswitchBuff.KillSwitchBuffDef);
+                   timer = 0;
+               }
+           }
+       }
+   }
+}*/
         private static void Die(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
         {
             orig(self);
-            if (self)
+            if (MajesticHandChance.Value > 0 && self)
             {
-                if (!self.GetComponent<KillswitchComponent>())
+                //if (!self.GetComponent<KillswitchComponent>())
+                //{
+                //    self.gameObject.AddComponent<KillswitchComponent>();
+                //    self.gameObject.AddComponent<KillswitchComponent>().body = self;
+                //}
+                //float finalChance = 0;
+                //int finalTime = 61;
+                //float allLuck = 0;
+                //int itemCountMonster = self.inventory ? self.inventory.GetItemCount(MajesticHandItemDef) : 0;
+                int teamItemCount = Util.GetItemCountGlobal(MajesticHandItemDef.itemIndex, true) - Util.GetItemCountForTeam(self.teamComponent.teamIndex, MajesticHandItemDef.itemIndex, true);
+                if (teamItemCount > 0)
                 {
-                    self.gameObject.AddComponent<KillswitchComponent>();
-                    self.gameObject.AddComponent<KillswitchComponent>().body = self;
+                    if (Util.CheckRoll(teamItemCount * MajesticHandChance.Value))
+                    {
+                        EffectManager.SpawnEffect(OrbStorageUtility.Get("Prefabs/Effects/ImpactEffects/LightningStrikeImpact"), new EffectData
+                        {
+                            origin = self.transform.position,
+                        }, true);
+                        self.healthComponent.Suicide();
+                    }
                 }
-                float finalChance = 0;
-                int finalTime = 61;
-                float allLuck = 0;
-                    int itemCountMonster = self.inventory ? self.inventory.GetItemCount(MajesticHandItemDef) : 0;
-
-                foreach (var characterBody in CharacterBody.readOnlyInstancesList)
+                /*(foreach (var characterBody in CharacterBody.readOnlyInstancesList)
                 {
                     if (MajesticHandFunction.Value)
                     {
@@ -281,7 +320,7 @@ namespace CaeliImperium.Items
                         self.AddBuff(KillswitchBuff.KillSwitchBuffDef);
                     }
                 }
-            }
+            }8/
             
             /*
             int itemCountPlayers = Util.GetItemCountForTeam(TeamIndex.Player, InvisibleHandItemDef.itemIndex, true);
@@ -291,16 +330,25 @@ namespace CaeliImperium.Items
                 {
                 self.healthComponent.Suicide();
 
-                }
-            }*/
+                }*/
+            }
         }
 
         private static void AddLanguageTokens()
         {
+            string death = "";
+            if (MajesticHandChance.Value > 0)
+            {
+                death += "Monsters have <style=cDeath>" + MajesticHandChance.Value + "%,/style> <style=cStack>(+" + MajesticHandChance.Value + "% per item stack hyperbollicaly)</style> to <style=cDeath>>die</style> on spawn. ";
+            }
+            if (MajesticHandDoDamage.Value > 0)
+            {
+                death += "Deal <style=cIsDamage>more damage</style> the <style=cIsHealth>weaker</style> the enemy is up to <style=cIsDamage>" + MajesticHandDoDamage.Value +"%</style> <style=cStack>(+" + MajesticHandDoDamage.Value + "% per item stack)</style>";
+            }
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_NAME", name);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "Monsters have 5% (+5% per item stack) to die on spawn. All spawned monsters gain Killswitch for 61 (-1 per item stack) seconds. If the monster is elite, double the timer. If the monster is champion or player controlled, multiply the timer 5 times. Hitting enemies or spawning yourself has 10% (+10% per item stack) to reduce Killswitch item by 1");
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "Monsters have 5% (+5% per item stack) to die on spawn. All spawned monsters gain Killswitch for 61 (-1 per item stack) seconds. If the monster is elite, double the timer. If the monster is champion or player controlled, multiply the timer 5 times. Hitting enemies or spawning yourself has 10% (+10% per item stack) to reduce Killswitch item by 1");
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_LORE", "mmmm yummy");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", death);
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", death);
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_LORE", "\"If we kill the god, it would be necessary to replace him.\"");
         }
     }
 }

@@ -16,6 +16,7 @@ using UnityEngine.Diagnostics;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
 using RiskOfOptions;
+using CaeliImperium.Buffs;
 
 namespace CaeliImperium.Items
 {
@@ -385,8 +386,10 @@ localScale = new Vector3(0.23871F, 0.23871F, 0.23871F)
                         {
                             stunChance += GuardianCrownDistanceMaxChance.Value - (dist * (GuardianCrownDistanceMaxChance.Value/dist));
                         }
-
-                        allLuck += characterBody.master.luck;
+                        if (GuardianCrownLuckAffected.Value)
+                        {
+                        allLuck += Math.Max(characterBody.master.luck, -1);
+                        }
                         stunChance *= itemCount;
 
                     }
@@ -401,14 +404,7 @@ localScale = new Vector3(0.23871F, 0.23871F, 0.23871F)
             {
 bool roll = false;
                 int buffCount = self.GetBuffCount(Buffs.DazzledBuff.DazzledBuffDef) + 1;
-            if (GuardianCrownLuckAffected.Value)
-            {
                 roll = Util.CheckRoll(Util.ConvertAmplificationPercentageIntoReductionPercentage(stunChance / buffCount), allLuck);
-            }
-            else
-            {
-                roll = Util.CheckRoll(Util.ConvertAmplificationPercentageIntoReductionPercentage(stunChance / buffCount));
-            }
             if (roll)
             {
                 if (true)
@@ -510,9 +506,9 @@ bool roll = false;
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_NAME", name);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "<style=cIsDamage>Deny enemy attacks</style> with " + GuardianCrownChance.Value + "%<style=cStack>(+ " + GuardianCrownChance.Value + "% per item stack hyperbollicaly)</style> chance. <style=cIsUtility>Not affected by luck</style>");
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "<style=cIsDamage>Deny enemy attacks</style> with " + GuardianCrownChance.Value + "%<style=cStack>(+ " + GuardianCrownChance.Value + "% per item stack hyperbollicaly)</style> chance. <style=cIsUtility>Not affected by luck</style>");
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_LORE", "HOLY SPIRIT");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "On enemy attack, stun them with " + GuardianCrownChance.Value + "%<style=cStack>(+ " + GuardianCrownChance.Value + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease +"%</style>.");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "On enemy attack, stun them with " + GuardianCrownChance.Value + "%<style=cStack>(+ " + GuardianCrownChance.Value + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease + "%</style>.");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_LORE", "To protect, to support, to relief, this crown will help. Let it be your honor to protect the weak. Let it be your duty to protect this world");
         }
 
     }

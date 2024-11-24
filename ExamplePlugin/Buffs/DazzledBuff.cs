@@ -17,7 +17,7 @@ namespace CaeliImperium.Buffs
     {
         public static BuffDef DazzledBuffDef;
         internal static Sprite DazzledIcon;
-        private static ConfigEntry<float> DazzledDamageIncrease;
+        public static ConfigEntry<float> DazzledDamageIncrease;
 
         internal static void Init()
         {

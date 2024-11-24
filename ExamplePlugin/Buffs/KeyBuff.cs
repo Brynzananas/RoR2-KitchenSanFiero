@@ -47,8 +47,8 @@ namespace CaeliImperium.Buffs
 
             if (buffCount > 0)
             {
-                args.critDamageMultAdd += Keychain.keychainCritDamagePerBuff.Value /100 * itemCount * buffCount;
-                args.critAdd += Keychain.keychainCritChancePerBuff.Value * itemCount * buffCount;
+                args.critDamageMultAdd +=( Keychain.keychainCritDamagePerBuff.Value / 100)  * buffCount;
+                args.critAdd += Keychain.keychainCritChancePerBuff.Value * buffCount;
             }
         }
     }

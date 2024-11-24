@@ -38,11 +38,11 @@ namespace CaeliImperium.Buffs
             KillSwitchBuffDef.isHidden = false;
             KillSwitchBuffDef.isCooldown = false;
             ContentAddition.AddBuffDef(KillSwitchBuffDef);
-            On.RoR2.CharacterBody.OnClientBuffsChanged += Killswitch;
-            On.RoR2.CharacterBody.OnBuffFinalStackLost += Killswitch2;
+            //On.RoR2.CharacterBody.OnClientBuffsChanged += Killswitch;
+            //On.RoR2.CharacterBody.OnBuffFinalStackLost += Killswitch2;
             //On.RoR2.CharacterBody.OnBuffFinalStackLost += CharacterBody_OnBuffFinalStackLost;
         }
-
+        /*
         private static void Killswitch(On.RoR2.CharacterBody.orig_OnClientBuffsChanged orig, CharacterBody self)
         {
             orig(self);
@@ -62,7 +62,7 @@ namespace CaeliImperium.Buffs
                     self.healthComponent.Suicide();
                 }
             }
-        }
+        }*/
         
     }
 }

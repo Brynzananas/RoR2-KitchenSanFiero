@@ -68,7 +68,7 @@ namespace CaeliImperium.Items
             ColdHeartItemDef.pickupIconSprite = ColdHeartIcon;
             ColdHeartItemDef.pickupModelPrefab = ColdHeartPrefab;
             ColdHeartItemDef.canRemove = false;
-            ColdHeartItemDef.hidden = false;
+            ColdHeartItemDef.hidden = true;
             ColdHeartItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.WorldUnique, ItemTag.CannotDuplicate, ItemTag.CannotSteal};
             ColdHeartItemDef.tags = tags.ToArray();
@@ -304,9 +304,9 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
         public static void AddLanguageTokens()
         {
             LanguageAPI.Add("COLDHEART_NAME", "Cold Heart");
-            LanguageAPI.Add("COLDHEART_PICKUP", "<style=cMono>It's an eternity here...</style>");
-            LanguageAPI.Add("COLDHEART_DESC", "<style=cMono>It's an eternity here...</style>");
-            LanguageAPI.Add("COLDHEART_LORE", "<style=cMono>It's an eternity here...</style>");
+            LanguageAPI.Add("COLDHEART_PICKUP", "<style=cMono>It's an eternity in here...</style>");
+            LanguageAPI.Add("COLDHEART_DESC", "<style=cMono>It's an eternity in here...</style>");
+            LanguageAPI.Add("COLDHEART_LORE", "<style=cMono>It's an eternity in here...</style>");
         }
     }
 }

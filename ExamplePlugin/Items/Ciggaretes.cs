@@ -30,6 +30,8 @@ namespace CaeliImperium.Items
         public static ConfigEntry<bool> PackOfCiggaretesRework;
         public static ConfigEntry<float> PackOfCiggaretesRegen;
         public static ConfigEntry<float> PackOfCiggaretesRegenStack;
+        public static ConfigEntry<float> PackOfCiggaretesRegenPercentage;
+        public static ConfigEntry<float> PackOfCiggaretesRegenPercentageStack;
         public static ConfigEntry<float> PackOfCiggaretesConversion;
         public static ConfigEntry<float> PackOfCiggaretesTotalDamage;
         public static ConfigEntry<float> PackOfCiggaretesDamage;
@@ -93,12 +95,20 @@ namespace CaeliImperium.Items
                                          "Enable item rework?");
             PackOfCiggaretesRegen = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Negative regen",
-                                         4f,
+                                         3f,
                                          "Control the negative regen value");
             PackOfCiggaretesRegenStack = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Negative regen stack",
-                                         4f,
+                                         1f,
                                          "Control the negative regen value per item stack");
+            PackOfCiggaretesRegenPercentage = Config.Bind<float>("Item : Pack of Siggaretes",
+                                         "Negative regen percentage",
+                                         0.3f,
+                                         "Control the negative regen max health percentage");
+            PackOfCiggaretesRegenPercentageStack = Config.Bind<float>("Item : Pack of Siggaretes",
+                                         "Negative regen percentage stack",
+                                         0.1f,
+                                         "Control the negative regen max health percentage per item stack");
             PackOfCiggaretesDamage = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Burn damage multiplier",
                                          60f,
@@ -119,14 +129,14 @@ namespace CaeliImperium.Items
                                          "Ignition tank nerf",
                                          0f,
                                          "Control damage increase from Ignition Tank burn upgrade in percentage\nSet it to zero to use standart value");*/
-            PackOfCiggaretesIgniteOnHit = Config.Bind<bool>("Item : Pack of Siggaretes",
+            PackOfCiggaretesSmokeOnHit = Config.Bind<bool>("Item : Pack of Siggaretes",
                                          "Smoke on hit",
-                                         true,
-                                         "Smoke enemies on hit?\nPS: New function");
+                                         false,
+                                         "Smoke enemies on hit?\nPS: Old function");
             PackOfCiggaretesIgniteOnHit = Config.Bind<bool>("Item : Pack of Siggaretes",
                                          "Ihnite on hit",
                                          false,
-                                         "Ignite enemies on hit?\nPS: Old function");
+                                         "Ignite enemies on hit?\nPS: Oldest function");
             PackOfCiggaretesDamageOld = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Burn damage multiplier (Old)",
                                          60f,
@@ -146,9 +156,20 @@ namespace CaeliImperium.Items
             ModSettingsManager.AddOption(new CheckBoxOption(PackOfCiggaretesEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(PackOfCiggaretesAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(PackOfCiggaretesTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(PackOfCiggaretesRework));
+            ModSettingsManager.AddOption(new FloatFieldOption(PackOfCiggaretesRegen));
+            ModSettingsManager.AddOption(new FloatFieldOption(PackOfCiggaretesRegenStack));
+            ModSettingsManager.AddOption(new FloatFieldOption(PackOfCiggaretesRegenPercentage));
+            ModSettingsManager.AddOption(new FloatFieldOption(PackOfCiggaretesRegenPercentageStack));
+            ModSettingsManager.AddOption(new CheckBoxOption(PackOfCiggaretesSmokeOnHit));
+            ModSettingsManager.AddOption(new FloatFieldOption(PackOfCiggaretesConversion));
             ModSettingsManager.AddOption(new FloatFieldOption(PackOfCiggaretesTotalDamage));
             ModSettingsManager.AddOption(new FloatFieldOption(PackOfCiggaretesDamage));
             ModSettingsManager.AddOption(new FloatFieldOption(PackOfCiggaretesDuration));
+            ModSettingsManager.AddOption(new CheckBoxOption(PackOfCiggaretesIgniteOnHit));
+            ModSettingsManager.AddOption(new FloatFieldOption(PackOfCiggaretesTotalDamageOld));
+            ModSettingsManager.AddOption(new FloatFieldOption(PackOfCiggaretesDamageOld));
+            ModSettingsManager.AddOption(new FloatFieldOption(PackOfCiggaretesDurationOld));
         }
 
         private static void Item()
@@ -392,7 +413,7 @@ localScale = new Vector3(0.01019F, 0.01019F, 0.01019F)
                 int itemCount = Util.GetItemCountGlobal(CiggaretesItemDef.itemIndex, true) - Util.GetItemCountForTeam(sender.teamComponent.teamIndex, CiggaretesItemDef.itemIndex, true);
                 if (itemCount > 0)
                 {
-                    args.baseRegenAdd -= PackOfCiggaretesRegen.Value + ((itemCount - 1) * PackOfCiggaretesRegenStack.Value);// + (sender.maxHealth / (300 - itemCount));
+                    args.baseRegenAdd -= PackOfCiggaretesRegen.Value + ((itemCount - 1) * PackOfCiggaretesRegenStack.Value) + (sender.maxHealth * ((PackOfCiggaretesRegenPercentage.Value / 100) + ((itemCount - 1) * (PackOfCiggaretesRegenPercentageStack.Value / 100))));
                 }
             }
             
@@ -401,7 +422,7 @@ localScale = new Vector3(0.01019F, 0.01019F, 0.01019F)
         private static void GlobalEventManager_OnHitEnemy(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim)
         {
             orig(self, damageInfo, victim);
-            if (!PackOfCiggaretesRework.Value)
+            if (PackOfCiggaretesSmokeOnHit.Value || PackOfCiggaretesIgniteOnHit.Value)
             {
                 var attacker = damageInfo.attacker;
                 var body = attacker ? attacker.GetComponent<CharacterBody>() : null;
@@ -532,10 +553,15 @@ localScale = new Vector3(0.01019F, 0.01019F, 0.01019F)
 }*/
         private static void AddLanguageTokens()
         {
+            string smoke = "";
+            if (PackOfCiggaretesSmokeOnHit.Value)
+            {
+                smoke = ". On hit <style=cIsUtility>Smoke</style> enemies <style=cStack>(+1 per item stack)</style>. Hits that deal <style=cIsDamage>more than " + PackOfCiggaretesConversion.Value + "% damage</style> convert all <style=cIsUtility>Smoke</style> to <style=cIsDamage>Burn</style>";
+            }
             LanguageAPI.Add("CIGGARETS_NAME", "Pack of Ciggaretes");
-            LanguageAPI.Add("CIGGARETS_PICKUP", "On hit <style=cIsUtility>Smoke</style> enemies <style=cStack>(+1 per item stack)</style>. Hits that deal <style=cIsDamage>more than " + PackOfCiggaretesConversion.Value + "% damage</style> convert all <style=cIsUtility>Smoke</style> to <style=cIsDamage>Burn</style>");
-            LanguageAPI.Add("CIGGARETS_DESC", "On hit <style=cIsUtility>Smoke</style> enemies <style=cStack>(+1 per item stack)</style>. Hits that deal <style=cIsDamage>more than " + PackOfCiggaretesConversion.Value + "% damage</style> convert all <style=cIsUtility>Smoke</style> to <style=cIsDamage>Burn</style>");
-            LanguageAPI.Add("CIGGARETS_LORE", "Но если есть в кармане пачка сигарет\r\nЗначит, всё не так уж плохо на сегодняшний день\r\nИ билет на самолёт с серебристым крылом\r\nЧто, взлетая, оставляет земле лишь тень");
+            LanguageAPI.Add("CIGGARETS_PICKUP", "Enemies gain <style=cDeath>+" + PackOfCiggaretesRegen.Value + " hp/s</style> <style=cStack>(+" + PackOfCiggaretesRegenStack.Value + " hp/s per item stack)</style> and <style=cDeath>" + PackOfCiggaretesRegenPercentage.Value + "%</style> <style=cStack>(+" + PackOfCiggaretesRegenPercentageStack.Value + "% per item stack)</style> <style=cDeath>health drain</style>" + smoke);
+            LanguageAPI.Add("CIGGARETS_DESC", "Enemies gain <style=cDeath>+" + PackOfCiggaretesRegen.Value + " hp/s</style> <style=cStack>(+" + PackOfCiggaretesRegenStack.Value + " hp/s per item stack)</style> and <style=cDeath>" + PackOfCiggaretesRegenPercentage.Value + "%</style> <style=cStack>(+" + PackOfCiggaretesRegenPercentageStack.Value + "% per item stack)</style> <style=cDeath>health drain</style>" + smoke);
+            LanguageAPI.Add("CIGGARETS_LORE", "");
         }
 
     }

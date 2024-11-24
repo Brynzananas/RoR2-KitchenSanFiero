@@ -27,7 +27,7 @@ namespace CaeliImperium.Elites
         public static float damageMult = 2f;
         public static float affixDropChance = 0.00025f;
         private static GameObject HastingWard = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteHaunted/AffixHauntedWard.prefab").WaitForCompletion(), "HastingWard");
-        private static Material hastingMat = Addressables.LoadAssetAsync<Material>("RoR2/Base/WardOnLevel/matWarbannerBuffRing.mat").WaitForCompletion();
+        private static Material hastingMat = MainAssets.LoadAsset<Material>("Assets/Materials/hasting_ramp.mat");
         private static Texture2D eliteRamp = MainAssets.LoadAsset<Texture2D>("Assets/Textures/hasting_ramp.png");
         private static Sprite eliteIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/hasting_icon.png");
         // RoR2/Base/Common/ColorRamps/texRampWarbanner.png 
@@ -242,9 +242,9 @@ namespace CaeliImperium.Elites
             AffixHastingEquipment.dropOnDeathChance = affixDropChance;
             AffixHastingEquipment.enigmaCompatible = false;
             AffixHastingEquipment.requiredExpansion = CaeliImperiumExpansionDef;
-            AffixHastingEquipment.pickupModelPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixHasting.prefab");/*PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteFire/PickupEliteFire.prefab").WaitForCompletion(), "PickupAffixHasting", false);
+            AffixHastingEquipment.pickupModelPrefab = /*MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixHasting.prefab");*/PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteFire/PickupEliteFire.prefab").WaitForCompletion(), "PickupAffixHasting", false);
             foreach (Renderer componentsInChild in AffixHastingEquipment.pickupModelPrefab.GetComponentsInChildren<Renderer>())
-                componentsInChild.material = hastingMat;*/
+                componentsInChild.material = hastingMat;
             AffixHastingEquipment.pickupIconSprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/EliteIce/texAffixWhiteIcon.png").WaitForCompletion();
             
             AffixHastingEquipment.nameToken = "EQUIPMENT_AFFIX_HASTING_NAME";

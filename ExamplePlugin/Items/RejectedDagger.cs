@@ -80,7 +80,7 @@ namespace CaeliImperium.Items
             RejectedDaggerAltFunc = Config.Bind<bool>("Item : " + name,
                              "Alternative function",
                              false,
-                             "Enable alternative function?");
+                             "Enable alternative function?\nInstead of damaging all enemies, damage the same enemy\nDamage division replaces with multiplication");
             RejectedDaggerGlobalCount = Config.Bind<bool>("Item : " + name,
                              "Global count",
                              false,
@@ -245,7 +245,7 @@ namespace CaeliImperium.Items
                         bool globalCount = true;
                         if (!RejectedDaggerGlobalCount.Value)
                         {
-                            globalCount = victimBody.master.masterIndex == characterBody.master.masterIndex;
+                            globalCount = victimBody && characterBody && victimBody.master.masterIndex == characterBody.master.masterIndex;
                         }
                         //Debug.Log("GlobalCount: " +  globalCount);
                         if (victimBody && characterBody && victimBody.teamComponent.teamIndex == characterBody.teamComponent.teamIndex && globalCount)// && victimBody.master.masterIndex == characterBody.master.masterIndex && victimBody != characterBody)
@@ -342,10 +342,19 @@ namespace CaeliImperium.Items
 
         private static void AddLanguageTokens()
         {
+            string damage = "";
+            if (RejectedDaggerAltFunc.Value)
+            {
+                damage = "On hit, <style=cIsDamage>>damage</style> the same enemy for <style=cIsDamage>" + RejectedDaggerDamageToAll.Value + "%</style> <style=cStack>(+" + RejectedDaggerDamageToAll.Value + "% per item stack)</style> <style=cIsDamage>TOTAL damage</style>. Damage is multiplied by the number of all enemies";
+            }
+            else
+            {
+                damage = "On hit, <style=cIsDamage>>damage</style> all enemies for <style=cIsDamage>" + RejectedDaggerDamageToAll.Value + "%</style> <style=cStack>(+" + RejectedDaggerDamageToAll.Value + "% per item stack)</style> <style=cIsDamage>TOTAL damage</style>. Damage is divided by the number of all enemies";
+            }
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name);
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", "On hit, damage all enemies for " + RejectedDaggerDamageToAll.Value + "% (+" + RejectedDaggerDamageToAll.Value + " TOTAL damage. Damage is divided by the number of all enemies");
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", "On hit, damage all enemies for " + RejectedDaggerDamageToAll.Value + "% (+" + RejectedDaggerDamageToAll.Value + " TOTAL damage. Damage is divided by the number of all enemies");
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "mmmm yummy");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", damage);
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", damage);
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "\"What have I done? Why did I killed him? Is this what I fight for? I can't continue this path anymore...\"");
         }
     }
 }

@@ -45,7 +45,7 @@ namespace CaeliImperium.Items
             CoolHatItemDef.pickupIconSprite = CoolHatIcon;
             CoolHatItemDef.pickupModelPrefab = CoolHatPrefab;
             CoolHatItemDef.canRemove = false;
-            CoolHatItemDef.hidden = false;
+            CoolHatItemDef.hidden = true;
             CoolHatItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Damage, ItemTag.AIBlacklist, ItemTag.WorldUnique, ItemTag.RebirthBlacklist, ItemTag.BrotherBlacklist };
             CoolHatItemDef.tags = tags.ToArray();
@@ -91,7 +91,7 @@ namespace CaeliImperium.Items
             LanguageAPI.Add("COOLHAT_NAME", "Cool Hat");
             LanguageAPI.Add("COOLHAT_PICKUP", "Turn Arch Nemesis to your side");
             LanguageAPI.Add("COOLHAT_DESC", "Turn Arch Nemesis to your side");
-            LanguageAPI.Add("COOLHAT_LORE", "mmmm yummy");
+            LanguageAPI.Add("COOLHAT_LORE", "");
         }
     }
 }

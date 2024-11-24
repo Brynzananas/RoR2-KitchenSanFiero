@@ -118,6 +118,10 @@ namespace CaeliImperium.Items
                                          "DOT Damage",
                                          100f,
                                          "Control the damage of the DOT in percentage");
+            SkullGammaGunDuration = Config.Bind<float>("Item : Skull Gamma Gun",
+                                         "DOT Duration",
+                                         5f,
+                                         "Control the duration of the DOT");
             SkullGammaGunMaxBuffCount = Config.Bind<int>("Item : Skull Gamma Gun",
                                          "Base max debuff stack",
                                          3,
@@ -138,6 +142,7 @@ namespace CaeliImperium.Items
             ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunDamageStack));
             ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunProc));
             ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunBuffDamageMultiplier));
+            ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunDuration));
             ModSettingsManager.AddOption(new IntFieldOption(SkullGammaGunMaxBuffCount));
             ModSettingsManager.AddOption(new IntFieldOption(SkullGammaGunMaxBuffCountStack));
         }
@@ -437,7 +442,7 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                                 Vector3 position2 = characterBody.transform.position;
                                 DamageInfo damageInfo2 = new DamageInfo
                                 {
-                                    damage = damage * (SkullGammaGunDamage.Value / 100) + ((stack - 1) * (SkullGammaGunDamageStack.Value / 100)) * (SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2),
+                                    damage = damage * ((SkullGammaGunDamage.Value / 100) + ((stack - 1) * (SkullGammaGunDamageStack.Value / 100))) * ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2)),
                                     damageColorIndex = DamageColorIndex.Item,
                                     damageType = DamageType.BypassArmor,
                                     attacker = body.gameObject,
@@ -459,7 +464,7 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                                     attackerObject = body.gameObject,
                                     victimObject = characterBody.gameObject,
                                     totalDamage = body.damage * (SkullGammaGunBuffDamageMultiplier.Value / 100), //* PackOfCiggaretesDuration.Value,
-                                    damageMultiplier = stack * (SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2),
+                                    damageMultiplier = stack * ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2)),
                                     duration = SkullGammaGunDuration.Value,
                                     dotIndex = Buffs.IrradiatedBuff.IrradiatedDOTDef,
                                     maxStacksFromAttacker = (uint?)(SkullGammaGunMaxBuffCount.Value + ((stack - 1) * SkullGammaGunMaxBuffCountStack.Value))
@@ -547,7 +552,28 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
             LanguageAPI.Add("SKULLGAMMAGUN_NAME", "Skull Gamma Gun");
             LanguageAPI.Add("SKULLGAMMAGUN_PICKUP", "In " + SkullGammaGunAngle.Value + " (+" + SkullGammaGunAngleStack.Value + " per item stack) degree radius and " + SkullGammaGunRange.Value + " (+ " + SkullGammaGunRangeStack.Value + " per item stack) meter distance irradiate enemies for 100% base damage");
             LanguageAPI.Add("SKULLGAMMAGUN_DESC", "In " + SkullGammaGunAngle.Value + " (+" + SkullGammaGunAngleStack.Value + " per item stack) degree radius and " + SkullGammaGunRange.Value + " (+ " + SkullGammaGunRangeStack.Value + " per item stack) meter distance irradiate enemies for 100% base damage");
-            LanguageAPI.Add("SKULLGAMMAGUN_LORE", "Laputan Machine");
+            LanguageAPI.Add("SKULLGAMMAGUN_LORE", "She enters the room with some papers, walking to show them to the professor" +
+                "\n" +
+                "\n" +
+                "\"Sir, the \"Laputan Machine\" has shown underwhelming results again. This time the survival rate did not reach even 60 percent\"" +
+                "\n" +
+                "\n" +
+                "The professor look got desperate. He opens the locker, takes the projects blueprints and puts them on the table, running his eyes over and over" +
+                "\n" +
+                "\n" +
+                "\"What did we miss? Every part of the body has been augmented, each having maximum amount of modifications possible. We can't modify this guy further. The project has been doomed from the very start. Why we would not just hire...\"" +
+                "\n" +
+                "\n" +
+                "While professor mumbled something under his mouth, the assistant took time to look at the plan herself. Even though she did not understand anything on it, she commented:" +
+                "\n" +
+                "\n" +
+                "\"It looks like we can put something on the specimens head\"" +
+                "\n" +
+                "\n" +
+                "The professor looked at her, full of confusion. He took another look at the blueprints" +
+                "\n" +
+                "\n" +
+                "\"Yes, we can\"");
         }
     }
 }

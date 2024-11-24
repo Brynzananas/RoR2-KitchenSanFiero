@@ -369,7 +369,6 @@ localScale = new Vector3(0.29592F, 0.29592F, 0.29592F)
 
                         };
                         CharacterMaster characterMaster = summon.Perform();
-
                         if (characterMaster)
                         {
                             if (NecronomiconInventory != null && NecronomiconDoInventoryCopy.Value)

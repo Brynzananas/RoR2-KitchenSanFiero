@@ -28,6 +28,7 @@ namespace CaeliImperium.Items
         public static ConfigEntry<int> LikeADragonRollStack;
         public static ConfigEntry<float> LikeADragonRollChance;
         public static ConfigEntry<float> LikeADragonRollChanceStack;
+        public static ConfigEntry<bool> LikeADragonSuperRoll;
         public static ConfigEntry<bool> LikeADragonLuck;
         public static ConfigEntry<float> LikeADragonDamage;
         public static ConfigEntry<float> LikeADragonDamageStack;
@@ -95,6 +96,10 @@ namespace CaeliImperium.Items
                              "Luck",
                              true,
                              "Does luck affects the chance?");
+            LikeADragonSuperRoll = Config.Bind<bool>("Item : " + name,
+                             "Super roll",
+                             true,
+                             "Enable super roll?");
             LikeADragonDamage = Config.Bind<float>("Item : " + name,
                                          "Damage increase",
                                          20,
@@ -163,13 +168,24 @@ namespace CaeliImperium.Items
                     for (int i = 0; i < LikeADragonRoll.Value + ((itemCount - 1) * LikeADragonRollStack.Value); i++)
                     {
                         float luck = attackerBody.master.luck;
+                        
                         if (!LikeADragonLuck.Value)
                         {
                             luck = 0;
                         }
-                        if (Util.CheckRoll(LikeADragonRollChance.Value + ((itemCount - 1) * LikeADragonRollChanceStack.Value), luck))
+
+                        int superRoll = 0;
+                        if (LikeADragonSuperRoll.Value)
                         {
-                        damageInfo.damage += damageInfo.damage * LikeADragonDamage.Value + ((itemCount - 1) * LikeADragonDamageStack.Value);
+                            superRoll = (int)Math.Floor((float)(itemCount / 10));
+                        }
+                        for (int j = 0; i < superRoll; j++)
+                        {
+                            damageInfo.damage += damageInfo.damage * LikeADragonDamage.Value + ((itemCount - 1) * LikeADragonDamageStack.Value);
+                        }
+                        if (Util.CheckRoll(LikeADragonRollChance.Value + ((itemCount - 1) * LikeADragonRollChanceStack.Value) - (superRoll * 100), luck, damageInfo.attacker.GetComponent<CharacterMaster>()))
+                        {
+                        damageInfo.damage += damageInfo.damage * (LikeADragonDamage.Value / 100) + ((itemCount - 1) * (LikeADragonDamageStack.Value / 100));
                         }
                     }
                 }
@@ -180,9 +196,9 @@ namespace CaeliImperium.Items
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name);
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", "");
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", "");
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "mmmm yummy");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", LikeADragonRollChance.Value +"% <style=cStack>(+" + LikeADragonRollChanceStack.Value + "% per item stack)</style> chance to increase <style=cIsDamage>outcoming damage</style> by <style=cIsDamage>" + LikeADragonDamage.Value + "&</style> <style=cStack>(+" + LikeADragonDamageStack.Value + "% per item stack)</style>. Rolls " + LikeADragonRoll.Value + " <style=cStack>(+" + LikeADragonRollStack.Value + " per item stack)</style> times");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", LikeADragonRollChance.Value + "% <style=cStack>(+" + LikeADragonRollChanceStack.Value + "% per item stack)</style> chance to increase <style=cIsDamage>outcoming damage</style> by <style=cIsDamage>" + LikeADragonDamage.Value + "&</style> <style=cStack>(+" + LikeADragonDamageStack.Value + "% per item stack)</style>. Rolls " + LikeADragonRoll.Value + " <style=cStack>(+" + LikeADragonRollStack.Value + " per item stack)</style> times");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "");
         }
     }
 }

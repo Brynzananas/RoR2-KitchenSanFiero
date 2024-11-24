@@ -28,6 +28,8 @@ namespace CaeliImperium.Items
         public static ConfigEntry<bool> EmergencyMedicalTreatmentEnable;
         public static ConfigEntry<bool> EmergencyMedicalTreatmentAIBlacklist;
         public static ConfigEntry<float> EmergencyMedicalTreatmentTier;
+        public static ConfigEntry<float> EmergencyMedicalTreatmentRegen;
+        public static ConfigEntry<float> EmergencyMedicalTreatmentRegenStack;
         public static ConfigEntry<float> EmergencyMedicalTreatmentHealth;
         public static ConfigEntry<bool> EmergencyMedicalTreatmentCooldownType;
         public static ConfigEntry<float> EmergencyMedicalTreatmentStartCooldown;
@@ -83,13 +85,21 @@ namespace CaeliImperium.Items
                                          "Item tier",
                                          3f,
                                          "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
+            EmergencyMedicalTreatmentRegen = Config.Bind<float>("Item : Emergency Medical Treatment",
+                                         "Regen",
+                                         2f,
+                                         "Control the regen increase based on max health in percentage");
+            EmergencyMedicalTreatmentRegenStack = Config.Bind<float>("Item : Emergency Medical Treatment",
+                                         "Regen stack",
+                                         2f,
+                                         "Control the regen increase based on max health per item stack in percentage");
             EmergencyMedicalTreatmentHealth = Config.Bind<float>("Item : Emergency Medical Treatment",
                                          "Health threshold",
                                          25f,
-                                         "Control on whhich health percentage the item activates");
+                                         "Control on which health percentage the item activates");
             EmergencyMedicalTreatmentCooldownType = Config.Bind<bool>("Item : Emergency Medical Treatment",
                                          "Cooldown reduction type upon stacking",
-                                         true,
+                                         false,
                                          "Enable: Flat cooldown reduction\nDisable: Percentage cooldown reduction");
             EmergencyMedicalTreatmentStartCooldown = Config.Bind<float>("Item : Emergency Medical Treatment",
                                          "Cooldown to stack off",
@@ -126,6 +136,8 @@ namespace CaeliImperium.Items
             ModSettingsManager.AddOption(new CheckBoxOption(EmergencyMedicalTreatmentEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(EmergencyMedicalTreatmentAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(EmergencyMedicalTreatmentTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
+            ModSettingsManager.AddOption(new FloatFieldOption(EmergencyMedicalTreatmentRegen));
+            ModSettingsManager.AddOption(new FloatFieldOption(EmergencyMedicalTreatmentRegenStack));
             ModSettingsManager.AddOption(new FloatFieldOption(EmergencyMedicalTreatmentHealth));
             ModSettingsManager.AddOption(new CheckBoxOption(EmergencyMedicalTreatmentCooldownType));
             ModSettingsManager.AddOption(new FloatFieldOption(EmergencyMedicalTreatmentStartCooldown));
@@ -395,13 +407,12 @@ localScale = new Vector3(0.05425F, 0.05425F, 0.05425F)
                     {
                         for (int i = 0; i < itemCount && i < EmergencyMedicalTreatmentMaxStackForCooldown.Value; i++)
                         {
-                            cooldown -= cooldown * EmergencyMedicalTreatmentPercentageCooldownReduction.Value;
+                            cooldown -= cooldown * (EmergencyMedicalTreatmentPercentageCooldownReduction.Value / 100);
                         }
                     }
-                    
-                    self.body.RemoveBuff(Buffs.EmergencyMedicalTreatmentActiveBuff.EmergencyMedicalTreatmentActiveBuffDef);
                     self.body.AddTimedBuff(Buffs.EmergencyMedicalTreatmentCooldownBuff.EmergencyMedicalTreatmentCooldownBuffDef, EmergencyMedicalTreatmentStartCooldown.Value);
-                    self.body.AddTimedBuff(RoR2Content.Buffs.Immune, itemCount * EmergencyMedicalTreatmentInvicibilityPerStack.Value);
+                    self.body.RemoveBuff(Buffs.EmergencyMedicalTreatmentActiveBuff.EmergencyMedicalTreatmentActiveBuffDef);
+                    self.body.AddTimedBuff(RoR2Content.Buffs.Immune, 1);// itemCount * EmergencyMedicalTreatmentInvicibilityPerStack.Value);
                     Util.CleanseBody(self.body, true, false, false, true, true, true);
                     self.barrier += EmergencyMedicalTreatmentBarrierBase.Value + ((itemCount - 1) * EmergencyMedicalTreatmentBarrierPerStack.Value);
                     self.HealFraction(0.75f, default(ProcChainMask));
@@ -423,7 +434,7 @@ localScale = new Vector3(0.05425F, 0.05425F, 0.05425F)
             int count = sender.inventory ? sender.inventory.GetItemCount(EmergencyMedicalTreatmentItemDef) : 0;
             if (count > 0)
             {
-                args.baseRegenAdd += sender.maxHealth / 20 * count;
+                args.baseRegenAdd += sender.maxHealth * (EmergencyMedicalTreatmentRegen.Value / 100) + ((count - 1) * EmergencyMedicalTreatmentRegenStack.Value);
             }
         }
 
@@ -445,6 +456,14 @@ localScale = new Vector3(0.05425F, 0.05425F, 0.05425F)
 
                     }
 
+                }
+            }
+            public void OnDisable()
+            {
+                if (body)
+                {
+                    body.RemoveBuff(EmergencyMedicalTreatmentCooldownBuff.EmergencyMedicalTreatmentCooldownBuffDef);
+                    body.RemoveBuff(EmergencyMedicalTreatmentActiveBuff.EmergencyMedicalTreatmentActiveBuffDef);
                 }
             }
         }
@@ -526,7 +545,7 @@ localScale = new Vector3(0.05425F, 0.05425F, 0.05425F)
             LanguageAPI.Add("EMERGENCYMEDICALTREATMENT_NAME", "Emergency Medical Treatment");
             LanguageAPI.Add("EMERGENCYMEDICALTREATMENT_PICKUP", "Taking damage to bellow <style=cIsHealth>" + EmergencyMedicalTreatmentHealth.Value + "% health</style>, <style=cIsHealing>fully heal</style>. Recharges in " + EmergencyMedicalTreatmentStartCooldown.Value + stackType + " seconds");
             LanguageAPI.Add("EMERGENCYMEDICALTREATMENT_DESC", "Taking damage to bellow <style=cIsHealth>" + EmergencyMedicalTreatmentHealth.Value + "% health</style>, <style=cIsHealing>fully heal</style>. Recharges in " + EmergencyMedicalTreatmentStartCooldown.Value + stackType + " seconds");
-            LanguageAPI.Add("EMERGENCYMEDICALTREATMENT_LORE", "Grogon Frmann");
+            LanguageAPI.Add("EMERGENCYMEDICALTREATMENT_LORE", "");
         }
 
        

@@ -12,6 +12,8 @@ using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using RoR2.Orbs;
 using CaeliImperium.Buffs;
 using static R2API.RecalculateStatsAPI;
+using System.Numerics;
+using UnityEngine.Networking;
 
 namespace CaeliImperium.Items
 {
@@ -24,7 +26,9 @@ namespace CaeliImperium.Items
         public static ConfigEntry<bool> MajesticHandAIBlacklist;
         public static ConfigEntry<float> MajesticHandTier;
         public static ConfigEntry<float> MajesticHandChance;
+        public static ConfigEntry<float> MajesticHandMaxChance;
         public static ConfigEntry<float> MajesticHandDoDamage;
+        public static ConfigEntry<float> MajesticHandDoDamageStack;
         //public static ConfigEntry<bool> MajesticHandFunction;
         public static string name = "Majestic Hand";
 
@@ -75,10 +79,18 @@ namespace CaeliImperium.Items
                                          "Death chance",
                                          5f,
                                          "Control the death chance in percerntage\nSet to 0 to disable this effect");
+            MajesticHandMaxChance = Config.Bind<float>("Item : " + name,
+                                         "Max chance",
+                                         5f,
+                                         "Control the maximum death chance in percerntage");
             MajesticHandDoDamage = Config.Bind<float>("Item : " + name,
                              "Damage increase",
-                             42f,
+                             24f,
                              "Control how much damage increases based on the targets remaining health percentage in percentage\nSet to 0 to disable this effect");
+            MajesticHandDoDamageStack = Config.Bind<float>("Item : " + name,
+                             "Damage increase stack",
+                             12f,
+                             "Control how much damage increases based on the targets remaining health percentage per item stack in percentage");
             //MajesticHandFunction = Config.Bind<bool>("Item : " + name,
             //                             "Alternative Killswitch function",
             //                             false,
@@ -132,10 +144,19 @@ namespace CaeliImperium.Items
 
         private static void IncreaseDamage(On.RoR2.HealthComponent.orig_TakeDamageProcess orig, HealthComponent self, DamageInfo damageInfo)
         {
-            if (MajesticHandDoDamage.Value > 0 && damageInfo.attacker && !damageInfo.rejected)
+            if (MajesticHandDoDamage.Value > 0 && damageInfo != null && self != null && damageInfo.attacker && !damageInfo.rejected)
             {
                 var attackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
-                int itemCount = attackerBody.inventory ? attackerBody.inventory.GetItemCount(MajesticHandItemDef) : 0;
+                int itemCount = 0;
+                try
+                {
+                itemCount = attackerBody.inventory ? attackerBody.inventory.GetItemCount(MajesticHandItemDef) : 0;
+
+                }
+                catch (Exception ex)
+                {
+
+                }
                 if (itemCount > 0)
                 {
                     damageInfo.damage *= 1 + ((1 - self.combinedHealthFraction) * itemCount * (MajesticHandDoDamage.Value / 100));
@@ -229,12 +250,25 @@ public class KillswitchComponent : MonoBehaviour
                 int teamItemCount = Util.GetItemCountGlobal(MajesticHandItemDef.itemIndex, true) - Util.GetItemCountForTeam(self.teamComponent.teamIndex, MajesticHandItemDef.itemIndex, true);
                 if (teamItemCount > 0)
                 {
-                    if (Util.CheckRoll(teamItemCount * MajesticHandChance.Value))
+                    if (Util.CheckRoll(ConvertAmplificationPercentageIntoReductionPercentage(teamItemCount * MajesticHandChance.Value, MajesticHandMaxChance.Value)))
                     {
                         EffectManager.SpawnEffect(OrbStorageUtility.Get("Prefabs/Effects/ImpactEffects/LightningStrikeImpact"), new EffectData
                         {
                             origin = self.transform.position,
                         }, true);
+                        UnityEngine.Vector3 vector = UnityEngine.Vector3.zero;
+                        uint difficultyScaledCost = (uint)Run.instance.GetDifficultyScaledCost((int)25f);
+                        float deadMoney = self.master.money / difficultyScaledCost;
+                        GameObject gameObject11 = UnityEngine.Object.Instantiate<GameObject>(LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/BonusMoneyPack"), vector, UnityEngine.Random.rotation);
+                        TeamFilter component13 = gameObject11.GetComponent<TeamFilter>();
+                        if (component13)
+                        {
+                            component13.teamIndex = TeamIndex.Player;
+                        }
+                        for (int i = 0; i < deadMoney; i++)
+                        {
+                        NetworkServer.Spawn(gameObject11);
+                        }
                         self.healthComponent.Suicide();
                     }
                 }
@@ -339,7 +373,7 @@ public class KillswitchComponent : MonoBehaviour
             string death = "";
             if (MajesticHandChance.Value > 0)
             {
-                death += "Monsters have <style=cDeath>" + MajesticHandChance.Value + "%,/style> <style=cStack>(+" + MajesticHandChance.Value + "% per item stack hyperbollicaly)</style> to <style=cDeath>>die</style> on spawn. ";
+                death += "Monsters have <style=cDeath>" + MajesticHandChance.Value + "%</style> <style=cStack>(+" + MajesticHandChance.Value + "% per item stack hyperbollicaly)</style> to <style=cDeath>die</style> on spawn. ";
             }
             if (MajesticHandDoDamage.Value > 0)
             {

@@ -18,6 +18,7 @@ using RiskOfOptions;
 using BepInEx.Configuration;
 using CaeliImperium.Buffs;
 using RiskOfOptions.OptionConfigs;
+using static RoR2.CombatDirector;
 
 namespace CaeliImperium.Elites
 {
@@ -29,10 +30,11 @@ namespace CaeliImperium.Elites
         public static EliteDef AffixModalityElite;
         public static float healthMult = 4f;
         public static float damageMult = 2f;
+        public static EliteTierDef[] CanAppearInEliteTiers { get; set; } = EliteAPI.GetCombatDirectorEliteTiers();
         //public static GameObject DroneSupport = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteHaunted/AffixHauntedWard.prefab").WaitForCompletion();
         public static float affixDropChance = 0.00025f;
         private static GameObject BrassModalityWard = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteHaunted/AffixHauntedWard.prefab").WaitForCompletion(), "BrassModalityWard");
-        private static Material brassModalityMat = Addressables.LoadAssetAsync<Material>("RoR2/Base/Common/VFX/matOpaqueDustLarge_BrassContraption_opt.mat").WaitForCompletion();
+        private static Material brassModalityMat = MainAssets.LoadAsset<Material>("Assets/Materials/brass_modality_ramp.mat");
         private static Texture2D eliteRamp = MainAssets.LoadAsset<Texture2D>("Assets/Textures/brass_modality_ramp.png");
         private static Sprite eliteIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/brass_modality_icon.png");
         // RoR2/Base/Common/ColorRamps/texRampWarbanner.png 
@@ -78,11 +80,11 @@ namespace CaeliImperium.Elites
         {
             BrassModalityHealthMult = Config.Bind<float>("Elite : Brass Modality",
                                          "Health Multiplier",
-                                         4f,
+                                         6f,
                                          "Control the health multiplier of Brass Modality elite");
             BrassModalityDamageMult = Config.Bind<float>("Elite : Brass Modality",
                                          "Damage Multiplier",
-                                         2f,
+                                         3f,
                                          "Control the damage multiplier of Brass Modality elite");
             BrassModalityDamageMultAddition = Config.Bind<float>("Elite : Brass Modality",
                                          "Additional damage multiplier",
@@ -242,7 +244,6 @@ namespace CaeliImperium.Elites
                 targetTier.eliteTypes = elites.ToArray();
             }
         }
-
         private static void CharacterBody_OnBuffFirstStackGained(
            On.RoR2.CharacterBody.orig_OnBuffFirstStackGained orig,
            CharacterBody self,
@@ -314,7 +315,9 @@ namespace CaeliImperium.Elites
             AffixBrassModalityEquipment.dropOnDeathChance = affixDropChance;
             AffixBrassModalityEquipment.enigmaCompatible = false;
             AffixBrassModalityEquipment.requiredExpansion = CaeliImperiumExpansionDef;
-            AffixBrassModalityEquipment.pickupModelPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixBrassModality.prefab");
+            AffixBrassModalityEquipment.pickupModelPrefab = PrefabAPI.InstantiateClone(MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixModel.prefab"), "PickupAffixBrassModality", false);
+            foreach (Renderer componentsInChild in AffixBrassModalityEquipment.pickupModelPrefab.GetComponentsInChildren<Renderer>())
+                componentsInChild.material = brassModalityMat;
             AffixBrassModalityEquipment.pickupIconSprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/EliteIce/texAffixWhiteIcon.png").WaitForCompletion();
         }
 

@@ -256,7 +256,11 @@ namespace ReignFromGreatBeyondPlugin
         {
             FinishedLoadingCompatability.Invoke();
         }*/
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float ConvertAmplificationPercentageIntoReductionPercentage(float amplificationPercentage, float maxChance)
+        {
+            return (1f - maxChance / (maxChance + amplificationPercentage)) * maxChance;
+        }
         private void ResetArrays(Stage stage)
         {
             Array.Clear(deadPositionArray, 0, deadPositionArray.Length);

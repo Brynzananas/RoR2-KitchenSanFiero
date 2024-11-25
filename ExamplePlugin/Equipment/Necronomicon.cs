@@ -338,52 +338,60 @@ localScale = new Vector3(0.29592F, 0.29592F, 0.29592F)
                 for (int i = 0; i < NecronomiconSpawnAmount.Value && !isNull; i++)
                 {
 
-
-                    NecronomiconMasterprefab = (GameObject)deadMasterPrefabArray.GetValue(deadMasterPrefabArray.Length - 2);
-                    Array.Reverse(deadMasterPrefabArray);
-                    Array.Copy(deadMasterPrefabArray, 1, deadMasterPrefabArray, 0, deadMasterPrefabArray.Length - 1);
-                    Array.Reverse(deadMasterPrefabArray);
-                    NecronomiconPosition = (Vector3)deadPositionArray.GetValue(deadPositionArray.Length - 2);
-                    Array.Reverse(deadPositionArray);
-                    Array.Copy(deadPositionArray, 1, deadPositionArray, 0, deadPositionArray.Length - 1);
-                    Array.Reverse(deadPositionArray);
-                    NecronomiconInventory = (Inventory)deadInventoryArray.GetValue(deadInventoryArray.Length - 2);
-                    Array.Reverse(deadInventoryArray);
-                    Array.Copy(deadInventoryArray, 1, deadInventoryArray, 0, deadInventoryArray.Length - 1);
-                    Array.Reverse(deadInventoryArray);
-
-
-                    if (NecronomiconMasterprefab != null && NecronomiconPosition != null)
+                    try
                     {
-                        var summon = new MasterSummon
-                        {
+                        NecronomiconMasterprefab = (GameObject)deadMasterPrefabArray.GetValue(deadMasterPrefabArray.Length - 2);
+                        Array.Reverse(deadMasterPrefabArray);
+                        Array.Copy(deadMasterPrefabArray, 1, deadMasterPrefabArray, 0, deadMasterPrefabArray.Length - 1);
+                        Array.Reverse(deadMasterPrefabArray);
+                        NecronomiconPosition = (Vector3)deadPositionArray.GetValue(deadPositionArray.Length - 2);
+                        Array.Reverse(deadPositionArray);
+                        Array.Copy(deadPositionArray, 1, deadPositionArray, 0, deadPositionArray.Length - 1);
+                        Array.Reverse(deadPositionArray);
+                        NecronomiconInventory = (Inventory)deadInventoryArray.GetValue(deadInventoryArray.Length - 2);
+                        Array.Reverse(deadInventoryArray);
+                        Array.Copy(deadInventoryArray, 1, deadInventoryArray, 0, deadInventoryArray.Length - 1);
+                        Array.Reverse(deadInventoryArray);
 
-                            masterPrefab = NecronomiconMasterprefab,
-                            position = NecronomiconPosition,
-                            rotation = Quaternion.identity,
-                            teamIndexOverride = new TeamIndex?(slot.GetComponent<CharacterBody>().teamComponent.teamIndex),
-                            useAmbientLevel = true,
-                            summonerBodyObject = slot.gameObject,
-                            //inventoryToCopy = NecronomiconInventory,
-                            ignoreTeamMemberLimit = true,
 
-                        };
-                        CharacterMaster characterMaster = summon.Perform();
-                        if (characterMaster)
+                        if (NecronomiconMasterprefab != null && NecronomiconPosition != null)
                         {
-                            if (NecronomiconInventory != null && NecronomiconDoInventoryCopy.Value)
+                            var summon = new MasterSummon
                             {
-                            characterMaster.inventory.AddItemsFrom(NecronomiconInventory);
 
+                                masterPrefab = NecronomiconMasterprefab,
+                                position = NecronomiconPosition,
+                                rotation = Quaternion.identity,
+                                teamIndexOverride = new TeamIndex?(slot.GetComponent<CharacterBody>().teamComponent.teamIndex),
+                                useAmbientLevel = true,
+                                summonerBodyObject = slot.gameObject,
+                                //inventoryToCopy = NecronomiconInventory,
+                                ignoreTeamMemberLimit = true,
+
+                            };
+                            CharacterMaster characterMaster = summon.Perform();
+                            if (characterMaster)
+                            {
+                                if (NecronomiconInventory != null && NecronomiconDoInventoryCopy.Value)
+                                {
+                                    characterMaster.inventory.AddItemsFrom(NecronomiconInventory);
+
+                                }
+                                characterMaster.inventory.GiveItem(RoR2Content.Items.Ghost, 1);
+                                characterMaster.inventory.GiveItem(RoR2Content.Items.HealthDecay, NecronomiconHealthDrain.Value);
+                                characterMaster.inventory.GiveItem(RoR2Content.Items.BoostHp, NecronomiconHealthBoost.Value);
+                                characterMaster.inventory.GiveItem(RoR2Content.Items.BoostDamage, NecronomiconDamageBoost.Value);
                             }
-                            characterMaster.inventory.GiveItem(RoR2Content.Items.Ghost, 1);
-                            characterMaster.inventory.GiveItem(RoR2Content.Items.HealthDecay, NecronomiconHealthDrain.Value);
-                            characterMaster.inventory.GiveItem(RoR2Content.Items.BoostHp, NecronomiconHealthBoost.Value);
-                            characterMaster.inventory.GiveItem(RoR2Content.Items.BoostDamage, NecronomiconDamageBoost.Value);
+
+
                         }
-
-
                     }
+                    catch (Exception e)
+                    {
+                        Debug.LogError("Necronomicon: failed to revive");
+                        Debug.LogError(e);
+                    }
+                    
 
                 }
             }
@@ -392,54 +400,62 @@ localScale = new Vector3(0.29592F, 0.29592F, 0.29592F)
                 for (int i = 0; i < NecronomiconSpawnAmountNoPlayer.Value; i++)
                 {
 
-
-                    NecronomiconMasterprefab = (GameObject)deadMasterPrefabArray.GetValue(deadMasterPrefabArray.Length - 2);
-                    Array.Reverse(deadMasterPrefabArray);
-                    Array.Copy(deadMasterPrefabArray, 1, deadMasterPrefabArray, 0, deadMasterPrefabArray.Length - 1);
-                    Array.Reverse(deadMasterPrefabArray);
-                    NecronomiconPosition = (Vector3)deadPositionArray.GetValue(deadPositionArray.Length - 2);
-                    Array.Reverse(deadPositionArray);
-                    Array.Copy(deadPositionArray, 1, deadPositionArray, 0, deadPositionArray.Length - 1);
-                    Array.Reverse(deadPositionArray);
-                    NecronomiconInventory = (Inventory)deadInventoryArray.GetValue(deadInventoryArray.Length - 2);
-                    Array.Reverse(deadInventoryArray);
-                    Array.Copy(deadInventoryArray, 1, deadInventoryArray, 0, deadInventoryArray.Length - 1);
-                    Array.Reverse(deadInventoryArray);
-
-                    if (NecronomiconMasterprefab != null && NecronomiconPosition != null)
+                    try
                     {
-                        var summon = new MasterSummon
+                        NecronomiconMasterprefab = (GameObject)deadMasterPrefabArray.GetValue(deadMasterPrefabArray.Length - 2);
+                        Array.Reverse(deadMasterPrefabArray);
+                        Array.Copy(deadMasterPrefabArray, 1, deadMasterPrefabArray, 0, deadMasterPrefabArray.Length - 1);
+                        Array.Reverse(deadMasterPrefabArray);
+                        NecronomiconPosition = (Vector3)deadPositionArray.GetValue(deadPositionArray.Length - 2);
+                        Array.Reverse(deadPositionArray);
+                        Array.Copy(deadPositionArray, 1, deadPositionArray, 0, deadPositionArray.Length - 1);
+                        Array.Reverse(deadPositionArray);
+                        NecronomiconInventory = (Inventory)deadInventoryArray.GetValue(deadInventoryArray.Length - 2);
+                        Array.Reverse(deadInventoryArray);
+                        Array.Copy(deadInventoryArray, 1, deadInventoryArray, 0, deadInventoryArray.Length - 1);
+                        Array.Reverse(deadInventoryArray);
+
+                        if (NecronomiconMasterprefab != null && NecronomiconPosition != null)
                         {
-
-                            masterPrefab = NecronomiconMasterprefab,
-                            position = NecronomiconPosition,
-                            rotation = Quaternion.identity,
-                            teamIndexOverride = new TeamIndex?(slot.GetComponent<CharacterBody>().teamComponent.teamIndex),
-                            useAmbientLevel = true,
-                            summonerBodyObject = slot.gameObject,
-                            inventoryToCopy = NecronomiconInventory,
-                            ignoreTeamMemberLimit = false,
-
-                        };
-                        CharacterMaster characterMaster = summon.Perform();
-
-                        if (characterMaster)
-                        {
-                            if (NecronomiconInventory != null && NecronomiconDoInventoryCopyNoPlayer.Value)
+                            var summon = new MasterSummon
                             {
-                            characterMaster.inventory.AddItemsFrom(NecronomiconInventory);
 
+                                masterPrefab = NecronomiconMasterprefab,
+                                position = NecronomiconPosition,
+                                rotation = Quaternion.identity,
+                                teamIndexOverride = new TeamIndex?(slot.GetComponent<CharacterBody>().teamComponent.teamIndex),
+                                useAmbientLevel = true,
+                                summonerBodyObject = slot.gameObject,
+                                inventoryToCopy = NecronomiconInventory,
+                                ignoreTeamMemberLimit = false,
+
+                            };
+                            CharacterMaster characterMaster = summon.Perform();
+
+                            if (characterMaster)
+                            {
+                                if (NecronomiconInventory != null && NecronomiconDoInventoryCopyNoPlayer.Value)
+                                {
+                                    characterMaster.inventory.AddItemsFrom(NecronomiconInventory);
+
+                                }
+                                characterMaster.inventory.GiveItem(RoR2Content.Items.Ghost, 1);
+                                characterMaster.inventory.GiveItem(RoR2Content.Items.HealthDecay, NecronomiconHealthDrainNoPlayer.Value);
+                                characterMaster.inventory.GiveItem(RoR2Content.Items.BoostHp, NecronomiconHealthBoostNoPlayer.Value);
+                                characterMaster.inventory.GiveItem(RoR2Content.Items.BoostDamage, NecronomiconDamageBoostNoPlayer.Value);
                             }
-                            characterMaster.inventory.GiveItem(RoR2Content.Items.Ghost, 1);
-                            characterMaster.inventory.GiveItem(RoR2Content.Items.HealthDecay, NecronomiconHealthDrainNoPlayer.Value);
-                            characterMaster.inventory.GiveItem(RoR2Content.Items.BoostHp, NecronomiconHealthBoostNoPlayer.Value);
-                            characterMaster.inventory.GiveItem(RoR2Content.Items.BoostDamage, NecronomiconDamageBoostNoPlayer.Value);
+
+
+
+
                         }
-
-
-
-
                     }
+                    catch (Exception e)
+                    {
+                        Debug.LogError("Necronomicon: failed to revive");
+                        Debug.LogError(e);
+                    }
+
 
                 }
             }

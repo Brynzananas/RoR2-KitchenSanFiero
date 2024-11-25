@@ -471,11 +471,11 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
             string configSkills = ".";
             if (BrassBellIsReloadSecondary.Value || BrassBellIsReloadutility.Value || BrassBellIsReloadSpecial.Value)
             {
-                configSkills += " <style=cIsUtility>Reload ";
+                configSkills += " Reload ";
 
                 if (BrassBellIsReloadSecondary.Value)
                 {
-                    configSkills += "secondary";
+                    configSkills += "<style=cIsUtility>secondary</style>";
                 }
                 if (BrassBellIsReloadutility.Value || BrassBellIsReloadSpecial.Value)
                 {
@@ -483,7 +483,7 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
                 }
                 if (BrassBellIsReloadutility.Value)
                 {
-                    configSkills += " utility";
+                    configSkills += " <style=cIsUtility>utility</style>";
                     
                 }
                 if (BrassBellIsReloadSpecial.Value)
@@ -492,14 +492,14 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
                 }
                 if (BrassBellIsReloadSpecial.Value)
                 {
-                    configSkills += " special";
+                    configSkills += " <style=cIsUtility>special</style>";
                 }
-                configSkills += " skills on effect activation</style>.";
+                configSkills += " <style=cIsUtility>skills</style> on effect activation.";
 
             }
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_NAME", name);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "Every " + BrassBellCooldown.Value + " <style=cStack>(-" + BrassBellCooldownStack.Value + "% per item stack)</style> seconds increase your damage by <style=cIsDamage>" + BrassBellDamageIncrease.Value + "%</style> <style=cStack>(+" + BrassBellDamageIncrease.Value + "% per item stack)</style> for " + BrassBellEffectTime.Value + " <style=cStack>(+" + BrassBellEffectTimeStack.Value + ")</style> seconds" + configSkills);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "Every " + BrassBellCooldown.Value + " <style=cStack>(-" + BrassBellCooldownStack.Value + "% per item stack)</style> seconds increase your damage by <style=cIsDamage>" + BrassBellDamageIncrease.Value + "%</style> <style=cStack>(+" + BrassBellDamageIncrease.Value + "% per item stack)</style> for " + BrassBellEffectTime.Value + " <style=cStack>(+" + BrassBellEffectTimeStack.Value + ")</style> seconds" + configSkills);
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "Every " + BrassBellCooldown.Value + " <style=cStack>(-" + BrassBellCooldownStack.Value + "% per item stack)</style> seconds increase your damage by <style=cIsDamage>" + BrassBellDamageIncrease.Value + "%</style> <style=cStack>(+" + BrassBellDamageIncrease.Value + "% per item stack)</style> for " + BrassBellEffectTime.Value + " <style=cStack>(+" + BrassBellEffectTimeStack.Value + " per item stack)</style> seconds" + configSkills);
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "Every " + BrassBellCooldown.Value + " <style=cStack>(-" + BrassBellCooldownStack.Value + "% per item stack)</style> seconds increase your damage by <style=cIsDamage>" + BrassBellDamageIncrease.Value + "%</style> <style=cStack>(+" + BrassBellDamageIncrease.Value + "% per item stack)</style> for " + BrassBellEffectTime.Value + " <style=cStack>(+" + BrassBellEffectTimeStack.Value + " per item stack)</style> seconds" + configSkills);
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_LORE", "");
         }
     }

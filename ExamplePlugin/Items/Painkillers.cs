@@ -116,6 +116,12 @@ namespace CaeliImperium.Items
             ModSettingsManager.AddOption(new CheckBoxOption(PainkillersAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(PainkillersTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(PainkillersArmorAdd));
+            ModSettingsManager.AddOption(new FloatFieldOption(PainkillersRegenAdd));
+            ModSettingsManager.AddOption(new FloatFieldOption(PainkillersRegenMult));
+            ModSettingsManager.AddOption(new FloatFieldOption(PainkillersMaxHealthAdd));
+            ModSettingsManager.AddOption(new FloatFieldOption(PainkillersMaxHealthMult));
+            ModSettingsManager.AddOption(new FloatFieldOption(PainkillersHealthAdd));
+            ModSettingsManager.AddOption(new FloatFieldOption(PainkillersHealthMult));
             //ModSettingsManager.AddOption(new CheckBoxOption(PainkillersOnItemPickupEffect));
         }
 
@@ -408,8 +414,8 @@ localScale = new Vector3(0.05652F, 0.05652F, 0.05652F)
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add("PAINKILLERS_NAME", "Painkillers");
-            LanguageAPI.Add("PAINKILLERS_PICKUP", "Slightly increase all health related statistics");
-            LanguageAPI.Add("PAINKILLERS_DESC", "Slightly increase all health related statistics");
+            LanguageAPI.Add("PAINKILLERS_PICKUP", "Slightly increase <style=cIsHealing>all health statistics</style>");
+            LanguageAPI.Add("PAINKILLERS_DESC", "Slightly increase <style=cIsHealing>all health statistics</style>");
             LanguageAPI.Add("PAINKILLERS_LORE", "mmmm yummy");
         }
     }

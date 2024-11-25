@@ -1123,8 +1123,8 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add("CAPTUREDPOTENTIAL_NAME", "Captured Potential");
-            LanguageAPI.Add("CAPTUREDPOTENTIAL_PICKUP", "Gain <style=cIsUtility>+" + CapturedPotentialEquipSlots.Value + "</style> <style=cStack>(+" + CapturedPotentialEquipSlotsStack.Value + " per item stack)</style> <style=IsUtility>equipment slots</style>");
-            LanguageAPI.Add("CAPTUREDPOTENTIAL_DESC", "Gain <style=cIsUtility>+" + CapturedPotentialEquipSlots.Value + "</style> <style=cStack>(+" + CapturedPotentialEquipSlotsStack.Value + " per item stack)</style> <style=IsUtility>equipment slots</style>");
+            LanguageAPI.Add("CAPTUREDPOTENTIAL_PICKUP", "Gain <style=cIsUtility>+" + CapturedPotentialEquipSlots.Value + "</style> <style=cStack>(+" + CapturedPotentialEquipSlotsStack.Value + " per item stack)</style> <style=cIsUtility>equipment slots</style>");
+            LanguageAPI.Add("CAPTUREDPOTENTIAL_DESC", "Gain <style=cIsUtility>+" + CapturedPotentialEquipSlots.Value + "</style> <style=cStack>(+" + CapturedPotentialEquipSlotsStack.Value + " per item stack)</style> <style=cIsUtility>equipment slots</style>");
             LanguageAPI.Add("CAPTUREDPOTENTIAL_LORE", "<style=cMono>//--ATTEMPT № 45123--//</style>" +
                 "\n" +
                 "Void: 67.23%" +

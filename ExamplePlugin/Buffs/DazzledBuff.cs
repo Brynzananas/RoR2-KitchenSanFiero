@@ -52,7 +52,7 @@ namespace CaeliImperium.Buffs
         private static void TakeDamageMore(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo)
         {
             int buffCount = self.body ? self.body.GetBuffCount(DazzledBuffDef) : 0;
-            if (buffCount > 0)
+            if (self.body && damageInfo.attacker && !damageInfo.rejected && buffCount > 0)
             {
                 damageInfo.damage *= 1 + (buffCount * DazzledDamageIncrease.Value / 100);
             }

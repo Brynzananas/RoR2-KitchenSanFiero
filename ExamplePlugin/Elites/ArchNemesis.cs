@@ -39,7 +39,7 @@ namespace CaeliImperium.Elites
         public static float damageMult = 4f;
         public static float affixDropChance = 0f;
         private static GameObject ArchNemesisWard = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/archnemesishat.prefab");
-        private static Material ArchNemesisMat = Addressables.LoadAssetAsync<Material>("RoR2/Base/Common/VFX/matOpaqueDustLarge_BrassContraption_opt.mat").WaitForCompletion();
+        private static Material ArchNemesisMat = MainAssets.LoadAsset<Material>("Assets/Materials/arch_nemesis_ramp.mat");
         private static Texture2D eliteRamp = MainAssets.LoadAsset<Texture2D>("Assets/Textures/arch_nemesis_ramp.png");
         private static Sprite eliteIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/arch_nemesis_icon.png");
         public static bool ArchNemesisSpawning = false;
@@ -426,7 +426,9 @@ namespace CaeliImperium.Elites
             AffixArchNemesisEquipment.dropOnDeathChance = affixDropChance;
             AffixArchNemesisEquipment.enigmaCompatible = false;
             AffixArchNemesisEquipment.requiredExpansion = CaeliImperiumExpansionDef;
-            AffixArchNemesisEquipment.pickupModelPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixArchNemesisModel.prefab"); ;
+            AffixArchNemesisEquipment.pickupModelPrefab = PrefabAPI.InstantiateClone(MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixModel.prefab"), "PickupAffixArchNemesis", false);
+            foreach (Renderer componentsInChild in AffixArchNemesisEquipment.pickupModelPrefab.GetComponentsInChildren<Renderer>())
+                componentsInChild.material = ArchNemesisMat;
             AffixArchNemesisEquipment.pickupIconSprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/EliteIce/texAffixWhiteIcon.png").WaitForCompletion();
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
             rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]{

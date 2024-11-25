@@ -57,7 +57,7 @@ namespace CaeliImperium.Artifact
                              "Control the interval between monsters director credits addition");
             BattleCreditsAddition = Config.Bind<float>("Artifact : Battle",
                                          "Credits addition",
-                                         50f,
+                                         20f,
                                          "Control the monsters director credits addition");
             BattleMidwayCredits = Config.Bind<float>("Artifact : Battle",
                                          "One time credits addition",
@@ -65,15 +65,15 @@ namespace CaeliImperium.Artifact
                                          "Control the one time monsters director credits addition midway teleport event");
             BattleChargeOnKill = Config.Bind<float>("Artifact : Battle",
                                          "Charge on kill multiplier",
-                                         1f,
+                                         2f,
                                          "Control the multiplier for charge on kill");
             BattleZoneRange = Config.Bind<float>("Artifact : Battle",
                                          "Zone radius multiplier",
-                                         4f,
+                                         2f,
                                          "Control the zone radius multiplier");
             BattleTime = Config.Bind<float>("Artifact : Battle",
                                          "Teleport time",
-                                         210f,
+                                         240f,
                                          "Control the teleport time in seconds");
             BattleDrizzleDifficulty = Config.Bind<float>("Artifact : Battle",
                                          "Credits multiplier on Drizzle and lower",
@@ -152,6 +152,7 @@ if (changeTeleport)
 
         public class BattleComponent : MonoBehaviour
         {
+
             public float timer;
             public void FixedUpdate()
             {
@@ -253,7 +254,6 @@ private static void ChageTeleport(On.RoR2.Stage.orig_FixedUpdate orig, Stage sel
                 changeTeleport = true;
                 itHappened = false;
                 teleport.holdoutZoneController.chargeRadiusDelta = BattleZoneRange.Value * 100;
-                teleport.holdoutZoneController.radiusSmoothTime = 0.1f;
                 teleport.holdoutZoneController.baseChargeDuration = BattleTime.Value;
                 teleport.bonusDirector.creditMultiplier += difficulty;
 ;
@@ -292,7 +292,7 @@ private static void ChageTeleport(On.RoR2.Stage.orig_FixedUpdate orig, Stage sel
         public static void AddLanguageTokens()
         {
             LanguageAPI.Add("ARTIFACT_BATTLE_NAME", "Artifact of Battle");
-            LanguageAPI.Add("ARTIFACT_BATTLE_DESCRIPTION", "Multiply teleporter radius by " + BattleZoneRange.Value + " and set its completion time to " + BattleTime.Value + " seconds. Every " + BattleInterval.Value + " seconds monsters gain " + BattleCreditsAddition.Value + " director credits. Midway teleporter multiply credits multiplier by " + BattleMidwayDifficulty.Value + " and monsters gain " + BattleMidwayCredits.Value + " director credits one time. Kills gain " + BattleChargeOnKill.Value + "% teleporter charge");
+            LanguageAPI.Add("ARTIFACT_BATTLE_DESCRIPTION", "Increases teleporter event zone and completion time. Kills recharge teleporter.\n\"In an endless fight he could not win, his music was still electric\"");//"Multiply teleporter radius by " + BattleZoneRange.Value + " and set its completion time to " + BattleTime.Value + " seconds. Every " + BattleInterval.Value + " seconds monsters gain " + BattleCreditsAddition.Value + " director credits. Midway teleporter multiply credits multiplier by " + BattleMidwayDifficulty.Value + " and monsters gain " + BattleMidwayCredits.Value + " director credits one time. Kills gain " + BattleChargeOnKill.Value + "% teleporter charge");
         }
     }
 }

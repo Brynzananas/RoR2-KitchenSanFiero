@@ -177,8 +177,8 @@ namespace CaeliImperium.Items
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name);
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", "Reflect <style=cIsDamage>" + OpposingForceDamage.Value + "%</style> <style=cStack>(+ " + OpposingForceDamageStack.Value +"% per item stack)</style> multiplied to the <style=cIsHealing>armor</style> percentage. Gain <style=cIsHealing>+" + OpposingForceArmorGain.Value + "</style> <style=cStack>(+" + OpposingForceArmorGainStack.Value + " per item stack)</style> <style=cIsHealing>armor</style>");
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", "Reflect <style=cIsDamage>" + OpposingForceDamage.Value + "%</style> <style=cStack>(+ " + OpposingForceDamageStack.Value + "% per item stack)</style> multiplied to the <style=cIsHealing>armor</style> percentage. Gain <style=cIsHealing>+" + OpposingForceArmorGain.Value + "</style> <style=cStack>(+" + OpposingForceArmorGainStack.Value + " per item stack)</style> <style=cIsHealing>armor</style>");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", "Reflect <style=cIsDamage>" + OpposingForceDamage.Value + "%</style> <style=cStack>(+" + OpposingForceDamageStack.Value +"% per item stack)</style> multiplied to the <style=cIsHealing>armor</style> percentage. Gain <style=cIsHealing>+" + OpposingForceArmorGain.Value + "</style> <style=cStack>(+" + OpposingForceArmorGainStack.Value + " per item stack)</style> <style=cIsHealing>armor</style>");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", "Reflect <style=cIsDamage>" + OpposingForceDamage.Value + "%</style> <style=cStack>(+" + OpposingForceDamageStack.Value + "% per item stack)</style> multiplied to the <style=cIsHealing>armor</style> percentage. Gain <style=cIsHealing>+" + OpposingForceArmorGain.Value + "</style> <style=cStack>(+" + OpposingForceArmorGainStack.Value + " per item stack)</style> <style=cIsHealing>armor</style>");
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "");
         }
     }

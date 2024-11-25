@@ -33,7 +33,7 @@ namespace CaeliImperium.Elites
         //public static GameObject DroneSupport = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteHaunted/AffixHauntedWard.prefab").WaitForCompletion();
         public static float affixDropChance = 0.00025f;
         private static GameObject DefenderWard = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteHaunted/AffixHauntedWard.prefab").WaitForCompletion(), "BrassModalityWard");
-        private static Material DefenderMat = Addressables.LoadAssetAsync<Material>("RoR2/Base/Common/VFX/matOpaqueDustLarge_BrassContraption_opt.mat").WaitForCompletion();
+        private static Material DefenderMat = MainAssets.LoadAsset<Material>("Assets/Materials/defender_ramp.mat");
         private static Texture2D eliteRamp = MainAssets.LoadAsset<Texture2D>("Assets/Textures/defender_ramp.png");
         private static Sprite eliteIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/guardian_elite_icon.png");
         // RoR2/Base/Common/ColorRamps/texRampWarbanner.png 
@@ -41,6 +41,7 @@ namespace CaeliImperium.Elites
         public static ConfigEntry<float> DefenderDamageMult;
         public static ConfigEntry<float> DefenderStunChance;
         public static ConfigEntry<float> DefenderDazzledTime;
+        public static ConfigEntry<float> DefenderMaxChance;
         public static ConfigEntry<bool> DefenderEnable;
         public static ConfigEntry<bool> DefenderEnableDamageAbsorb;
         public static ConfigEntry<float> DefenderArmor;
@@ -74,11 +75,11 @@ namespace CaeliImperium.Elites
         {
             DefenderHealthMult = Config.Bind<float>("Elite : " + name,
                                          "Health Multiplier",
-                                         4f,
+                                         13f,
                                          "Control the health multiplier of this elite");
             DefenderDamageMult = Config.Bind<float>("Elite : " + name,
                                          "Damage Multiplier",
-                                         2f,
+                                         10f,
                                          "Control the damage multiplier of this elite");
             DefenderArmor = Config.Bind<float>("Elite : " + name,
                                          "Armor",
@@ -86,8 +87,12 @@ namespace CaeliImperium.Elites
                                          "Control the armor of this elite");
             DefenderStunChance = Config.Bind<float>("Elite : " + name,
                                          "Stun chance",
-                                         2f,
+                                         10f,
                                          "Control the stun chance on enemy skill use");
+            DefenderMaxChance = Config.Bind<float>("Elite : " + name,
+                                         "Max chance",
+                                         70f,
+                                         "Control the maximum stun chance in percentage");
             DefenderDazzledTime = Config.Bind<float>("Elite : " + name,
                                          "Dazzled time",
                                          5f,
@@ -142,7 +147,7 @@ namespace CaeliImperium.Elites
 
         private static void AbsorbDamage(On.RoR2.HealthComponent.orig_TakeDamageProcess orig, HealthComponent self, DamageInfo damageInfo)
         {
-            if (DefenderEnableDamageAbsorb.Value && damageInfo.attacker && !self.body.HasBuff(AffixDefenderBuff))
+            if (DefenderEnableDamageAbsorb.Value && damageInfo != null && self != null && damageInfo.attacker && !self.body.HasBuff(AffixDefenderBuff))
             {
                 int eliteCount = 0;
                 CharacterBody[] eliteArray = new CharacterBody[0];
@@ -200,25 +205,26 @@ namespace CaeliImperium.Elites
             {
                 bool roll = false;
                 int buffCount = self.GetBuffCount(DazzledBuff.DazzledBuffDef) + 1;
-                    roll = Util.CheckRoll(Util.ConvertAmplificationPercentageIntoReductionPercentage(stunChance / buffCount));
+                roll = Util.CheckRoll(ConvertAmplificationPercentageIntoReductionPercentage(stunChance / buffCount, DefenderMaxChance.Value));
                 if (roll)
                 {
-                    if (!self.isChampion)
+                    SetStateOnHurt component = self.GetComponent<SetStateOnHurt>();
+                    if (component.hasEffectiveAuthority)
                     {
-                        SetStateOnHurt component = self.GetComponent<SetStateOnHurt>();
-                        if (component.hasEffectiveAuthority)
+                        
+                        EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
+                    }
+                    else
+                    {
+                        if (!self.isChampion)
                         {
                             component.SetStunInternal(0.2f);
-                            EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
                         }
-                        else
-                        {
-                            component.CallRpcSetStun(0.2f);
-                            EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
+                        EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
 
-                        }
-                        self.AddTimedBuff(DazzledBuff.DazzledBuffDef, DefenderDazzledTime.Value);
                     }
+                    self.AddTimedBuff(DazzledBuff.DazzledBuffDef, DefenderDazzledTime.Value);
+
                 }
             }
             orig(self, skill);
@@ -294,7 +300,9 @@ namespace CaeliImperium.Elites
             AffixDefenderEquipment.dropOnDeathChance = affixDropChance;
             AffixDefenderEquipment.enigmaCompatible = false;
             AffixDefenderEquipment.requiredExpansion = CaeliImperiumExpansionDef;
-            AffixDefenderEquipment.pickupModelPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixDefender.prefab");
+            AffixDefenderEquipment.pickupModelPrefab = PrefabAPI.InstantiateClone(MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixModel.prefab"), "PickupAffixDefender", false);
+            foreach (Renderer componentsInChild in AffixDefenderEquipment.pickupModelPrefab.GetComponentsInChildren<Renderer>())
+                componentsInChild.material = DefenderMat;
             AffixDefenderEquipment.pickupIconSprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/EliteIce/texAffixWhiteIcon.png").WaitForCompletion();
         }
 

@@ -119,7 +119,7 @@ namespace CaeliImperium.Items
                                          "Control the maximum amount of item stacks before they stop substructing cooldown");
             EmergencyMedicalTreatmentInvicibilityPerStack = Config.Bind<float>("Item : Emergency Medical Treatment",
                                          "Invicibility seconds per item stack",
-                                         1f,
+                                         0f,
                                          "Control invicibility time per item stack in seconds");
             EmergencyMedicalTreatmentBarrierPerStack = Config.Bind<float>("Item : Emergency Medical Treatment",
                              "Barrier per item stack",
@@ -390,7 +390,7 @@ localScale = new Vector3(0.05425F, 0.05425F, 0.05425F)
 
         private static void OnHitHeal(On.RoR2.HealthComponent.orig_TakeDamageProcess orig, HealthComponent self, DamageInfo damageInfo)
         {
-            if (NetworkServer.active && self.body && damageInfo.damage > 0f)
+            if (NetworkServer.active && damageInfo!=null && self!=null && self.body && damageInfo.damage > 0f)
             {
                 if (self.body.GetBuffCount(Buffs.EmergencyMedicalTreatmentActiveBuff.EmergencyMedicalTreatmentActiveBuffDef) > 0 && self.health - damageInfo.damage <= self.body.maxHealth * (EmergencyMedicalTreatmentHealth.Value / 100))
                 {
@@ -410,9 +410,9 @@ localScale = new Vector3(0.05425F, 0.05425F, 0.05425F)
                             cooldown -= cooldown * (EmergencyMedicalTreatmentPercentageCooldownReduction.Value / 100);
                         }
                     }
+                    self.body.SetBuffCount(Buffs.EmergencyMedicalTreatmentActiveBuff.EmergencyMedicalTreatmentActiveBuffDef.buffIndex, 0);
                     self.body.AddTimedBuff(Buffs.EmergencyMedicalTreatmentCooldownBuff.EmergencyMedicalTreatmentCooldownBuffDef, EmergencyMedicalTreatmentStartCooldown.Value);
-                    self.body.RemoveBuff(Buffs.EmergencyMedicalTreatmentActiveBuff.EmergencyMedicalTreatmentActiveBuffDef);
-                    self.body.AddTimedBuff(RoR2Content.Buffs.Immune, 1);// itemCount * EmergencyMedicalTreatmentInvicibilityPerStack.Value);
+                    self.body.AddTimedBuff(RoR2Content.Buffs.Immune, EmergencyMedicalTreatmentInvicibilityBase.Value + (itemCount - 1) * EmergencyMedicalTreatmentInvicibilityPerStack.Value);// itemCount * EmergencyMedicalTreatmentInvicibilityPerStack.Value);
                     Util.CleanseBody(self.body, true, false, false, true, true, true);
                     self.barrier += EmergencyMedicalTreatmentBarrierBase.Value + ((itemCount - 1) * EmergencyMedicalTreatmentBarrierPerStack.Value);
                     self.HealFraction(0.75f, default(ProcChainMask));

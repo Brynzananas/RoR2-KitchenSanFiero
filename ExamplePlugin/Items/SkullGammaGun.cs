@@ -80,7 +80,7 @@ namespace CaeliImperium.Items
                              "Blacklist this item from enemies?");
             SkullGammaGunTier = Config.Bind<float>("Item : Skull Gamma Gun",
                                          "Item tier",
-                                         2f,
+                                         3f,
                                          "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
             SkullGammaGunTimer = Config.Bind<float>("Item : Skull Gamma Gun",
                                          "Interval",
@@ -96,11 +96,11 @@ namespace CaeliImperium.Items
                                          "Control the angle increase per item stack");
             SkullGammaGunRange = Config.Bind<float>("Item : Skull Gamma Gun",
                                          "Base range",
-                                         18f,
+                                         32f,
                                          "Control the base range value");
             SkullGammaGunRangeStack = Config.Bind<float>("Item : Skull Gamma Gun",
                                          "Range per stack",
-                                         6f,
+                                         8f,
                                          "Control the range increase per item stack");
             SkullGammaGunDamage = Config.Bind<float>("Item : Skull Gamma Gun",
                              "Damage",

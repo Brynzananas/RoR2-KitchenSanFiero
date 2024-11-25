@@ -20,6 +20,7 @@ using UnityEngine.XR;
 using UnityEngine.Networking;
 using CaeliImperium.Items;
 using RiskOfOptions.OptionConfigs;
+using System.Numerics;
 
 namespace CaeliImperium.Elites
 {
@@ -33,12 +34,12 @@ namespace CaeliImperium.Elites
         public static float damageMult = 2f;
         public static float affixDropChance = 0.00025f;
         private static GameObject DredgedWard = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteHaunted/AffixHauntedWard.prefab").WaitForCompletion(), "DredgedWard");
-        private static Material dredgedMat = Addressables.LoadAssetAsync<Material>("RoR2/Base/Common/VFX/matOpaqueDustLarge_BrassContraption_opt.mat").WaitForCompletion();
+        private static Material dredgedMat = MainAssets.LoadAsset<Material>("Assets/Materials/dredged_ramp.mat");
         private static Texture2D eliteRamp = MainAssets.LoadAsset<Texture2D>("Assets/Textures/dredged_ramp.png");
         private static Sprite eliteIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/dredged_icon.png");
 
         public static GameObject DredgedMasterprefab;
-        public static Vector3 DredgedPosition;
+        public static UnityEngine.Vector3 DredgedPosition;
         public static Inventory DredgedInventory;
         public static bool isRespawning = false;
         //public static int buffCOunt = 0;
@@ -71,9 +72,10 @@ namespace CaeliImperium.Elites
             On.RoR2.CharacterBody.OnBuffFirstStackGained += CharacterBody_OnBuffFirstStackGained;
             On.RoR2.CharacterBody.OnBuffFinalStackLost += CharacterBody_OnBuffFinalStackLost;
             On.RoR2.CombatDirector.Init += CombatDirector_Init;
-            On.RoR2.CharacterBody.OnDeathStart += OnDeath;
+            //On.RoR2.CharacterBody.OnDeathStart += OnDeath;
             //On.RoR2.CharacterBody.Start += OnRespawn;
-            On.RoR2.CharacterMaster.OnBodyDeath += OnDeathMaster;
+            //On.RoR2.CharacterMaster.OnBodyDeath += OnDeathMaster;
+            On.RoR2.HealthComponent.TakeDamageProcess
             GetStatCoefficients += Stats;
         }
 
@@ -83,11 +85,11 @@ namespace CaeliImperium.Elites
         {
             DredgedHealthMult = Config.Bind<float>("Elite : Dredged",
                                          "Health Multiplier",
-                                         4f,
+                                         6f,
                                          "Control the health multiplier of Dredged elite");
             DredgedDamageMult = Config.Bind<float>("Elite : Dredged",
                                          "Damage Multiplier",
-                                         2f,
+                                         3f,
                                          "Control the damage multiplier of Dredged elite");
             DredgedDamageReviveCount = Config.Bind<int>("Elite : Dredged",
                                          "Maximum revive count",
@@ -115,25 +117,31 @@ namespace CaeliImperium.Elites
 
         private static void Stats(CharacterBody sender, StatHookEventArgs args)
         {
-            if (sender.HasBuff(AffixDredgedBuff) && sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) > 0)
+            if (sender.HasBuff(AffixDredgedBuff) && sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) > 0 && !sender.isPlayerControlled)
             {
                 args.healthMultAdd += sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) * DredgedHealthReviveMult.Value / 100;
                 args.damageMultAdd += sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) * DredgedDamageReviveMult.Value / 100;
             }
         }
+        //Пошло это нахуй все блять, я ебал нахуй. Я не буду делать эти ебанные Айл хуки замудренные
+        /*
         public static void DredgedRespawn(CharacterMaster self)
         {
+            
             CharacterMasterNotificationQueue.SendTransformNotification(self, RoR2Content.Items.ExtraLife.itemIndex, ColdHeart.ColdHeartItemDef.itemIndex, CharacterMasterNotificationQueue.TransformationType.Default);
-            Vector3 vector = self.deathFootPosition;
+            UnityEngine.Vector3 vector = self.deathFootPosition;
             if (self.killedByUnsafeArea)
             {
                 vector = (TeleportHelper.FindSafeTeleportDestination(self.deathFootPosition, self.bodyPrefab.GetComponent<CharacterBody>(), RoR2Application.rng) ?? self.deathFootPosition);
             }
-            self.Respawn(vector, Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f), true);
+            self.Respawn(vector, UnityEngine.Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f), true);
             //body.AddBuff(DeathCountBuff.DeathCountBuffDef);
 
             self.GetBody().AddTimedBuff(RoR2Content.Buffs.Immune, 1f);
-            
+            if (!self.GetBody().isPlayerControlled)
+            {
+                self.GetBody().AddBuff(DeathCountBuff.DeathCountBuffDef);
+            }
             if (NetworkServer.active)
             {
                 self.inventory.SetEquipmentDisabled(false);
@@ -157,15 +165,22 @@ namespace CaeliImperium.Elites
         }
         private static void OnDeathMaster(On.RoR2.CharacterMaster.orig_OnBodyDeath orig, CharacterMaster self, CharacterBody body)
         {
+
             orig(self, body);
 
             if (NetworkServer.active)
             {
                 if (body.HasBuff(AffixDredgedBuff) && body.GetBuffCount(DeathCountBuff.DeathCountBuffDef) < DredgedDamageReviveCount.Value && !body.isPlayerControlled)
-                {/*
+                {
+                    
+                    
+                    //self.destroyOnBodyDeath = false;
+                    //DredgedRespawn(self);
+
                     if (self.IsInvoking("RespawnExtraLife"))
                     {
-                    self.CancelInvoke("RespawnExtraLife");
+                        self.CancelInvoke("RespawnExtraLife");
+                        self.inventory.GiveItem(RoR2Content.Items.ExtraLife, 1);
 
                     }
                     if (self.IsInvoking("PlayExtraLifeSFX"))
@@ -176,6 +191,7 @@ namespace CaeliImperium.Elites
                     if (self.IsInvoking("RespawnExtraLifeVoid"))
                     {
                         self.CancelInvoke("RespawnExtraLifeVoid");
+                        self.inventory.GiveItem(DLC1Content.Items.ExtraLifeVoid, 1);
 
                     }
                     if (self.IsInvoking("PlayExtraLifeVoidSFX"))
@@ -186,21 +202,20 @@ namespace CaeliImperium.Elites
                     if (self.IsInvoking("RespawnExtraLifeShrine"))
                     {
                         self.CancelInvoke("RespawnExtraLifeShrine");
-
+                        self.GetBody().AddBuff(DLC2Content.Buffs.ExtraLifeBuff);
                     }
-                    */
-                    //self.Invoke("RespawnExtraLife", 0.5f);
-                    //self.Invoke("PlayExtraLifeSFX", 0f);
-                    //DredgedRespawn(self, body);
-                    
-                }else if (body.HasBuff(AffixDredgedBuff) && body.isPlayerControlled && body.inventory.GetEquipmentIndex() == AffixDredgedEquipment.equipmentIndex)
+                    //UnityEngine.Vector3 vector = self.deathFootPosition;
+                    self.RespawnExtraLife();
+                }
+                else if (body.HasBuff(AffixDredgedBuff) && body.isPlayerControlled && body.inventory.GetEquipmentIndex() == AffixDredgedEquipment.equipmentIndex)
                 {
                     if (body.inventory.GetEquipmentIndex() == AffixDredgedEquipment.equipmentIndex)
                     {
-                        DredgedRespawn(self); //DredgedRespawn(self, body);
+
+                        //DredgedRespawn(self);
                         body.inventory.GiveItem(ColdHeart.ColdHeartItemDef, 1);
                         body.inventory.SetEquipmentIndex(EquipmentIndex.None);
-
+                        
                         if (self.IsInvoking("RespawnExtraLife"))
                         {
                             self.CancelInvoke("RespawnExtraLife");
@@ -228,12 +243,16 @@ namespace CaeliImperium.Elites
                             self.CancelInvoke("RespawnExtraLifeShrine");
                             self.GetBody().AddBuff(DLC2Content.Buffs.ExtraLifeBuff);
                         }
-
+                        //UnityEngine.Vector3 vector = self.deathFootPosition;
+                        self.RespawnExtraLife();
                     }
                 }
             }
 
+            
+
         }
+        /*
         private static void OnDeath(On.RoR2.CharacterBody.orig_OnDeathStart orig, CharacterBody self)
         {
             orig(self);
@@ -390,7 +409,9 @@ namespace CaeliImperium.Elites
             AffixDredgedEquipment.dropOnDeathChance = affixDropChance;
             AffixDredgedEquipment.enigmaCompatible = false;
             AffixDredgedEquipment.requiredExpansion = CaeliImperiumExpansionDef;
-            AffixDredgedEquipment.pickupModelPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixDredgedModel.prefab");
+            AffixDredgedEquipment.pickupModelPrefab = PrefabAPI.InstantiateClone(MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixModel.prefab"), "PickupAffixDredged", false);
+            foreach (Renderer componentsInChild in AffixDredgedEquipment.pickupModelPrefab.GetComponentsInChildren<Renderer>())
+                componentsInChild.material = dredgedMat;
             AffixDredgedEquipment.pickupIconSprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/EliteIce/texAffixWhiteIcon.png").WaitForCompletion();
 
             AffixDredgedEquipment.nameToken = "EQUIPMENT_AFFIX_DREDGED_NAME";

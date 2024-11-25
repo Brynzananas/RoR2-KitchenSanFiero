@@ -400,15 +400,11 @@ localScale = new Vector3(1F, 1F, 1F)
             {
                 if (EnergyChocolateNextStage.Value == 1)
                 {
-                    nextStageBehaviour = " <style=cEvent>Consume on next stage</style> with " + EnergyChocolateStageConsumeChance.Value + "& chance";
+                    nextStageBehaviour = " Consume on next stage with " + EnergyChocolateStageConsumeChance.Value + "% chance";
                 }
                 if (EnergyChocolateNextStage.Value == 2)
                 {
-                    nextStageBehaviour = " <style=cEvent>Scrap on next stage</style> with " + EnergyChocolateStageConsumeChance.Value + "& chance";
-                }
-                if (!EnergyChocolateBarsLuck.Value)
-                {
-                    nextStageBehaviour += ". Not affected by luck";
+                    nextStageBehaviour = " Scrap on next stage with " + EnergyChocolateStageConsumeChance.Value + "% chance";
                 }
             }
             else
@@ -417,7 +413,7 @@ localScale = new Vector3(1F, 1F, 1F)
             }
             LanguageAPI.Add("ENERGYCHOCOLATEBAR_NAME", "Energised Chocolate Bar");
             LanguageAPI.Add("ENERGYCHOCOLATEBAR_PICKUP", "Gain " + EnergyChocolateBuffStats.Value + "%<style=cStack>(+" + EnergyChocolateBuffStatsStack.Value + "% per item stack)</style> to all <style=cIsDamage>all statistics</style>." + nextStageBehaviour);
-            LanguageAPI.Add("ENERGYCHOCOLATEBAR_DESC", "Give " + EnergyChocolateBuffStats.Value + "%<style=cStack>(+" + EnergyChocolateBuffStatsStack.Value + "% per item stack)</style> <style=cIsDamage>all stat bonus</style>." + nextStageBehaviour);
+            LanguageAPI.Add("ENERGYCHOCOLATEBAR_DESC", "Gain " + EnergyChocolateBuffStats.Value + "%<style=cStack>(+" + EnergyChocolateBuffStatsStack.Value + "% per item stack)</style> <style=cIsDamage>all stat bonus</style>." + nextStageBehaviour);
             LanguageAPI.Add("ENERGYCHOCOLATEBAR_LORE", "mmmm yummy");
         }
     }

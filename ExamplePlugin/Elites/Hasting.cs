@@ -242,7 +242,7 @@ namespace CaeliImperium.Elites
             AffixHastingEquipment.dropOnDeathChance = affixDropChance;
             AffixHastingEquipment.enigmaCompatible = false;
             AffixHastingEquipment.requiredExpansion = CaeliImperiumExpansionDef;
-            AffixHastingEquipment.pickupModelPrefab = /*MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixHasting.prefab");*/PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteFire/PickupEliteFire.prefab").WaitForCompletion(), "PickupAffixHasting", false);
+            AffixHastingEquipment.pickupModelPrefab = PrefabAPI.InstantiateClone(MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixModel.prefab"), "PickupAffixHasting", false);
             foreach (Renderer componentsInChild in AffixHastingEquipment.pickupModelPrefab.GetComponentsInChildren<Renderer>())
                 componentsInChild.material = hastingMat;
             AffixHastingEquipment.pickupIconSprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/EliteIce/texAffixWhiteIcon.png").WaitForCompletion();

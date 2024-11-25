@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 2517296853
+CRC: 2269109390
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: bfd00a17c0430d351f4c69b8d386c676
+    Hash: 9c0440ad217884c46d24c7e34c268190
   TypeTreeHash:
     serializedVersion: 2
     Hash: 29940bcbe38863e439e9f645fb28329e
@@ -61,7 +61,6 @@ Assets:
 - Assets/Icons/EmergencyMedicalTreatmentIcon.png
 - Assets/Textures/OpposingForcePalette.png
 - Assets/Icons/EnergisedChocolateBarIconTier3.png
-- Assets/Models/Prefabs/AffixHasting.prefab
 - Assets/Icons/OtherworldlyManuscriptTier1.png
 - Assets/Materials/matGuardianAngelPalette.mat
 - Assets/Textures/LikeAYakuza.png
@@ -109,15 +108,12 @@ Assets:
 - Assets/Icons/dredged_icon.png
 - Assets/Textures/brass_modality_ramp.png
 - Assets/Textures/Cigs_palette.png
-- Assets/Models/Prefabs/AffixDefender.prefab
-- Assets/Models/Prefabs/AffixArchNemesisModel.controller
+- Assets/Icons/CapturedPotentialTier1.png
 - Assets/Icons/Keybuff.png
 - Assets/Icons/ModIcon.png
 - Assets/Models/Prefabs/QuantumDeck.prefab
-- Assets/Icons/CapturedPotentialTier1.png
 - Assets/Textures/EmergencyMedicalTreatmentEmission.png
 - Assets/Materials/matHotelBell.mat
-- Assets/Models/Prefabs/AffixArchNemesisModel.prefab
 - Assets/Textures/lemurian_skull_normal.png
 - Assets/Materials/matheychain_palette.mat
 - Assets/Materials/matCapturedPotential.mat
@@ -129,7 +125,6 @@ Assets:
 - Assets/Textures/arch_nemesis_ramp.png
 - Assets/Models/Prefabs/BrassKnuckles.prefab
 - Assets/Icons/MajesticHandTier3.png
-- Assets/Models/Prefabs/Affix.anim
 - Assets/Textures/enforcer_hand_palette.png
 - Assets/Icons/CapturedPotentialTier3.png
 - Assets/Icons/OtherworldlyManuscriptTier3.png
@@ -153,7 +148,6 @@ Assets:
 - Assets/Icons/EmergencyMedicalTreatmentIconTier1.png
 - Assets/Models/Prefabs/SkullGammaGun.prefab
 - Assets/Materials/matPainkillers_palette.mat
-- Assets/Models/Prefabs/AffixBrassModality.prefab
 - Assets/Textures/ForbiddenTome_palette.png
 - Assets/Icons/PackOfCiggaretsIconTier3.png
 - Assets/Icons/arch_nemesis_icon.png
@@ -188,8 +182,7 @@ Assets:
 - Assets/Icons/OtherworldlyManuscript.png
 - Assets/Textures/archnemesis_hat.png
 - Assets/Models/Prefabs/CritBuffOnEliteKill.prefab
-- Assets/Models/Prefabs/AffixDredgedModel.prefab
-- Assets/Textures/SkullGammaGun.001.png
+- Assets/Models/Prefabs/AffixModel.prefab
 - Assets/Icons/Dazzled.png
 - Assets/Materials/matEmergencyMedicalTreatmentPalette.mat
 - Assets/Icons/healshield2.png
@@ -209,6 +202,7 @@ Assets:
 - Assets/Icons/MajesticHandTier2.png
 - Assets/Textures/CapturedPotentialEmission.png
 - Assets/Icons/CapturedPotential.png
+- Assets/Textures/SkullGammaGun.001.png
 - Assets/Icons/RejectedDagger.png
 - Assets/Materials/arch_nemesis_ramp.mat
 - Assets/Textures/OtherWorldlyManuscript.png

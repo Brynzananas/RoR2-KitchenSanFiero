@@ -34,6 +34,7 @@ namespace CaeliImperium.Items
         public static ConfigEntry<float> GuardianCrownEnemyChance;
         public static ConfigEntry<float> GuardianCrownDistance;
         public static ConfigEntry<float> GuardianCrownDistanceMaxChance;
+        public static ConfigEntry<float> GuardianCrownMaxChance;
         public static ConfigEntry<float> GuardianCrownBuffTime;
         public static string name = "Guardian Crown";
         internal static void Init()
@@ -97,11 +98,16 @@ namespace CaeliImperium.Items
             GuardianCrownDistanceMaxChance = Config.Bind<float>("Item : " + name,
                                          "Distance chance",
                                          50,
-                                         "Change the distance chance increase");
-            GuardianCrownDistanceMaxChance = Config.Bind<float>("Item : " + name,
+                                         "Change the distance maximum chance increase");
+            GuardianCrownMaxChance = Config.Bind<float>("Item : " + name,
+                                         "Max chance",
+                                         70,
+                                         "Change the maximum stun chance in percentage");
+            GuardianCrownBuffTime = Config.Bind<float>("Item : " + name,
                                          "Dazzled time",
                                          5,
                                          "Change the time of the Dazzled debuff in seconds");
+            
             ModSettingsManager.AddOption(new CheckBoxOption(GuardianCrownEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(GuardianCrownAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(GuardianCrownTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
@@ -110,6 +116,8 @@ namespace CaeliImperium.Items
             ModSettingsManager.AddOption(new FloatFieldOption(GuardianCrownEnemyChance));
             ModSettingsManager.AddOption(new FloatFieldOption(GuardianCrownDistance));
             ModSettingsManager.AddOption(new FloatFieldOption(GuardianCrownDistanceMaxChance));
+            ModSettingsManager.AddOption(new FloatFieldOption(GuardianCrownMaxChance));
+            ModSettingsManager.AddOption(new FloatFieldOption(GuardianCrownBuffTime));
         }
 
         private static void Item()
@@ -404,7 +412,7 @@ localScale = new Vector3(0.23871F, 0.23871F, 0.23871F)
             {
 bool roll = false;
                 int buffCount = self.GetBuffCount(Buffs.DazzledBuff.DazzledBuffDef) + 1;
-                roll = Util.CheckRoll(Util.ConvertAmplificationPercentageIntoReductionPercentage(stunChance / buffCount), allLuck);
+                roll = Util.CheckRoll(ConvertAmplificationPercentageIntoReductionPercentage(stunChance / buffCount, GuardianCrownMaxChance.Value), allLuck);
             if (roll)
             {
                 if (true)

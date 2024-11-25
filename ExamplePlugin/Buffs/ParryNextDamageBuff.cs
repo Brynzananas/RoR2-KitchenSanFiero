@@ -48,7 +48,7 @@ namespace CaeliImperium.Buffs
         }
         private static void Parry(On.RoR2.HealthComponent.orig_TakeDamageProcess orig, HealthComponent self, DamageInfo damageInfo)
         {
-            if (self.body.HasBuff(ParryNextDamageBuffDef))
+            if (damageInfo != null && self != null && self.body.HasBuff(ParryNextDamageBuffDef))
             {
             var attackerToStun = damageInfo.attacker ? damageInfo.attacker.GetComponent<CharacterBody>() : null;
                 if (attackerToStun != null)

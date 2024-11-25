@@ -345,11 +345,11 @@ namespace CaeliImperium.Items
             string damage = "";
             if (RejectedDaggerAltFunc.Value)
             {
-                damage = "On hit, <style=cIsDamage>>damage</style> the same enemy for <style=cIsDamage>" + RejectedDaggerDamageToAll.Value + "%</style> <style=cStack>(+" + RejectedDaggerDamageToAll.Value + "% per item stack)</style> <style=cIsDamage>TOTAL damage</style>. Damage is multiplied by the number of all enemies";
+                damage = "On hit, <style=cIsDamage>damage</style> the same enemy for <style=cIsDamage>" + RejectedDaggerDamageToAll.Value + "%</style> <style=cStack>(+" + RejectedDaggerDamageToAll.Value + "% per item stack)</style> <style=cIsDamage>TOTAL damage</style>. Damage is multiplied by the number of all enemies";
             }
             else
             {
-                damage = "On hit, <style=cIsDamage>>damage</style> all enemies for <style=cIsDamage>" + RejectedDaggerDamageToAll.Value + "%</style> <style=cStack>(+" + RejectedDaggerDamageToAll.Value + "% per item stack)</style> <style=cIsDamage>TOTAL damage</style>. Damage is divided by the number of all enemies";
+                damage = "On hit, <style=cIsDamage>damage</style> all enemies for <style=cIsDamage>" + RejectedDaggerDamageToAll.Value + "%</style> <style=cStack>(+" + RejectedDaggerDamageToAll.Value + "% per item stack)</style> <style=cIsDamage>TOTAL damage</style>. Damage is divided by the number of all enemies";
             }
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name);
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", damage);

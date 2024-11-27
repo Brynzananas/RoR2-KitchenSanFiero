@@ -26,6 +26,7 @@ using System.Collections;
 using System.Runtime.Serialization.Formatters.Binary;
 using RiskOfOptions.OptionConfigs;
 using RoR2.Navigation;
+using RoR2.Audio;
 
 namespace CaeliImperium.Elites
 {
@@ -61,6 +62,7 @@ namespace CaeliImperium.Elites
         public static ConfigEntry<bool> ArchNemesisScavenger;
         public static ConfigEntry<bool> ArchNemesisLunarScavengers;
         public static ConfigEntry<float> ArchNemesisDropChance;
+        private static NetworkSoundEventDef ArchNemesisAppearSound;
 
         // RoR2/Base/Common/ColorRamps/texRampWarbanner.png 
 
@@ -77,6 +79,7 @@ namespace CaeliImperium.Elites
             SetupEquipment();
             SetupElite();
             AddContent();
+            CreateSound();
             CoolHat.Init();
             EliteRamp.AddRamp(AffixArchNemesisElite, eliteRamp);
             ContentAddition.AddEquipmentDef(AffixArchNemesisEquipment);
@@ -199,7 +202,12 @@ namespace CaeliImperium.Elites
             }*/
 
         }
-
+        private static void CreateSound()
+        {
+            ArchNemesisAppearSound = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
+            ArchNemesisAppearSound.eventName = "Play_arch_nemesis_appear";
+            R2API.ContentAddition.AddNetworkSoundEventDef(ArchNemesisAppearSound);
+        }
         private static void RemoveArchNemesis(On.RoR2.CharacterBody.orig_OnDeathStart orig, CharacterBody self)
         {
             orig(self);
@@ -282,7 +290,40 @@ namespace CaeliImperium.Elites
                     if (characterMaster)
                     {
                         characterMaster.inventory.SetEquipmentIndex(AffixArchNemesisEquipment.equipmentIndex);
+                        string archNemesisInventory = File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Inventory.txt"));
+                        if (archNemesisInventory != null)
+                        {
+                            string[] archNemesisInventoryArray = archNemesisInventory.Split(",");
+                            Vector3 position = characterMaster.transform.position + 2f * Vector3.forward;
+                            for (int i = 0; i < archNemesisInventoryArray.Length; i++, i++)
+                            {
+                                try
+                                {
+                                    string toParse = archNemesisInventoryArray[i + 1];
+                                    int itemCount = int.Parse(toParse);
+                                    if (!ItemCatalog.GetItemDef(ItemCatalog.FindItemIndex(archNemesisInventoryArray[i])).ContainsTag(ItemTag.AIBlacklist) && ArchNemesisAIBlacklistItems.Value)
+                                    {
+                                        characterMaster.inventory.GiveItemString(archNemesisInventoryArray[i], itemCount);
 
+                                    }
+
+                                }
+                                catch (Exception e)
+                                {
+                                    Debug.LogError(e);
+                                }
+
+                            }
+                        }
+                        foreach (var playerCharacterMaster in PlayerCharacterMasterController.instances)
+                        {
+                            if (playerCharacterMaster != null && playerCharacterMaster.master && playerCharacterMaster.master.GetBody())
+                            {
+                            EntitySoundManager.EmitSoundServer(ArchNemesisAppearSound.akId, playerCharacterMaster.master.GetBody().gameObject);
+                            }
+                            //You can get the master via playerCharacterMaster.master
+                            //and the body via playerCharacterMaster.master.GetBody()
+                        }
                     }
                 }/*
                 if (!ArchNemesisDead && stage.sceneDef.cachedName == ArchNemesisStageName && stage.sceneDef.cachedName != null)
@@ -333,31 +374,7 @@ namespace CaeliImperium.Elites
             if (buffDef == AffixArchNemesisBuff)
             {
                 //Chat.AddMessage("Arch Nemesis has been spawned");
-                string archNemesisInventory = File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Inventory.txt"));
-                if (archNemesisInventory != null)
-                {
-                    string[] archNemesisInventoryArray = archNemesisInventory.Split(",");
-                    Vector3 position = self.transform.position + 2f * Vector3.forward;
-                    for (int i = 0; i < archNemesisInventoryArray.Length; i++, i++)
-                    {
-                        try
-                        {
-                            string toParse = archNemesisInventoryArray[i + 1];
-                            int itemCount = int.Parse(toParse);
-                            if (!ItemCatalog.GetItemDef(ItemCatalog.FindItemIndex(archNemesisInventoryArray[i])).ContainsTag(ItemTag.AIBlacklist) && ArchNemesisAIBlacklistItems.Value)
-                            {
-                                self.inventory.GiveItemString(archNemesisInventoryArray[i], itemCount);
-
-                            }
-
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.LogError(e);
-                        }
-                        
-                    }
-                }
+                
                 
                 /*
                 for (int i = 0; i < archNemesisInventory.Length; i++)

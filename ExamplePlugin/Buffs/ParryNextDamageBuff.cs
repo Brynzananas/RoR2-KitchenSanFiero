@@ -43,7 +43,7 @@ namespace CaeliImperium.Buffs
         private static void CreateSound()
         {
             ShieldBlockSound = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
-            ShieldBlockSound.eventName = "Play_wEnforcer_ShieldBlock";
+            ShieldBlockSound.eventName = "Play_block";
             R2API.ContentAddition.AddNetworkSoundEventDef(ShieldBlockSound);
         }
         private static void Parry(On.RoR2.HealthComponent.orig_TakeDamageProcess orig, HealthComponent self, DamageInfo damageInfo)

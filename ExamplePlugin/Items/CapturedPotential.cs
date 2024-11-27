@@ -26,6 +26,9 @@ using System.Threading;
 using R2API.Utils;
 using ProperSave;
 using System.Runtime.Serialization;
+using Rewired;
+using static RoR2.MasterSpawnSlotController;
+using RoR2.Audio;
 
 namespace CaeliImperium.Items
 {
@@ -40,23 +43,31 @@ namespace CaeliImperium.Items
         public static ConfigEntry<int> CapturedPotentialEquipSlotsStack;
         public static ConfigEntry<bool> CapturedPotentialAffixes;
         public static ConfigEntry<bool> CapturedPotentialCard;
-        public static ConfigEntry<KeyCode> CapturedPotentialKey;
+        public static ConfigEntry<bool> CapturedPotentialWheel;
+        public static ConfigEntry<KeyboardShortcut> CapturedPotentialKey1;
+        public static ConfigEntry<KeyboardShortcut> CapturedPotentialKey2;
+        public static ConfigEntry<KeyboardShortcut> CapturedPotentialKey3;
+        public static ConfigEntry<KeyboardShortcut> CapturedPotentialKey4;
+        public static ConfigEntry<KeyboardShortcut> CapturedPotentialKey5;
+        private static NetworkSoundEventDef EquipArrayUpSound;
+        private static NetworkSoundEventDef EquipArrayDownSound;
+
         /*public static EquipmentIndex[] equipArray = new EquipmentIndex[0];
 
-        public static int itemCountBefore = 0;
-        public static bool hasIfritAffix = false;
-        public static bool hasColdAffix = false;
-        public static bool hasPoisonAffix = false;
-        public static bool hasBlueAffix = false;
-        public static bool hasHauntedAffix = false;
-        public static bool hasEchoAffix = false;
-        public static bool hasLunarAffix = false;
-        public static bool hasVoidAffix = false;
-        public static bool hasHealAffix = false;
-        public static bool hasCard = false;
-        public static bool hasBeadAffix = false;
-        public static bool hasAuroAffix = false;
-        */
+public static int itemCountBefore = 0;
+public static bool hasIfritAffix = false;
+public static bool hasColdAffix = false;
+public static bool hasPoisonAffix = false;
+public static bool hasBlueAffix = false;
+public static bool hasHauntedAffix = false;
+public static bool hasEchoAffix = false;
+public static bool hasLunarAffix = false;
+public static bool hasVoidAffix = false;
+public static bool hasHealAffix = false;
+public static bool hasCard = false;
+public static bool hasBeadAffix = false;
+public static bool hasAuroAffix = false;
+*/
         internal static void Init()
         {
             AddConfigs();
@@ -83,7 +94,7 @@ namespace CaeliImperium.Items
             }
 
             Item();
-
+            CreateSound();
             AddLanguageTokens();
         }
 
@@ -113,14 +124,52 @@ namespace CaeliImperium.Items
                                          "Credit Card compatibility",
                                          true,
                                          "Enable working Credit Card in inventory");
+            CapturedPotentialWheel = Config.Bind<bool>("Item : Captured Potential",
+                                         "Mouse wheel",
+                                         true,
+                                         "Enable Mouse Wheel as equipment switchng input?");
+            CapturedPotentialKey1 = Config.Bind<KeyboardShortcut>("Item : Captured Potential",
+                                         "Key 1",
+                                         new KeyboardShortcut(KeyCode.E),
+                                         "Key to start switching equipments\nUnbind it to always switch equipments on input");
+            CapturedPotentialKey2 = Config.Bind<KeyboardShortcut>("Item : Captured Potential",
+                                         "Key 2",
+                                         new KeyboardShortcut(KeyCode.Alpha1),
+                                         "Key to switch equipment up");
+            CapturedPotentialKey3 = Config.Bind<KeyboardShortcut>("Item : Captured Potential",
+                                         "Key 3",
+                                         new KeyboardShortcut(KeyCode.Alpha3),
+                                         "Key to switch equipment down");
+            CapturedPotentialKey4 = Config.Bind<KeyboardShortcut>("Item : Captured Potential",
+                                         "Key 4",
+                                         new KeyboardShortcut(KeyCode.Joystick1Button4),
+                                         "Key to switch equipment up for game controllers\nWIP: Does not work");
+            CapturedPotentialKey5 = Config.Bind<KeyboardShortcut>("Item : Captured Potential",
+                                         "Key 5",
+                                         new KeyboardShortcut(KeyCode.Joystick1Button6),
+                                         "Key to switch equipment down for game controllers\nWIP: Does not work");
             ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(CapturedPotentialTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new IntFieldOption(CapturedPotentialEquipSlots));
             ModSettingsManager.AddOption(new IntFieldOption(CapturedPotentialEquipSlotsStack));
             ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialCard));
             ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialAffixes));
+            ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialWheel));
+            ModSettingsManager.AddOption(new KeyBindOption(CapturedPotentialKey1));
+            ModSettingsManager.AddOption(new KeyBindOption(CapturedPotentialKey2));
+            ModSettingsManager.AddOption(new KeyBindOption(CapturedPotentialKey3));
+            ModSettingsManager.AddOption(new KeyBindOption(CapturedPotentialKey4));
+            ModSettingsManager.AddOption(new KeyBindOption(CapturedPotentialKey5));
         }
-
+        private static void CreateSound()
+        {
+            EquipArrayUpSound = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
+            EquipArrayUpSound.eventName = "Play_equip_up";
+            R2API.ContentAddition.AddNetworkSoundEventDef(EquipArrayUpSound);
+            EquipArrayDownSound = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
+            EquipArrayDownSound.eventName = "Play_equip_down";
+            R2API.ContentAddition.AddNetworkSoundEventDef(EquipArrayDownSound);
+        }
         private static void Item()
         {
             CapturedPotentialItemDef = ScriptableObject.CreateInstance<ItemDef>();
@@ -480,6 +529,7 @@ private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, 
                     Array.Copy(args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray, 1, args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray, 0, args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray.Length - 1);
                     args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray.SetValue(networkIdentity.inventory.GetEquipmentIndex(), args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray.Length - 1);
                     networkIdentity.inventory.SetEquipmentIndex(portal);
+                    EntitySoundManager.EmitSoundServer(EquipArrayUpSound.akId, args.senderBody.gameObject);
                 }
             }
         }
@@ -499,6 +549,7 @@ private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, 
                     args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray.SetValue(networkIdentity.inventory.GetEquipmentIndex(), args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray.Length - 1);
                     networkIdentity.inventory.SetEquipmentIndex(portal);
                     Array.Reverse(args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray);
+                    EntitySoundManager.EmitSoundServer(EquipArrayDownSound.akId, args.senderBody.gameObject);
                 }
             }
         }

@@ -13,6 +13,7 @@ using System.Text;
 using UnityEngine;
 using static ReignFromGreatBeyondPlugin.CaeliImperium;
 using CaeliImperium.Buffs;
+using RiskOfOptions.OptionConfigs;
 
 namespace CaeliImperium.Equipment
 {
@@ -98,8 +99,8 @@ namespace CaeliImperium.Equipment
                              "View Angle",
                              70f,
                              "Control the view angle parry");
-            ModSettingsManager.AddOption(new CheckBoxOption(EnforcerHandEnable));
-            ModSettingsManager.AddOption(new FloatFieldOption(EnforcerHandCooldown));
+            ModSettingsManager.AddOption(new CheckBoxOption(EnforcerHandEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new FloatFieldOption(EnforcerHandCooldown, new FloatFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(EnforcerHandViewAngle));
             ModSettingsManager.AddOption(new FloatFieldOption(EnforcerHandTimeWindow));
             ModSettingsManager.AddOption(new FloatFieldOption(EnforcerHandReflectDamageMultiplier));

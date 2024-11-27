@@ -150,6 +150,7 @@ namespace ReignFromGreatBeyondPlugin
                 bankStream.Read(bytes, 0, bytes.Length);
                 SoundAPI.SoundBanks.Add(bytes);
             }
+            ModSettingsManager.SetModIcon(MainAssets.LoadAsset<Sprite>("Assets/Icons/ModIcon.png"));
             On.RoR2.CharacterBody.OnDeathStart += BufferDeaths;
             On.RoR2.CharacterBody.HandleOnKillEffectsServer += ifItKillsPlayer;
             Stage.onStageStartGlobal += ResetArrays;
@@ -202,12 +203,22 @@ namespace ReignFromGreatBeyondPlugin
             {
 
                 //var equipArray = GetOrCreateComponent(body.master).equipArray;
-
-                if (Input.GetKey(KeyCode.E) && Input.mouseScrollDelta == Vector2.up)
+                bool key1 = true;
+                if (CapturedPotentialKey1.Value.MainKey != KeyCode.None)
+                {
+                    key1 = Input.GetKey(CapturedPotentialKey1.Value.MainKey);
+                }
+                bool mouseWheel = false;
+                if (CapturedPotentialWheel.Value)
+                {
+                    mouseWheel = true;
+                }
+                  
+                if (key1 && ((Input.mouseScrollDelta == Vector2.up && mouseWheel) || (Input.GetKeyUp(CapturedPotentialKey2.Value.MainKey) || Input.GetKeyUp(CapturedPotentialKey4.Value.MainKey))))
                 {
                     RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList.FirstOrDefault(), "EquipArrayIndexUp");
                 }
-                if (Input.GetKey(KeyCode.E) && Input.mouseScrollDelta == Vector2.down)
+                if (key1 && ((Input.mouseScrollDelta == Vector2.down && mouseWheel) || (Input.GetKeyUp(CapturedPotentialKey3.Value.MainKey) || Input.GetKeyUp(CapturedPotentialKey5.Value.MainKey))))
                 {
                     RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList.FirstOrDefault(), "EquipArrayIndexDown");
                 }

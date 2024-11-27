@@ -454,11 +454,7 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                                     procCoefficient = 1f
                                 };
                                 characterBody.healthComponent.TakeDamage(damageInfo2);
-                                if (!characterBody.gameObject.GetComponent<IrradiatedBuff.IrradiateComponent>())
-                                {
-                                    IrradiatedBuff.IrradiateComponent component = characterBody.gameObject.AddComponent<IrradiatedBuff.IrradiateComponent>();
-                                    component.body = characterBody;
-                                }
+                                
                                 InflictDotInfo dotInfo = new InflictDotInfo()
                                 {
                                     attackerObject = body.gameObject,

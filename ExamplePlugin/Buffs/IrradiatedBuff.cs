@@ -113,7 +113,21 @@ namespace CaeliImperium.Buffs
             ContentAddition.AddBuffDef(IrradiatedBuffDef);
             //On.RoR2.CharacterBody.FixedUpdate += IrradiateNeaby;
             On.RoR2.CharacterBody.OnBuffFirstStackGained += IrradiateBehaviourInitialisation;
+            On.RoR2.CharacterBody.OnBuffFinalStackLost += IrradiateBehaviourDeletion;
         }
+
+        private static void IrradiateBehaviourDeletion(On.RoR2.CharacterBody.orig_OnBuffFinalStackLost orig, CharacterBody self, BuffDef buffDef)
+        {
+            orig(self, buffDef);
+            if (buffDef == IrradiatedBuffDef)
+            {
+                if (self.gameObject.GetComponent<IrradiatedBuff.IrradiateComponent>())
+                {
+                    UnityEngine.Object.Destroy(self.gameObject.GetComponent<IrradiatedBuff.IrradiateComponent>());
+                }
+            }
+        }
+
         public class IrradiateComponent : MonoBehaviour
         {
             public CharacterBody body;
@@ -185,6 +199,15 @@ namespace CaeliImperium.Buffs
         private static void IrradiateBehaviourInitialisation(On.RoR2.CharacterBody.orig_OnBuffFirstStackGained orig, CharacterBody self, BuffDef buffDef)
         {
             orig(self, buffDef);
+            if (buffDef == IrradiatedBuffDef)
+            {
+                if (!self.gameObject.GetComponent<IrradiatedBuff.IrradiateComponent>())
+                {
+                    IrradiatedBuff.IrradiateComponent component = self.gameObject.AddComponent<IrradiatedBuff.IrradiateComponent>();
+                    component.body = self;
+                }
+            }
+            
 
         }
         /*

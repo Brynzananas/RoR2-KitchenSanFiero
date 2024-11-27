@@ -256,7 +256,7 @@ public class KillswitchComponent : MonoBehaviour
                         {
                             origin = self.transform.position,
                         }, true);
-                        UnityEngine.Vector3 vector = UnityEngine.Vector3.zero;
+                        /*UnityEngine.Vector3 vector = UnityEngine.Vector3.zero;
                         uint difficultyScaledCost = (uint)Run.instance.GetDifficultyScaledCost((int)25f);
                         float deadMoney = self.master.money / difficultyScaledCost;
                         GameObject gameObject11 = UnityEngine.Object.Instantiate<GameObject>(LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/BonusMoneyPack"), vector, UnityEngine.Random.rotation);
@@ -268,8 +268,9 @@ public class KillswitchComponent : MonoBehaviour
                         for (int i = 0; i < deadMoney; i++)
                         {
                         NetworkServer.Spawn(gameObject11);
-                        }
-                        self.healthComponent.Suicide();
+                        }*/
+                        self.master.TrueKill();
+                        //self.healthComponent.Suicide();
                     }
                 }
                 /*(foreach (var characterBody in CharacterBody.readOnlyInstancesList)

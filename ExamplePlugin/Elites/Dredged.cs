@@ -48,6 +48,11 @@ namespace CaeliImperium.Elites
         public static ConfigEntry<int> DredgedDamageReviveCount;
         public static ConfigEntry<float> DredgedDamageReviveMult;
         public static ConfigEntry<float> DredgedHealthReviveMult;
+        public static ConfigEntry<float> DredgedRegenReviveMult;/*
+        public static ConfigEntry<float> DredgedDamageReviveMultPlayer;
+        public static ConfigEntry<float> DredgedHealthReviveMultPlayer;
+        public static ConfigEntry<float> DredgedRegenReviveMultPlayer;*/
+        public static ConfigEntry<bool> DredgedConversion;
         public static ConfigEntry<bool> DredgedEnable;
 
         // RoR2/Base/Common/ColorRamps/texRampWarbanner.png 
@@ -72,14 +77,23 @@ namespace CaeliImperium.Elites
             On.RoR2.CharacterBody.OnBuffFirstStackGained += CharacterBody_OnBuffFirstStackGained;
             On.RoR2.CharacterBody.OnBuffFinalStackLost += CharacterBody_OnBuffFinalStackLost;
             On.RoR2.CombatDirector.Init += CombatDirector_Init;
-            //On.RoR2.CharacterBody.OnDeathStart += OnDeath;
+            On.RoR2.CharacterBody.OnDeathStart += OnDeath;
+            On.RoR2.CharacterBody.OnInventoryChanged += GainDio;
             //On.RoR2.CharacterBody.Start += OnRespawn;
             //On.RoR2.CharacterMaster.OnBodyDeath += OnDeathMaster;
-            On.RoR2.HealthComponent.TakeDamageProcess
             GetStatCoefficients += Stats;
         }
 
-        
+        private static void GainDio(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, CharacterBody self)
+        {
+            orig(self);
+            if (self && self.inventory && self.inventory.GetEquipmentIndex() == AffixDredgedEquipment.equipmentIndex && DredgedConversion.Value)
+            {
+                self.inventory.SetEquipmentIndex(EquipmentIndex.None);
+                self.inventory.GiveItem(RoR2Content.Items.ExtraLife);
+                //CharacterMasterNotificationQueue.SendTransformNotification(self.master, self.inventory.currentEquipmentIndex, AffixDredgedEquipment.equipmentIndex, CharacterMasterNotificationQueue.TransformationType.Default);
+            }
+        }
 
         private static void AddConfigs()
         {
@@ -103,6 +117,26 @@ namespace CaeliImperium.Elites
                                          "Damage increase per revive",
                                          50f,
                                          "Control the damage increase of Dredged elite per every revive in percentage");
+            DredgedRegenReviveMult = Config.Bind<float>("Elite : Dredged",
+                                         "Regen increase per revive",
+                                         50f,
+                                         "Control the regen increase of Dredged elite per every revive in percentage");
+            /*DredgedHealthReviveMultPlayer = Config.Bind<float>("Elite : Dredged",
+                                         "Health increase for players",
+                                         10f,
+                                         "Control the health increase of Dredged players");
+            DredgedDamageReviveMultPlayer = Config.Bind<float>("Elite : Dredged",
+                                         "Damage increase for players",
+                                         10f,
+                                         "Control the damage increase of Dredged players");
+            DredgedRegenReviveMultPlayer = Config.Bind<float>("Elite : Dredged",
+                                         "Regen increase for players",
+                                         10f,
+                                         "Control the regen increase of Dredged players");*/
+            DredgedConversion = Config.Bind<bool>("Elite : Dredged",
+                 "Conversion",
+                 true,
+                 "Would picking up this affix convert it to Dios Best Friend?\nOtherwise it does nothing");
             DredgedEnable = Config.Bind<bool>("Elite : Dredged",
                  "Activation",
                  true,
@@ -113,6 +147,11 @@ namespace CaeliImperium.Elites
             ModSettingsManager.AddOption(new IntFieldOption(DredgedDamageReviveCount));
             ModSettingsManager.AddOption(new FloatFieldOption(DredgedHealthReviveMult));
             ModSettingsManager.AddOption(new FloatFieldOption(DredgedDamageReviveMult));
+            ModSettingsManager.AddOption(new CheckBoxOption(DredgedConversion));
+            //ModSettingsManager.AddOption(new FloatFieldOption(DredgedRegenReviveMult));
+            //ModSettingsManager.AddOption(new FloatFieldOption(DredgedHealthReviveMultPlayer));
+            //ModSettingsManager.AddOption(new FloatFieldOption(DredgedDamageReviveMultPlayer));
+            //ModSettingsManager.AddOption(new FloatFieldOption(DredgedRegenReviveMultPlayer));
         }
 
         private static void Stats(CharacterBody sender, StatHookEventArgs args)
@@ -121,7 +160,14 @@ namespace CaeliImperium.Elites
             {
                 args.healthMultAdd += sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) * DredgedHealthReviveMult.Value / 100;
                 args.damageMultAdd += sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) * DredgedDamageReviveMult.Value / 100;
-            }
+                args.regenMultAdd += sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) * DredgedRegenReviveMult.Value / 100;
+            }/*
+            else if(sender.HasBuff(AffixDredgedBuff) && sender.isPlayerControlled)
+            {
+                args.healthMultAdd += DredgedHealthReviveMultPlayer.Value / 100;
+                args.damageMultAdd += DredgedDamageReviveMultPlayer.Value / 100;
+                args.regenMultAdd += DredgedRegenReviveMultPlayer.Value / 100;
+            }*/
         }
         //Пошло это нахуй все блять, я ебал нахуй. Я не буду делать эти ебанные Айл хуки замудренные
         /*
@@ -251,16 +297,16 @@ namespace CaeliImperium.Elites
 
             
 
-        }
-        /*
+        }*/
+        
         private static void OnDeath(On.RoR2.CharacterBody.orig_OnDeathStart orig, CharacterBody self)
         {
             orig(self);
             if (self.HasBuff(AffixDredgedBuff) && self.GetBuffCount(DeathCountBuff.DeathCountBuffDef) < DredgedDamageReviveCount.Value && !self.isPlayerControlled)
             {
                 int buffCount = self.GetBuffCount(DeathCountBuff.DeathCountBuffDef) + 1;
-                
-                DredgedMasterprefab = (GameObject)deadMasterPrefabArray.GetValue(deadMasterPrefabArray.Length - 2);
+
+                /*DredgedMasterprefab = (GameObject)deadMasterPrefabArray.GetValue(deadMasterPrefabArray.Length - 2);
                 Array.Reverse(deadMasterPrefabArray);
                 Array.Copy(deadMasterPrefabArray, 1, deadMasterPrefabArray, 0, deadMasterPrefabArray.Length - 1);
                 Array.Reverse(deadMasterPrefabArray);
@@ -271,53 +317,47 @@ namespace CaeliImperium.Elites
                 DredgedInventory = (Inventory)deadInventoryArray.GetValue(deadInventoryArray.Length - 2);
                 Array.Reverse(deadInventoryArray);
                 Array.Copy(deadInventoryArray, 1, deadInventoryArray, 0, deadInventoryArray.Length - 1);
-                Array.Reverse(deadInventoryArray);
-                if (DredgedMasterprefab != null && DredgedPosition != null)
+                Array.Reverse(deadInventoryArray);*/
+                var vector = self.master.deathFootPosition;
+                if (self.master.killedByUnsafeArea)
                 {
-                    var summon = new MasterSummon
-                    {
-                        masterPrefab = DredgedMasterprefab,
-                        position = DredgedPosition,
-                        rotation = Quaternion.identity,
-                        teamIndexOverride = new TeamIndex?(self.GetComponent<CharacterBody>().teamComponent.teamIndex),
-                        useAmbientLevel = true,
-                        summonerBodyObject = self.gameObject,
-                        inventoryToCopy = DredgedInventory,
-                        ignoreTeamMemberLimit = true,
+                    vector = (TeleportHelper.FindSafeTeleportDestination(self.master.deathFootPosition, self, RoR2Application.rng) ?? self.master.deathFootPosition);
+                }
+                try
+                {
 
-                    };
-                    CharacterMaster characterMaster = summon.Perform();
-
-                    if (characterMaster)
+                    if (self)
                     {
-                        characterMaster.GetBody().SetBuffCount(DeathCountBuff.DeathCountBuffDef.buffIndex, buffCount);
+                        var summon = new MasterSummon
+                        {
+                            masterPrefab = MasterCatalog.GetMasterPrefab(self.master.masterIndex),
+                            position = vector,
+                            rotation = UnityEngine.Quaternion.identity,
+                            teamIndexOverride = new TeamIndex?(self.GetComponent<CharacterBody>().teamComponent.teamIndex),
+                            useAmbientLevel = true,
+                            summonerBodyObject = null,
+                            inventoryToCopy = self.inventory,
+                            ignoreTeamMemberLimit = true,
+
+                        };
+                        CharacterMaster characterMaster = summon.Perform();
+
+                        if (characterMaster)
+                        {
+                            characterMaster.GetBody().SetBuffCount(DeathCountBuff.DeathCountBuffDef.buffIndex, buffCount);
+                        }
                     }
-                }
-                else
-                {
-                    Debug.Log("Dredged: failed to revive");
-                }
-                //isRespawning = true;
-            }else
-            if (self.HasBuff(AffixDredgedBuff) && self.isPlayerControlled && self)
-            {
 
-            }
-        }/*
-        private static void OnRespawn(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
-        {
-            orig(self);
-            if (isRespawning)
-            {
-                //self.inventory.GiveEquipmentString("AffixDredged");
-                for (int i = 0; i < buffCOunt; i++)
-                {
-                    self.AddBuff(DeathCountBuff.DeathCountBuffDef);
                 }
-                isRespawning = false;
+                catch (Exception e)
+                {
+
+                }
+                
+                //isRespawning = true;
             }
         }
-        */
+        
         private static void CombatDirector_Init(On.RoR2.CombatDirector.orig_Init orig)
         {
             orig();

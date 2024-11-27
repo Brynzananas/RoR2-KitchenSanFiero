@@ -24,6 +24,8 @@ namespace CaeliImperium.Equipment
         public static Inventory NecronomiconInventory;
         public static Vector3 NecronomiconPosition;
         static bool isRespawning = false;
+        public static ConfigEntry<bool> NecronomiconEnable;
+        public static ConfigEntry<float> NecronomiconCooldown;
         public static ConfigEntry<int> NecronomiconSpawnAmount;
         public static ConfigEntry<int> NecronomiconHealthBoost;
         public static ConfigEntry<int> NecronomiconDamageBoost;
@@ -40,6 +42,10 @@ namespace CaeliImperium.Equipment
             AddConfigs();
             NecronomiconPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/ForbiddenTome.prefab");
             NecronomiconIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/NecronomiconIcon.png");
+            if (!NecronomiconEnable.Value)
+            {
+                return;
+            }
 
             Item();
 
@@ -48,6 +54,14 @@ namespace CaeliImperium.Equipment
 
         private static void AddConfigs()
         {
+            NecronomiconEnable = Config.Bind<bool>("Equipment : Necronomicon",
+                                         "Activation",
+                                         true,
+                                         "Enable this equipment?");
+            NecronomiconCooldown = Config.Bind<float>("Equipment : Necronomicon",
+                                         "Cooldown",
+                                         30,
+                                         "Control the cooldown time in seconds");
             NecronomiconSpawnAmount = Config.Bind<int>("Equipment : Necronomicon",
                                          "Spawn amount",
                                          5,
@@ -88,6 +102,8 @@ namespace CaeliImperium.Equipment
                                          "Inventory copy for non players users",
                                          true,
                                          "Do spawned monsters retain their items for non player users?");
+            ModSettingsManager.AddOption(new CheckBoxOption(NecronomiconEnable));
+            ModSettingsManager.AddOption(new FloatFieldOption(NecronomiconCooldown));
             ModSettingsManager.AddOption(new IntFieldOption(NecronomiconSpawnAmount));
             ModSettingsManager.AddOption(new IntFieldOption(NecronomiconHealthBoost));
             ModSettingsManager.AddOption(new IntFieldOption(NecronomiconDamageBoost));
@@ -112,7 +128,7 @@ namespace CaeliImperium.Equipment
             NecronomiconEquipDef.pickupModelPrefab = NecronomiconPrefab;
             NecronomiconEquipDef.appearsInMultiPlayer = true;
             NecronomiconEquipDef.appearsInSinglePlayer = true;
-            NecronomiconEquipDef.cooldown = 1;
+            NecronomiconEquipDef.cooldown = NecronomiconCooldown.Value;
             NecronomiconEquipDef.canDrop = true;
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
             rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]{

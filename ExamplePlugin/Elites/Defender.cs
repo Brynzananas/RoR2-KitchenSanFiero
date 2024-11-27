@@ -19,6 +19,7 @@ using BepInEx.Configuration;
 using CaeliImperium.Buffs;
 using Rewired;
 using RiskOfOptions.OptionConfigs;
+using static RoR2.CombatDirector;
 
 namespace CaeliImperium.Elites
 {
@@ -124,6 +125,7 @@ namespace CaeliImperium.Elites
                 List<EliteDef> elites = targetTier.eliteTypes.ToList();
                 AffixDefenderElite.healthBoostCoefficient = DefenderHealthMult.Value / 1.6f;
                 AffixDefenderElite.damageBoostCoefficient = DefenderDamageMult.Value / 1.3f;
+                targetTier.costMultiplier *= 6;
                 elites.Add(AffixDefenderElite);
                 targetTier.eliteTypes = elites.ToArray();
             }
@@ -133,6 +135,7 @@ namespace CaeliImperium.Elites
                 List<EliteDef> elites = targetTier.eliteTypes.ToList();
                 AffixDefenderElite.healthBoostCoefficient = DefenderHealthMult.Value;
                 AffixDefenderElite.damageBoostCoefficient = DefenderDamageMult.Value;
+                targetTier.costMultiplier *= 6;
                 elites.Add(AffixDefenderElite);
                 targetTier.eliteTypes = elites.ToArray();
             }

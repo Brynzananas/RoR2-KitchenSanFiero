@@ -13,6 +13,8 @@ using RoR2.Orbs;
 using CaeliImperium.Buffs;
 using static R2API.RecalculateStatsAPI;
 using Rewired;
+using static RoR2.MasterSpawnSlotController;
+using RoR2.Audio;
 
 namespace CaeliImperium.Items
 {
@@ -33,6 +35,7 @@ namespace CaeliImperium.Items
         public static ConfigEntry<float> keychainCritChancePerBuff;
         public static ConfigEntry<float> keychainCritDamagePerBuff;
         public static string name = "Keychain";
+        private static NetworkSoundEventDef KeySound;
 
         internal static void Init()
         {
@@ -55,7 +58,7 @@ namespace CaeliImperium.Items
             KeychainIcon = MainAssets.LoadAsset<Sprite>(tier);
 
             Item();
-
+            CreateSound();
             AddLanguageTokens();
             KeyBuff.Init();
         }
@@ -157,6 +160,12 @@ namespace CaeliImperium.Items
                 args.critAdd += keychainInitialCritIncrease.Value + ((itemCount - 1) * keychainInitialCritIncreaseStack.Value);
             }
         }
+        private static void CreateSound()
+        {
+            KeySound = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
+            KeySound.eventName = "Play_key_drop_2";
+            R2API.ContentAddition.AddNetworkSoundEventDef(KeySound);
+        }
 
         private static void OnKillElite(On.RoR2.CharacterBody.orig_HandleOnKillEffectsServer orig, CharacterBody self, DamageReport damageReport)
         {
@@ -168,7 +177,7 @@ namespace CaeliImperium.Items
                 if (itemCount > 0)
                 {
 
-                    
+                    bool sound = false;
                     float rollChance = keychainChance.Value + ((itemCount - 1) * keychainChancePerItemStack.Value);
                     int superRoll = (int)Math.Floor((float)(rollChance / 100));
                     if (damageReport.victim.body.isElite)
@@ -179,6 +188,10 @@ namespace CaeliImperium.Items
                     {
                         superRoll += KeychainDoChampion.Value;
                     }
+                    if (superRoll > 0)
+                    {
+                        sound = true;
+                    }
                     for (int i = 0; i < superRoll; i++)
                     {
                         self.AddBuff(KeyBuff.KeyBuffDef);
@@ -186,6 +199,11 @@ namespace CaeliImperium.Items
                     if (Util.CheckRoll(rollChance - (superRoll * 100), self.master))
                     {
                         self.AddBuff(KeyBuff.KeyBuffDef);
+                        sound = true;
+                    }
+                    if (sound)
+                    {
+                        EntitySoundManager.EmitSoundServer(KeySound.akId, self.gameObject);
                     }
                 }
 

@@ -6,7 +6,7 @@ using System.Text;
 using static R2API.RecalculateStatsAPI;
 using UnityEngine;
 using RoR2;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 using System.Runtime.CompilerServices;
 
 namespace CaeliImperium.Buffs

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 
 namespace CaeliImperium.Buffs
 {

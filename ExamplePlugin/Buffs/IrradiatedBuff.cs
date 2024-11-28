@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking.Match;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 using static R2API.DotAPI;
 using JetBrains.Annotations;
 

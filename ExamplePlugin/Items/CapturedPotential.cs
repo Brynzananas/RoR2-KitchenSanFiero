@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 using static Rewired.InputMapper;
 using UnityEngine.Networking;
 using HG;
@@ -406,7 +406,19 @@ localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
             On.RoR2.PurchaseInteraction.OnInteractionBegin += CardCompatibility;
                 ProperSave.SaveFile.OnGatherSaveData += SaveFile_OnGatherSaveData;
                 ProperSave.Loading.OnLoadingEnded += Loading_OnLoadingStarted;
-            
+            On.RoR2.CharacterBody.Start += TemporalFix;
+        }
+
+        //Inject component immediatly to stop ProperSave issues when svaning the game without the component
+        private static void TemporalFix(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
+        {
+            orig(self);
+            if (self.isPlayerControlled && !self.masterObject.GetComponent<CapturedPotentialComponent>())
+            {
+                CapturedPotentialComponent component = self.masterObject.AddComponent<CapturedPotentialComponent>();
+                component.equipArray = new EquipmentIndex[0];
+                component.master = self.master;
+            }
         }
 
         private static void Loading_OnLoadingStarted(SaveFile file)

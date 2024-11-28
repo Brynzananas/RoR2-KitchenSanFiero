@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine.AddressableAssets;
 using UnityEngine;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 using System.ComponentModel;
 using CaeliImperium.Buffs;
 using UnityEngine.Diagnostics;

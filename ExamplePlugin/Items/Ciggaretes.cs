@@ -8,7 +8,7 @@ using UnityEngine;
 using System.Reflection;
 using UnityEngine.Diagnostics;
 using static UnityEngine.RemoteConfigSettingsHelper;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 using BepInEx.Configuration;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;

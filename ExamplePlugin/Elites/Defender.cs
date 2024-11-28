@@ -12,7 +12,7 @@ using Object = UnityEngine.Object;
 using UnityEngine.UIElements;
 using UnityEngine.XR;
 using static RoR2.MasterSpawnSlotController;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 using RiskOfOptions.Options;
 using RiskOfOptions;
 using BepInEx.Configuration;
@@ -29,6 +29,7 @@ namespace CaeliImperium.Elites
         public static EquipmentDef AffixDefenderEquipment;
         public static BuffDef AffixDefenderBuff;
         public static EliteDef AffixDefenderElite;
+        public static EliteTierDef AffixDefenderTier;
         public static float healthMult = 4f;
         public static float damageMult = 2f;
         //public static GameObject DroneSupport = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteHaunted/AffixHauntedWard.prefab").WaitForCompletion();
@@ -40,12 +41,16 @@ namespace CaeliImperium.Elites
         // RoR2/Base/Common/ColorRamps/texRampWarbanner.png 
         public static ConfigEntry<float> DefenderHealthMult;
         public static ConfigEntry<float> DefenderDamageMult;
+        public static ConfigEntry<float> DefenderCostMult;
+        public static ConfigEntry<int> DefenderLoopCount;
+        public static ConfigEntry<int> DefenderStageCount;
         public static ConfigEntry<float> DefenderStunChance;
         public static ConfigEntry<float> DefenderDazzledTime;
         public static ConfigEntry<float> DefenderMaxChance;
         public static ConfigEntry<bool> DefenderEnable;
         public static ConfigEntry<bool> DefenderEnableDamageAbsorb;
         public static ConfigEntry<float> DefenderArmor;
+        
         public static string name = "Defender";
         public static void Init()
         {
@@ -56,6 +61,7 @@ namespace CaeliImperium.Elites
             }
             DefenderWard.transform.GetChild(0).GetChild(0).GetComponent<MeshRenderer>().material = DefenderMat;
             AddLanguageTokens();
+            CreateEliteTiers();
             SetupBuff();
             SetupEquipment();
             SetupElite();
@@ -64,7 +70,7 @@ namespace CaeliImperium.Elites
             ContentAddition.AddEquipmentDef(AffixDefenderEquipment);
             On.RoR2.CharacterBody.OnBuffFirstStackGained += CharacterBody_OnBuffFirstStackGained;
             On.RoR2.CharacterBody.OnBuffFinalStackLost += CharacterBody_OnBuffFinalStackLost;
-            On.RoR2.CombatDirector.Init += CombatDirector_Init;
+            //On.RoR2.CombatDirector.Init += CombatDirector_Init;
             On.RoR2.CharacterBody.OnSkillActivated += OnEnemySkillUse;
             On.RoR2.HealthComponent.TakeDamageProcess += AbsorbDamage;
             GetStatCoefficients += Stats;
@@ -82,6 +88,18 @@ namespace CaeliImperium.Elites
                                          "Damage Multiplier",
                                          10f,
                                          "Control the damage multiplier of this elite");
+            DefenderCostMult = Config.Bind<float>("Elite : " + name,
+                                         "Cost Multiplier",
+                                         6f,
+                                         "Control the cost multiplier of this elite");
+            DefenderLoopCount = Config.Bind<int>("Elite : " + name,
+                                         "Loop count",
+                                         1,
+                                         "Control from which loop this elite appears");
+            DefenderStageCount = Config.Bind<int>("Elite : " + name,
+                                         "Stage count",
+                                         4,
+                                         "Control from which stage this elite appears");
             DefenderArmor = Config.Bind<float>("Elite : " + name,
                                          "Armor",
                                          500f,
@@ -89,7 +107,7 @@ namespace CaeliImperium.Elites
             DefenderStunChance = Config.Bind<float>("Elite : " + name,
                                          "Stun chance",
                                          10f,
-                                         "Control the stun chance on enemy skill use");
+                                         "Control the stun chance on enemy skill use\nSet it to 0 to disable this effect");
             DefenderMaxChance = Config.Bind<float>("Elite : " + name,
                                          "Max chance",
                                          70f,
@@ -108,38 +126,55 @@ namespace CaeliImperium.Elites
                  true,
                  "Enable damage absorbing?");
             ModSettingsManager.AddOption(new CheckBoxOption(DefenderEnable, new CheckBoxConfig() { restartRequired = true }));
-            ModSettingsManager.AddOption(new FloatFieldOption(DefenderHealthMult));
-            ModSettingsManager.AddOption(new FloatFieldOption(DefenderDamageMult));
+            ModSettingsManager.AddOption(new FloatFieldOption(DefenderHealthMult, new FloatFieldConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new FloatFieldOption(DefenderDamageMult, new FloatFieldConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new FloatFieldOption(DefenderCostMult, new FloatFieldConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new IntFieldOption(DefenderLoopCount, new IntFieldConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new IntFieldOption(DefenderStageCount, new IntFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderArmor));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderStunChance));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderDazzledTime));
             ModSettingsManager.AddOption(new CheckBoxOption(DefenderEnableDamageAbsorb));
         }
-        private static void CombatDirector_Init(On.RoR2.CombatDirector.orig_Init orig)
+
+        private static void CreateEliteTiers()
         {
-            orig();
-            if (EliteAPI.VanillaEliteTiers.Length > 2)
+            AffixDefenderTier = new CombatDirector.EliteTierDef()
             {
-                // HONOR
-                CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[2];
-                List<EliteDef> elites = targetTier.eliteTypes.ToList();
-                AffixDefenderElite.healthBoostCoefficient = DefenderHealthMult.Value / 1.6f;
-                AffixDefenderElite.damageBoostCoefficient = DefenderDamageMult.Value / 1.3f;
-                targetTier.costMultiplier *= 6;
-                elites.Add(AffixDefenderElite);
-                targetTier.eliteTypes = elites.ToArray();
-            }
-            if (EliteAPI.VanillaEliteTiers.Length > 1)
-            {
-                CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[1];
-                List<EliteDef> elites = targetTier.eliteTypes.ToList();
-                AffixDefenderElite.healthBoostCoefficient = DefenderHealthMult.Value;
-                AffixDefenderElite.damageBoostCoefficient = DefenderDamageMult.Value;
-                targetTier.costMultiplier *= 6;
-                elites.Add(AffixDefenderElite);
-                targetTier.eliteTypes = elites.ToArray();
-            }
+                costMultiplier = CombatDirector.baseEliteCostMultiplier * Defender.DefenderCostMult.Value,
+                eliteTypes = new EliteDef[1]{AffixDefenderElite},
+                canSelectWithoutAvailableEliteDef = false,
+                isAvailable = ((SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= Defender.DefenderLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= Defender.DefenderStageCount.Value),
+
+            };
+            EliteAPI.AddCustomEliteTier(AffixDefenderTier);
         }
+        //private static void CombatDirector_Init(On.RoR2.CombatDirector.orig_Init orig)
+        //{
+                
+            
+        //    orig();
+        //    /*if (EliteAPI.VanillaEliteTiers.Length > 2)
+        //    {
+        //        // HONOR
+        //        CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[2];
+        //        List<EliteDef> elites = targetTier.eliteTypes.ToList();
+        //        AffixDefenderElite.healthBoostCoefficient = DefenderHealthMult.Value / 1.6f;
+        //        AffixDefenderElite.damageBoostCoefficient = DefenderDamageMult.Value / 1.3f;
+        //        //targetTier.costMultiplier *= 6;
+        //        elites.Add(AffixDefenderElite);
+        //        targetTier.eliteTypes = elites.ToArray();
+        //    }*/
+        //    //if (EliteAPI.VanillaEliteTiers.Length > 1)
+        //    //{
+        //        CombatDirector.EliteTierDef targetTier = AffixDefenderTier;
+        //        List<EliteDef> elites = targetTier.eliteTypes.ToList();
+        //        AffixDefenderElite.healthBoostCoefficient = DefenderHealthMult.Value;
+        //        AffixDefenderElite.damageBoostCoefficient = DefenderDamageMult.Value;
+        //        elites.Add(AffixDefenderElite);
+        //        targetTier.eliteTypes = elites.ToArray();
+        //    //}
+        //}
         private static void Stats(CharacterBody sender, StatHookEventArgs args)
         {
             if (sender.HasBuff(AffixDefenderBuff))
@@ -192,43 +227,50 @@ namespace CaeliImperium.Elites
         }
         private static void OnEnemySkillUse(On.RoR2.CharacterBody.orig_OnSkillActivated orig, CharacterBody self, GenericSkill skill)
         {
-            float stunChance = 0;
-            foreach (var characterBody in CharacterBody.readOnlyInstancesList)
+            if (DefenderStunChance.Value > 0)
             {
-                if (characterBody && characterBody.teamComponent.teamIndex != self.teamComponent.teamIndex)
+                float stunChance = 0;
+                foreach (var characterBody in CharacterBody.readOnlyInstancesList)
                 {
-                    if (characterBody.HasBuff(AffixDefenderBuff))
+                    if (characterBody && characterBody.teamComponent.teamIndex != self.teamComponent.teamIndex)
                     {
-                        stunChance += DefenderStunChance.Value;
-
-                    }
-                }
-            }
-            if (stunChance > 0)
-            {
-                bool roll = false;
-                int buffCount = self.GetBuffCount(DazzledBuff.DazzledBuffDef) + 1;
-                roll = Util.CheckRoll(ConvertAmplificationPercentageIntoReductionPercentage(stunChance / buffCount, DefenderMaxChance.Value));
-                if (roll)
-                {
-                    SetStateOnHurt component = self.GetComponent<SetStateOnHurt>();
-                    if (component.hasEffectiveAuthority)
-                    {
-                        
-                        EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
-                    }
-                    else
-                    {
-                        if (!self.isChampion)
+                        if (characterBody.HasBuff(AffixDefenderBuff))
                         {
-                            component.SetStunInternal(0.2f);
+                            stunChance += DefenderStunChance.Value;
+
                         }
-                        EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
+                    }
+                }
+                if (stunChance > 0)
+                {
+                    bool roll = false;
+                    int buffCount = self.GetBuffCount(DazzledBuff.DazzledBuffDef) + 1;
+                    roll = Util.CheckRoll(ConvertAmplificationPercentageIntoReductionPercentage(stunChance / buffCount, DefenderMaxChance.Value));
+                    if (roll)
+                    {
+                        SetStateOnHurt component = self.GetComponent<SetStateOnHurt>();
+                        if (component.hasEffectiveAuthority)
+                        {
+                            if (!self.isChampion)
+                            {
+                                component.SetStunInternal(0.2f);
+                            }
+                            EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
+                        }
+                        else
+                        {
+                            if (!self.isChampion)
+                            {
+                                component.SetStunInternal(0.2f);
+                            }
+                            EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
+
+                        }
+                        self.AddTimedBuff(DazzledBuff.DazzledBuffDef, DefenderDazzledTime.Value);
 
                     }
-                    self.AddTimedBuff(DazzledBuff.DazzledBuffDef, DefenderDazzledTime.Value);
-
                 }
+                
             }
             orig(self, skill);
         }
@@ -268,6 +310,7 @@ namespace CaeliImperium.Elites
         private static void AddContent()
         {
             ItemDisplay itemDisplays = new ItemDisplay();
+            
             ContentAddition.AddEliteDef(AffixDefenderElite);
             ContentAddition.AddBuffDef(AffixDefenderBuff);
         }
@@ -319,6 +362,28 @@ namespace CaeliImperium.Elites
             AffixDefenderElite.healthBoostCoefficient = DefenderHealthMult.Value;
             AffixDefenderElite.damageBoostCoefficient = DefenderDamageMult.Value;
             AffixDefenderBuff.eliteDef = AffixDefenderElite;
+            /*var baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
+            if (VanillaTier != 0)
+            {
+                if (!DefenderEliteTier.All(x => baseEliteTierDefs.Contains(x)))
+                {
+                    var distinctEliteTierDefs = DefenderEliteTier.Except(baseEliteTierDefs);
+                    foreach (EliteTierDef eliteTierDef in distinctEliteTierDefs)
+                    {
+                        var indexToInsertAt = Array.FindIndex(baseEliteTierDefs, x => x.costMultiplier >= eliteTierDef.costMultiplier);
+                        if (indexToInsertAt >= 0)
+                        {
+                            EliteAPI.AddCustomEliteTier(eliteTierDef, indexToInsertAt);
+                        }
+                        else
+                        {
+                            EliteAPI.AddCustomEliteTier(eliteTierDef);
+                        }
+                        baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
+                    }
+                }
+                EliteAPI.Add(new CustomElite(EliteDef, DefenderEliteTier));
+            }*/
         }
 
         private static void AddLanguageTokens()

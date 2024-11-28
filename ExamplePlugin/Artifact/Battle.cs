@@ -1,6 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
-using ReignFromGreatBeyondPlugin;
+using CaeliImperiumPlugin;
 using R2API;
 using RiskOfOptions;
 using RiskOfOptions.Components.Misc;
@@ -13,7 +13,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.XR;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 
 namespace CaeliImperium.Artifact
 {

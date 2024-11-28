@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 using CaeliImperium;
 using UnityEngine.Networking;
 using RoR2.Audio;

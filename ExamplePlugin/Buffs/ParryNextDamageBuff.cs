@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 using static CaeliImperium.Equipment.EnforcerHand;
 using static RoR2.MasterSpawnSlotController;
 

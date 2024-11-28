@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine.AddressableAssets;
 using UnityEngine;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 using static R2API.RecalculateStatsAPI;
 using BepInEx.Configuration;
 using RiskOfOptions.OptionConfigs;
@@ -416,7 +416,46 @@ localScale = new Vector3(0.05652F, 0.05652F, 0.05652F)
             LanguageAPI.Add("PAINKILLERS_NAME", "Painkillers");
             LanguageAPI.Add("PAINKILLERS_PICKUP", "Slightly increase <style=cIsHealing>all health statistics</style>");
             LanguageAPI.Add("PAINKILLERS_DESC", "Slightly increase <style=cIsHealing>all health statistics</style>");
-            LanguageAPI.Add("PAINKILLERS_LORE", "mmmm yummy");
+            LanguageAPI.Add("PAINKILLERS_LORE", "\n" +
+                "May 9" +
+                "\n" +
+                "   Rain." +
+                "\n" +
+                "   Stayed out the window all day." +
+                "\n" +
+                "   Peaceful here - nothing to do." +
+                "\n" +
+                "   Still not allowed to go outside." +
+                "\n" +
+                "\n" +
+                "May 10" +
+                "\n" +
+                "   Still raining." +
+                "\n" +
+                "   Talked with a doctor a little." +
+                "\n" +
+                "   Would they have saved me" +
+                "\n" +
+                "   if I didn't have a family to feed?" +
+                "\n" +
+                "   I know I\'m pathetic and weak." +
+                "\n" +
+                "   Not everyone can be strong." +
+                "\n" +
+                "\n" +
+                "May 11" +
+                "\n" +
+                "   Rain again." +
+                "\n" +
+                "   The meds made me" +
+                "\n" +
+                "   feel sick today." +
+                "\n" +
+                "   If I\'m only better" +
+                "\n" +
+                "   when I\'m drugged," +
+                "\n" +
+                "   then who am I anyway?");
         }
     }
 }

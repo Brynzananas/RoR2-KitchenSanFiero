@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 using static RoR2.MasterSpawnSlotController;
 using static CaeliImperium.Elites.ArchNemesis;
 using UnityEngine.Diagnostics;
@@ -79,6 +79,32 @@ namespace CaeliImperium.Items
                 {
                     characterMaster.inventory.SetEquipmentIndex(AffixArchNemesisEquipment.equipmentIndex);
                     characterMaster.inventory.GiveItem(RoR2Content.Items.MinionLeash);
+                    string archNemesisInventory = File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Inventory.txt"));
+                    if (archNemesisInventory != null)
+                    {
+                        string[] archNemesisInventoryArray = archNemesisInventory.Split(",");
+                        Vector3 position = characterMaster.transform.position + 2f * Vector3.forward;
+                        for (int i = 0; i < archNemesisInventoryArray.Length; i++, i++)
+                        {
+                            try
+                            {
+                                string toParse = archNemesisInventoryArray[i + 1];
+                                int itemCount2 = int.Parse(toParse);
+
+                                if (!ItemCatalog.GetItemDef(ItemCatalog.FindItemIndex(archNemesisInventoryArray[i])).ContainsTag(ItemTag.AIBlacklist) || ArchNemesisAIBlacklistItems.Value)
+                                {
+                                    characterMaster.inventory.GiveItemString(archNemesisInventoryArray[i], itemCount2);
+
+                                }
+
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.LogError(e);
+                            }
+
+                        }
+                    }
                 }
                 Stage.DontDestroyOnLoad(characterMaster);
                 //Util.IsDontDestroyOnLoad(characterMaster.gameObject);    

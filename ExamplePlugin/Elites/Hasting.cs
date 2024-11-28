@@ -9,7 +9,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.Diagnostics;
 using static R2API.RecalculateStatsAPI;
 using Object = UnityEngine.Object;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 using RiskOfOptions.Options;
 using RiskOfOptions;
 using BepInEx.Configuration;
@@ -23,6 +23,7 @@ namespace CaeliImperium.Elites
         public static EquipmentDef AffixHastingEquipment;
         public static BuffDef AffixHastingBuff;
         public static EliteDef AffixHastingElite;
+        public static CombatDirector.EliteTierDef AffixHastingTier;
         public static float healthMult = 4f;
         public static float damageMult = 2f;
         public static float affixDropChance = 0.00025f;
@@ -33,6 +34,9 @@ namespace CaeliImperium.Elites
         // RoR2/Base/Common/ColorRamps/texRampWarbanner.png 
         public static ConfigEntry<float> HastingHealthMult;
         public static ConfigEntry<float> HastingDamageMult;
+        public static ConfigEntry<float> HastingCostMult;
+        public static ConfigEntry<int> HastingLoopCount;
+        public static ConfigEntry<int> HastingStageCount;
         public static ConfigEntry<float> HastingSpeedMult;
         public static ConfigEntry<float> HastingAttackSpeedMult;
         public static ConfigEntry<float> HastingCooldownReductionMult;
@@ -49,6 +53,7 @@ namespace CaeliImperium.Elites
             }
             HastingWard.transform.GetChild(0).GetChild(0).GetComponent<MeshRenderer>().material = hastingMat;
             this.AddLanguageTokens();
+            this.CreateEliteTier();
             this.SetupBuff();
             this.SetupEquipment();
             this.SetupElite();
@@ -57,7 +62,7 @@ namespace CaeliImperium.Elites
             ContentAddition.AddEquipmentDef(AffixHastingEquipment);
             On.RoR2.CharacterBody.OnBuffFirstStackGained += CharacterBody_OnBuffFirstStackGained;
             On.RoR2.CharacterBody.OnBuffFinalStackLost += CharacterBody_OnBuffFinalStackLost;
-            On.RoR2.CombatDirector.Init += CombatDirector_Init;
+            //On.RoR2.CombatDirector.Init += CombatDirector_Init;
             //On.RoR2.CharacterBody.FixedUpdate += LessHPMoreSpeed;
             //On.RoR2.CharacterBody.OnTakeDamageServer += OnDamageTake;
             GetStatCoefficients += Stats;
@@ -72,6 +77,18 @@ namespace CaeliImperium.Elites
                                          "Damage Multiplier",
                                          2f,
                                          "Control the damage multiplier of Dredged elite");
+            HastingCostMult = Config.Bind<float>("Elite : Hasting",
+                             "Cost Multiplier",
+                             1f,
+                             "Control the cost multiplier of this elite");
+            HastingLoopCount = Config.Bind<int>("Elite : Hasting",
+                                         "Loop count",
+                                         0,
+                                         "Control from which loop this elite appears");
+            HastingStageCount = Config.Bind<int>("Elite : Hasting",
+                                         "Stage count",
+                                         1,
+                                         "Control from which stage this elite appears");
             HastingSpeedMult = Config.Bind<float>("Elite : Hasting",
                                          "Base Speed Multiplier",
                                          2f,
@@ -99,6 +116,9 @@ namespace CaeliImperium.Elites
             ModSettingsManager.AddOption(new CheckBoxOption(HastingEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(HastingHealthMult));
             ModSettingsManager.AddOption(new FloatFieldOption(HastingDamageMult));
+            ModSettingsManager.AddOption(new FloatFieldOption(HastingCostMult, new FloatFieldConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new IntFieldOption(HastingLoopCount, new IntFieldConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new IntFieldOption(HastingStageCount, new IntFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(HastingSpeedMult));
             ModSettingsManager.AddOption(new FloatFieldOption(HastingAttackSpeedMult));
             ModSettingsManager.AddOption(new FloatFieldOption(HastingCooldownReductionMult));
@@ -153,29 +173,40 @@ namespace CaeliImperium.Elites
             }
         }
         */
-        private void CombatDirector_Init(On.RoR2.CombatDirector.orig_Init orig)
+        private void CreateEliteTier()
         {
-            orig();
-            if (EliteAPI.VanillaEliteTiers.Length > 2)
+            AffixHastingTier = new CombatDirector.EliteTierDef()
             {
-                // HONOR
-                CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[2];
-                List<EliteDef> elites = targetTier.eliteTypes.ToList();
-                AffixHastingElite.healthBoostCoefficient = HastingHealthMult.Value / 1.6f;
-                AffixHastingElite.damageBoostCoefficient = HastingDamageMult.Value / 1.3f;
-                elites.Add(AffixHastingElite);
-                targetTier.eliteTypes = elites.ToArray();
-            }
-            if (EliteAPI.VanillaEliteTiers.Length > 1)
-            {
-                CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[1];
-                List<EliteDef> elites = targetTier.eliteTypes.ToList();
-                AffixHastingElite.healthBoostCoefficient = HastingHealthMult.Value;
-                AffixHastingElite.damageBoostCoefficient = HastingDamageMult.Value;
-                elites.Add(AffixHastingElite);
-                targetTier.eliteTypes = elites.ToArray();
-            }
+                costMultiplier = CombatDirector.baseEliteCostMultiplier * Hasting.HastingCostMult.Value,
+                eliteTypes = new EliteDef[1]{AffixHastingElite},
+                canSelectWithoutAvailableEliteDef = false,
+                isAvailable = ((SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= Hasting.HastingLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= Hasting.HastingStageCount.Value),
+            };
+            EliteAPI.AddCustomEliteTier(AffixHastingTier);
         }
+        //private void CombatDirector_Init(On.RoR2.CombatDirector.orig_Init orig)
+        //{
+        //    orig();
+        //    //if (EliteAPI.VanillaEliteTiers.Length > 2)
+        //    //{
+        //    //    // HONOR
+        //    //    CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[2];
+        //    //    List<EliteDef> elites = targetTier.eliteTypes.ToList();
+        //    //    AffixHastingElite.healthBoostCoefficient = HastingHealthMult.Value / 1.6f;
+        //    //    AffixHastingElite.damageBoostCoefficient = HastingDamageMult.Value / 1.3f;
+        //    //    elites.Add(AffixHastingElite);
+        //    //    targetTier.eliteTypes = elites.ToArray();
+        //    //}
+        //    //if (EliteAPI.VanillaEliteTiers.Length > 1)
+        //    //{
+        //        CombatDirector.EliteTierDef targetTier = AffixHastingTier;
+        //        List<EliteDef> elites = targetTier.eliteTypes.ToList();
+        //        AffixHastingElite.healthBoostCoefficient = HastingHealthMult.Value;
+        //        AffixHastingElite.damageBoostCoefficient = HastingDamageMult.Value;
+        //        elites.Add(AffixHastingElite);
+        //        targetTier.eliteTypes = elites.ToArray();
+        //    //}
+        //}
 
         private void CharacterBody_OnBuffFirstStackGained(
            On.RoR2.CharacterBody.orig_OnBuffFirstStackGained orig,

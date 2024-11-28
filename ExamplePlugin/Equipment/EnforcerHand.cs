@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using UnityEngine;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 using CaeliImperium.Buffs;
 using RiskOfOptions.OptionConfigs;
 

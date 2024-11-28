@@ -3,7 +3,7 @@ using RoR2;
 using static R2API.RecalculateStatsAPI;
 using UnityEngine.AddressableAssets;
 using UnityEngine;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 using BepInEx.Configuration;
 using System;
 using RiskOfOptions.OptionConfigs;
@@ -353,7 +353,7 @@ localScale = new Vector3(1F, 1F, 1F)
                 for (int i = 0; i < itemCount; i++)
                 {
 
-                    if (!Util.CheckRoll(EnergyChocolateStageConsumeChance.Value, luckDown))
+                    if (!Util.CheckRoll(EnergyChocolateStageConsumeChance.Value, -luckDown))
                     {
                         itemsToConsume++;
                     }

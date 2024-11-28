@@ -42,7 +42,7 @@ using RoR2.ExpansionManagement;
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 [assembly: HG.Reflection.SearchableAttribute.OptIn]
 [assembly: HG.Reflection.SearchableAttribute.OptInAttribute]
-namespace ReignFromGreatBeyondPlugin
+namespace CaeliImperiumPlugin
 {
     
     [BepInDependency(ItemAPI.PluginGUID)]
@@ -116,7 +116,9 @@ namespace ReignFromGreatBeyondPlugin
         bool restartRequired = true;
         
         public static BepInEx.Logging.ManualLogSource ModLogger;
-        
+        //public static CombatDirector.EliteTierDef[] CaeliImperiumEliteTier = new CombatDirector.EliteTierDef[4];
+            
+
         public void Awake()
         {
 
@@ -129,19 +131,20 @@ namespace ReignFromGreatBeyondPlugin
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CaeliImperium.assets"))
             {
                 MainAssets = AssetBundle.LoadFromStream(stream);
-            }/*
-            foreach (Material material in MainAssets.LoadAllAssets<Material>())
-            {
-                if (!material.shader.name.StartsWith("StubbedRoR2"))
-                {
-                    continue;
-                }
-                var replacementShader = Resources.Load<Shader>(ShaderLookup4[material.shader.name.ToLower()]);
-                if (replacementShader)
-                {
-                    material.shader = replacementShader;
-                }
-            }*/
+            }
+            
+            //foreach (Material material in MainAssets.LoadAllAssets<Material>())
+            //{
+            //    if (!material.shader.name.StartsWith("StubbedRoR2"))
+            //    {
+            //        continue;
+            //    }
+            //    var replacementShader = Resources.Load<Shader>(ShaderLookup4[material.shader.name.ToLower()]);
+            //    if (replacementShader)
+            //    {
+            //        material.shader = replacementShader;
+            //    }
+            //}
             //ShaderConversion(MainAssets);
             GenerateExpansionDef();
             using (var bankStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CaeliImperium.KSFsounds.bnk"))
@@ -181,6 +184,7 @@ namespace ReignFromGreatBeyondPlugin
             RejectedDagger.Init();
             LikeADragon.Init();
             OpposingForce.Init();
+            //CreateEliteTiers();
         }
         //public static void ShaderConversion(AssetBundle assets)
         //{
@@ -224,6 +228,42 @@ namespace ReignFromGreatBeyondPlugin
                 }
             }
         }
+        /*private static void CreateEliteTiers()
+        {
+            CaeliImperiumEliteTier =
+            {
+                new CombatDirector.EliteTierDef()
+                {
+                    costMultiplier = CombatDirector.baseEliteCostMultiplier * Defender.DefenderCostMult.Value,
+                    eliteTypes = new EliteDef[0],// {Defender.AffixDefenderElite},
+                    isAvailable = ((SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= Defender.DefenderLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= Defender.DefenderStageCount.Value),
+
+                },
+                new CombatDirector.EliteTierDef()
+                {
+                    costMultiplier = CombatDirector.baseEliteCostMultiplier * BrassModality.BrassModalityCostMult.Value,
+                    eliteTypes = new EliteDef[0],// {Defender.AffixDefenderElite},
+                    isAvailable = ((SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= BrassModality.BrassModalityLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= BrassModality.BrassModalityStageCount.Value),
+                },
+                new CombatDirector.EliteTierDef()
+                {
+                    costMultiplier = CombatDirector.baseEliteCostMultiplier * Dredged.DredgedCostMult.Value,
+                    eliteTypes = new EliteDef[0],// {Defender.AffixDefenderElite},
+                    isAvailable = ((SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= Dredged.DredgedLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= Dredged.DredgedStageCount.Value),
+                },
+                new CombatDirector.EliteTierDef()
+                {
+                    costMultiplier = CombatDirector.baseEliteCostMultiplier * Hasting.HastingCostMult.Value,
+                    eliteTypes = new EliteDef[0],// {Defender.AffixDefenderElite},
+                    isAvailable = ((SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= Hasting.HastingLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= Hasting.HastingStageCount.Value),
+                }
+            };
+            foreach(CombatDirector.EliteTierDef eliteTierDef in CaeliImperiumEliteTier)
+            {
+            EliteAPI.AddCustomEliteTier(eliteTierDef);
+
+            }
+        }*/
 
         public void GenerateExpansionDef()
         {
@@ -434,7 +474,7 @@ namespace ReignFromGreatBeyondPlugin
         {
             orig(self);
 
-            if (self && !self.isPlayerControlled && self.inventory && self.inventory.GetItemCount(RoR2Content.Items.Ghost) <= 0)
+            if (self && !self.isPlayerControlled && self.inventory && self.inventory.GetItemCount(RoR2Content.Items.Ghost) <= 0 && self.inventory.GetEquipmentIndex() != Dredged.AffixDredgedEquipment.equipmentIndex)
             {
 
                 deadPosition = self.transform.position;

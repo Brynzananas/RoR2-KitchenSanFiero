@@ -1,6 +1,6 @@
 ﻿using BepInEx.Logging;
 
-namespace ReignFromGreatBeyondPlugin
+namespace CaeliImperiumPlugin
 {
     internal static class Log
     {

@@ -11,7 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 using static R2API.RecalculateStatsAPI;
 using CaeliImperium.Elites;
 

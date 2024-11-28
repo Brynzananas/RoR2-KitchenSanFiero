@@ -10,7 +10,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Assertions.Must;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 using BepInEx.Configuration;
 
 namespace CaeliImperium.Equipment

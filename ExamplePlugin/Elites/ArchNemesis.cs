@@ -14,7 +14,7 @@ using Object = UnityEngine.Object;
 using UnityEngine.UIElements;
 using UnityEngine.XR;
 using static RoR2.MasterSpawnSlotController;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 using UnityEngine.Networking;
 using CaeliImperium.Items;
 using BepInEx.Configuration;
@@ -301,7 +301,8 @@ namespace CaeliImperium.Elites
                                 {
                                     string toParse = archNemesisInventoryArray[i + 1];
                                     int itemCount = int.Parse(toParse);
-                                    if (!ItemCatalog.GetItemDef(ItemCatalog.FindItemIndex(archNemesisInventoryArray[i])).ContainsTag(ItemTag.AIBlacklist) && ArchNemesisAIBlacklistItems.Value)
+                                    
+                                    if (!ItemCatalog.GetItemDef(ItemCatalog.FindItemIndex(archNemesisInventoryArray[i])).ContainsTag(ItemTag.AIBlacklist) || ArchNemesisAIBlacklistItems.Value)
                                     {
                                         characterMaster.inventory.GiveItemString(archNemesisInventoryArray[i], itemCount);
 

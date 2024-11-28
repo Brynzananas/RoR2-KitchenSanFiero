@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 using BepInEx.Configuration;
 using static BepInEx.Configuration.ConfigFile;
 using BepInEx;
@@ -15,7 +15,7 @@ using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
 using RiskOfOptions;
 using BepInEx.Bootstrap;
-using ReignFromGreatBeyondPlugin;
+using CaeliImperiumPlugin;
 using static R2API.RecalculateStatsAPI;
 
 namespace CaeliImperium.Items

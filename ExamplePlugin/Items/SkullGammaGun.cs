@@ -10,7 +10,7 @@ using System.Text;
 using UnityEngine;
 using RiskOfOptions.Options;
 using RiskOfOptions;
-using static ReignFromGreatBeyondPlugin.CaeliImperium;
+using static CaeliImperiumPlugin.CaeliImperium;
 using BepInEx;
 using RiskOfOptions.OptionConfigs;
 using UnityEngine.Networking;

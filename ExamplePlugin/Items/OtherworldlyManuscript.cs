@@ -31,6 +31,7 @@ namespace CaeliImperium.Items
         public static ConfigEntry<float> OtherworldlyManuscriptCooldown;
         public static ConfigEntry<float> OtherworldlyManuscriptDamageMultiplier;
         public static ConfigEntry<int> OtherworldlyManuscriptCurseAmount;
+        public static ConfigEntry<float> OtherworldlyManuscriptCurseTime;
         private static GameObject TalismanPrefab;
 
         internal static void Init()
@@ -100,6 +101,10 @@ namespace CaeliImperium.Items
                                          "Wound amount",
                                          1,
                                          "Controll how much Wounds the explosion applies per item stack");
+            OtherworldlyManuscriptCurseTime = Config.Bind<float>("Item : Otherworldly Manuscript",
+                                         "Wound time",
+                                         10f,
+                                         "Controll Wounds time in seconds\nSet it to 0 to make it permanent");
             ModSettingsManager.AddOption(new CheckBoxOption(OtherworldlyManuscriptEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(OtherworldlyManuscriptAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(OtherworldlyManuscriptTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
@@ -369,8 +374,8 @@ localScale = new Vector3(1.44492F, 1.44492F, 1.44492F)
             {
                 if (body)
                 {
-                    body.RemoveBuff(TalismanAttackerBuff.TalismanAttackerBuffDef);
-                    body.RemoveBuff(TalismanCooldownBuff.TalismanCooldownBuffDef);
+                    body.SetBuffCount(TalismanAttackerBuff.TalismanAttackerBuffDef.buffIndex, 0);
+                    body.SetBuffCount(TalismanCooldownBuff.TalismanCooldownBuffDef.buffIndex, 0);
                 }
             }
         }
@@ -406,7 +411,11 @@ int count = self.inventory ? self.inventory.GetItemCount(OtherworldlyManuscriptI
             orig(self, damageInfo, victim);
             var attacker = damageInfo.attacker;
             var body = attacker ? attacker.GetComponent<CharacterBody>() : null;
-            int count = body.inventory ? body.inventory.GetItemCount(OtherworldlyManuscriptItemDef) : 0 ;
+            int count = 0;
+            if (body)
+            {
+            count = body.inventory ? body.inventory.GetItemCount(OtherworldlyManuscriptItemDef) : 0 ;
+            }
             if (count > 0 && (body ? body.HasBuff(Buffs.TalismanAttackerBuff.TalismanAttackerBuffDef) : false))
             {
                 if (damageInfo.attacker)
@@ -435,10 +444,19 @@ int count = self.inventory ? self.inventory.GetItemCount(OtherworldlyManuscriptI
                             procChainMask = procChainMask5,
                             procCoefficient = 1f
                         };
-
+                        float buffTime = OtherworldlyManuscriptCurseTime.Value;
                         for (int i = 0; i < count * OtherworldlyManuscriptCurseAmount.Value; i++)
                         {
+                            if (buffTime > 0)
+                            {
+                                victimBody.AddTimedBuff(WoundedBuff.WoundedBuffDef, buffTime);
+
+                            }
+                            else
+                            {
                         victimBody.AddBuff(WoundedBuff.WoundedBuffDef);
+
+                            }
                         }
                         
                         EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/IceRingExplosion"), position2, Vector3.up, true);

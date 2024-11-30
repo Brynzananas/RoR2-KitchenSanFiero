@@ -442,7 +442,7 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                                 Vector3 position2 = characterBody.transform.position;
                                 DamageInfo damageInfo2 = new DamageInfo
                                 {
-                                    damage = damage * ((SkullGammaGunDamage.Value / 100) + ((stack - 1) * (SkullGammaGunDamageStack.Value / 100))) * ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2)),
+                                    damage = damage * ((SkullGammaGunDamage.Value / 100) + ((stack - 1) * (SkullGammaGunDamageStack.Value / 100))),// * ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2)),
                                     damageColorIndex = DamageColorIndex.Item,
                                     damageType = DamageType.BypassArmor,
                                     attacker = body.gameObject,
@@ -454,13 +454,13 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                                     procCoefficient = 1f
                                 };
                                 characterBody.healthComponent.TakeDamage(damageInfo2);
-                                
+
                                 InflictDotInfo dotInfo = new InflictDotInfo()
                                 {
                                     attackerObject = body.gameObject,
                                     victimObject = characterBody.gameObject,
                                     totalDamage = body.damage * (SkullGammaGunBuffDamageMultiplier.Value / 100), //* PackOfCiggaretesDuration.Value,
-                                    damageMultiplier = stack * ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2)),
+                                    damageMultiplier = stack,// * ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2)),
                                     duration = SkullGammaGunDuration.Value,
                                     dotIndex = Buffs.IrradiatedBuff.IrradiatedDOTDef,
                                     maxStacksFromAttacker = (uint?)(SkullGammaGunMaxBuffCount.Value + ((stack - 1) * SkullGammaGunMaxBuffCountStack.Value))

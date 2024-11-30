@@ -17,6 +17,7 @@ using RiskOfOptions;
 using BepInEx.Bootstrap;
 using CaeliImperiumPlugin;
 using static R2API.RecalculateStatsAPI;
+using RoR2.Audio;
 
 namespace CaeliImperium.Items
 {
@@ -40,7 +41,7 @@ namespace CaeliImperium.Items
         public static ConfigEntry<float> EmergencyMedicalTreatmentInvicibilityPerStack;
         public static ConfigEntry<float> EmergencyMedicalTreatmentBarrierBase;
         public static ConfigEntry<float> EmergencyMedicalTreatmentBarrierPerStack;
-
+        private static NetworkSoundEventDef healSound;
 
         internal static void Init()
         {
@@ -66,7 +67,7 @@ namespace CaeliImperium.Items
                 return;
             }
             Item();
-
+            CreateSound();
             AddLanguageTokens();
             EmergencyMedicalTreatmentActiveBuff.Init();
             EmergencyMedicalTreatmentCooldownBuff.Init();
@@ -387,7 +388,12 @@ localScale = new Vector3(0.05425F, 0.05425F, 0.05425F)
             //On.RoR2.CharacterBody.Start += ReAddBuff;
             GetStatCoefficients += Stats;
         }
-
+        private static void CreateSound()
+        {
+            healSound = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
+            healSound.eventName = "Play_medshot";
+            R2API.ContentAddition.AddNetworkSoundEventDef(healSound);
+        }
         private static void OnHitHeal(On.RoR2.HealthComponent.orig_TakeDamageProcess orig, HealthComponent self, DamageInfo damageInfo)
         {
             if (NetworkServer.active && damageInfo!=null && self!=null && self.body && damageInfo.damage > 0f)
@@ -424,6 +430,7 @@ localScale = new Vector3(0.05425F, 0.05425F, 0.05425F)
                     };
                     effectData.SetNetworkedObjectReference(self.gameObject);
                     EffectManager.SpawnEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/HealingPotionEffect"), effectData, true);
+                    EntitySoundManager.EmitSoundServer(healSound.akId, self.gameObject);
                 }
             }
             orig(self, damageInfo);

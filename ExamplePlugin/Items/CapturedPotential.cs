@@ -43,14 +43,15 @@ namespace CaeliImperium.Items
         public static ConfigEntry<int> CapturedPotentialEquipSlotsStack;
         public static ConfigEntry<bool> CapturedPotentialAffixes;
         public static ConfigEntry<bool> CapturedPotentialCard;
+        public static ConfigEntry<bool> CapturedPotentialSound;
         public static ConfigEntry<bool> CapturedPotentialWheel;
         public static ConfigEntry<KeyboardShortcut> CapturedPotentialKey1;
         public static ConfigEntry<KeyboardShortcut> CapturedPotentialKey2;
         public static ConfigEntry<KeyboardShortcut> CapturedPotentialKey3;
         public static ConfigEntry<KeyboardShortcut> CapturedPotentialKey4;
         public static ConfigEntry<KeyboardShortcut> CapturedPotentialKey5;
-        private static NetworkSoundEventDef EquipArrayUpSound;
-        private static NetworkSoundEventDef EquipArrayDownSound;
+        public static NetworkSoundEventDef EquipArrayUpSound;
+        public static NetworkSoundEventDef EquipArrayDownSound;
 
         /*public static EquipmentIndex[] equipArray = new EquipmentIndex[0];
 
@@ -124,6 +125,10 @@ public static bool hasAuroAffix = false;
                                          "Credit Card compatibility",
                                          true,
                                          "Enable working Credit Card in inventory");
+            CapturedPotentialSound = Config.Bind<bool>("Item : Captured Potential",
+                                         "Sound",
+                                         true,
+                                         "Enable switching equipments sound?");
             CapturedPotentialWheel = Config.Bind<bool>("Item : Captured Potential",
                                          "Mouse wheel",
                                          true,
@@ -154,6 +159,7 @@ public static bool hasAuroAffix = false;
             ModSettingsManager.AddOption(new IntFieldOption(CapturedPotentialEquipSlotsStack));
             ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialCard));
             ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialAffixes));
+            ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialSound));
             ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialWheel));
             ModSettingsManager.AddOption(new KeyBindOption(CapturedPotentialKey1));
             ModSettingsManager.AddOption(new KeyBindOption(CapturedPotentialKey2));
@@ -406,20 +412,21 @@ localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
             On.RoR2.PurchaseInteraction.OnInteractionBegin += CardCompatibility;
                 ProperSave.SaveFile.OnGatherSaveData += SaveFile_OnGatherSaveData;
                 ProperSave.Loading.OnLoadingEnded += Loading_OnLoadingStarted;
-            On.RoR2.CharacterBody.Start += TemporalFix;
+            //On.RoR2.CharacterBody.Start += TemporalFix;
         }
 
         //Inject component immediatly to stop ProperSave issues when svaning the game without the component
-        private static void TemporalFix(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
-        {
-            orig(self);
-            if (self.isPlayerControlled && !self.masterObject.GetComponent<CapturedPotentialComponent>())
-            {
-                CapturedPotentialComponent component = self.masterObject.AddComponent<CapturedPotentialComponent>();
-                component.equipArray = new EquipmentIndex[0];
-                component.master = self.master;
-            }
-        }
+        //No it does not fixes the problem
+        //private static void TemporalFix(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
+        //{
+        //    orig(self);
+        //    if (self.isPlayerControlled && !self.masterObject.GetComponent<CapturedPotentialComponent>())
+        //    {
+        //        CapturedPotentialComponent component = self.masterObject.AddComponent<CapturedPotentialComponent>();
+        //        component.equipArray = new EquipmentIndex[0];
+        //        component.master = self.master;
+        //    }
+        //}
 
         private static void Loading_OnLoadingStarted(SaveFile file)
         {
@@ -469,10 +476,19 @@ localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
         {
             string ComponentDictKey = "KitchenSanFiero_CapturedPotentialInventory";
 
-            List<CapturedPotentialComponent> equipInventory = CharacterMaster.instancesList
-            .Select(master => master.GetBody().masterObject.GetComponent<CapturedPotentialComponent>())
-            .Where(tracker => tracker != null)
-            .ToList();
+            //List<CapturedPotentialComponent> equipInventory = CharacterMaster.instancesList
+            //.Select(master => master.GetBody().masterObject.GetComponent<CapturedPotentialComponent>())
+            //.Where(tracker => tracker != null)
+            //.ToList();
+
+            List<CapturedPotentialComponent> equipInventory = new List<CapturedPotentialComponent>();
+            foreach (CharacterMaster characterMaster in CharacterMaster.instancesList)
+            {
+                if (characterMaster && characterMaster.gameObject.GetComponent<CapturedPotentialComponent>())
+                {
+                    equipInventory.Add(characterMaster.gameObject.GetComponent<CapturedPotentialComponent>());
+                }
+            }
 
             List<CapturedPotentialSaveStructure> ComponentSaveListList = new List<CapturedPotentialSaveStructure>();
 
@@ -541,7 +557,6 @@ private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, 
                     Array.Copy(args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray, 1, args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray, 0, args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray.Length - 1);
                     args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray.SetValue(networkIdentity.inventory.GetEquipmentIndex(), args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray.Length - 1);
                     networkIdentity.inventory.SetEquipmentIndex(portal);
-                    EntitySoundManager.EmitSoundServer(EquipArrayUpSound.akId, args.senderBody.gameObject);
                 }
             }
         }
@@ -561,7 +576,7 @@ private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, 
                     args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray.SetValue(networkIdentity.inventory.GetEquipmentIndex(), args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray.Length - 1);
                     networkIdentity.inventory.SetEquipmentIndex(portal);
                     Array.Reverse(args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray);
-                    EntitySoundManager.EmitSoundServer(EquipArrayDownSound.akId, args.senderBody.gameObject);
+                    
                 }
             }
         }
@@ -573,7 +588,7 @@ private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, 
             //Debug.Log("ActivatorMaster " + activatorMaster);
             int moneyCost = self.cost;
             //Debug.Log("MoneyCost " + moneyCost);
-            if (CapturedPotentialCard.Value && activatorMaster && activatorMaster.hasBody && activatorMaster.inventory && activatorMaster.inventory.currentEquipmentIndex != DLC1Content.Equipment.MultiShopCard.equipmentIndex && activatorMaster.GetBody().masterObject.GetComponent<CapturedPotentialComponent>() && activatorMaster.GetBody().masterObject.GetComponent<CapturedPotentialComponent>().equipArray.Contains(DLC1Content.Equipment.MultiShopCard.equipmentIndex))
+            if (CapturedPotentialCard.Value && activatorMaster && activatorMaster.hasBody && activatorMaster.inventory && /*activatorMaster.inventory.currentEquipmentIndex != DLC1Content.Equipment.MultiShopCard.equipmentIndex &&*/ activatorMaster.GetBody().masterObject.GetComponent<CapturedPotentialComponent>() && activatorMaster.GetBody().masterObject.GetComponent<CapturedPotentialComponent>().equipArray.Contains(DLC1Content.Equipment.MultiShopCard.equipmentIndex))
             {
                 //Debug.Log("true");
                 CharacterBody body = activatorMaster.GetBody();
@@ -1197,7 +1212,7 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
                 "Status: <style=cDeath>FAILURE</style>" +
                 "\n" +
                 "\n" +
-                "<style=cMono>//--ATTEMPT № 45123--//</style>" +
+                "<style=cMono>//--ATTEMPT № 45124--//</style>" +
                 "\n" +
                 "Void: 67.23%" +
                 "\n" +
@@ -1206,7 +1221,7 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
                 "Status: <style=cDeath>FAILURE</style>" +
                 "\n" +
                 "\n" +
-                "<style=cMono>//--ATTEMPT № 45123--//</style>" +
+                "<style=cMono>//--ATTEMPT № 45124--//</style>" +
                 "\n" +
                 "Void: 67.23%" +
                 "\n" +
@@ -1215,7 +1230,7 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
                 "<style=cDeath>FAILURE</style>" +
                 "\n" +
                 "\n" +
-                "<style=cMono>//--ATTEMPT № 45123--//</style>" +
+                "<style=cMono>//--ATTEMPT № 45125--//</style>" +
                 "\n" +
                 "Void: 67.23%" +
                 "\n" +
@@ -1224,29 +1239,38 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
                 "Status: <style=cDeath>FAILURE</style>" +
                 "\n" +
                 "\n" +
-                "<style=cMono>//--ATTEMPT № 45123--//</style>" +
+                "<style=cMono>//--ATTEMPT № 45126--//</style>" +
                 "\n" +
                 "Void: 67.23%" +
                 "\n" +
                 "Pressure: 925%" +
                 "\n" +
+                "Status: <style=cIsHealing>SUCCESS</style>" +
+                "\n" +
+                "\n" +
+                "<style=cMono>//--ATTEMPT № 45127--//</style>" +
+                "\n" +
+                "Void: 67.23%" +
+                "\n" +
+                "Pressure: 926%" +
+                "\n" +
                 "Status: <style=cArtifact>「SUCC?SS』</style>" +
                 "\n" +
                 "\n" +
-                "<style=cMono>//--ATTEMPT № 45124--//</style>" +
+                "<style=cMono>//--ATTEMPT № 45128--//</style>" +
                 "\n" +
                 "<style=cArtifact>「Vo?d』</style>: 45.452%" +
                 "\n" +
-                "Pressure: 926%" + 
+                "Pressure: 927%" + 
                 "\n" +
                 "<style=cArtifact>Stat?s: 「??IL?RE』</style>" +
                 "\n" +
                 "\n" +
-                "<style=cMono>//--ATTEMPT № 45125--//</style>" +
+                "<style=cMono>//--ATTEMPT № 45129--//</style>" +
                 "\n" +
                 "<style=cArtifact>「Vo?d』: ?3.0?%</style>" +
                 "\n" +
-                "<style=cArtifact>「P??ssu??』</style>: 927%" +
+                "<style=cArtifact>「P??ssu??』</style>: 928%" +
                 "\n" +
                 "<style=cArtifact>??a??s: 「??I????』</style>"/* +
                 "\n" +

@@ -95,19 +95,19 @@ namespace CaeliImperium.Items
                                          "Enable item rework?");
             PackOfCiggaretesRegen = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Negative regen",
-                                         3f,
+                                         2f,
                                          "Control the negative regen value");
             PackOfCiggaretesRegenStack = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Negative regen stack",
-                                         1f,
+                                         2f,
                                          "Control the negative regen value per item stack");
             PackOfCiggaretesRegenPercentage = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Negative regen percentage",
-                                         0.3f,
+                                         0.05f,
                                          "Control the negative regen max health percentage");
             PackOfCiggaretesRegenPercentageStack = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Negative regen percentage stack",
-                                         0.1f,
+                                         0.05f,
                                          "Control the negative regen max health percentage per item stack");
             PackOfCiggaretesDamage = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Burn damage multiplier",
@@ -401,7 +401,7 @@ localScale = new Vector3(0.01019F, 0.01019F, 0.01019F)
                 }
             });
             var displayRules = new ItemDisplayRuleDict(null);
-            ItemAPI.Add(new CustomItem(CiggaretesItemDef, rules));
+            ItemAPI.Add(new CustomItem(CiggaretesItemDef, displayRules));
             On.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
             GetStatCoefficients += Stats;
         }
@@ -411,6 +411,10 @@ localScale = new Vector3(0.01019F, 0.01019F, 0.01019F)
             if (PackOfCiggaretesRework.Value)
             {
                 int itemCount = Util.GetItemCountGlobal(CiggaretesItemDef.itemIndex, true) - Util.GetItemCountForTeam(sender.teamComponent.teamIndex, CiggaretesItemDef.itemIndex, true);
+                if (sender.teamComponent.teamIndex == TeamIndex.Neutral)
+                {
+                    itemCount = 0;
+                }
                 if (itemCount > 0)
                 {
                     args.baseRegenAdd -= PackOfCiggaretesRegen.Value + ((itemCount - 1) * PackOfCiggaretesRegenStack.Value) + (sender.maxHealth * ((PackOfCiggaretesRegenPercentage.Value / 100) + ((itemCount - 1) * (PackOfCiggaretesRegenPercentageStack.Value / 100))));
@@ -429,7 +433,7 @@ localScale = new Vector3(0.01019F, 0.01019F, 0.01019F)
                 int count = 0;
                 if (body != null)
                 {
-                    count = body.inventory.GetItemCount(CiggaretesItemDef);
+                    count = body.inventory ? body.inventory.GetItemCount(CiggaretesItemDef) : 0;
 
                 }
                 if (count > 0)

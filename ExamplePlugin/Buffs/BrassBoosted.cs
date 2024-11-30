@@ -71,12 +71,9 @@ namespace CaeliImperium.Buffs
                     self.skillLocator.special.AddOneStock();
 
                 }
-                if (BrassBell.BrassBellIsReloadSound.Value)
+                if (BrassBell.BrassBellIsReloadSound.Value) //&& !self.outOfDanger)
                 {
                     EntitySoundManager.EmitSoundServer(BrassBell.BellSound.akId, self.gameObject);
-
-                    //CreateSound();
-                    //Util.PlaySound("item_proc_bandolierPickup_01", self.gameObject);
                 }
                 //self.AddTimedBuff(BrassTimerBuff.BrassTimerBuffDef, BrassBell.BrassBellCooldown.Value);
             }

@@ -32,7 +32,7 @@ namespace CaeliImperium.Elites
         public static CombatDirector.EliteTierDef AffixBrassModalityTier;
         public static float healthMult = 4f;
         public static float damageMult = 2f;
-        public static EliteTierDef[] CanAppearInEliteTiers { get; set; } = EliteAPI.GetCombatDirectorEliteTiers();
+        public static EliteTierDef[] CanAppearInEliteTiers = EliteAPI.GetCombatDirectorEliteTiers();
         //public static GameObject DroneSupport = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteHaunted/AffixHauntedWard.prefab").WaitForCompletion();
         public static float affixDropChance = 0.00025f;
         private static GameObject BrassModalityWard = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteHaunted/AffixHauntedWard.prefab").WaitForCompletion(), "BrassModalityWard");
@@ -43,6 +43,7 @@ namespace CaeliImperium.Elites
         public static ConfigEntry<bool> BrassModalityEnable;
         public static ConfigEntry<float> BrassModalityHealthMult;
         public static ConfigEntry<float> BrassModalityDamageMult;
+        public static ConfigEntry<float> BrassModalityTier;
         public static ConfigEntry<float> BrassModalityCostMult;
         public static ConfigEntry<int> BrassModalityLoopCount;
         public static ConfigEntry<int> BrassModalityStageCount;
@@ -69,11 +70,12 @@ namespace CaeliImperium.Elites
             }
             BrassModalityWard.transform.GetChild(0).GetChild(0).GetComponent<MeshRenderer>().material = brassModalityMat;
             AddLanguageTokens();
-            CreateEliteTier();
             SetupBuff();
             SetupEquipment();
             SetupElite();
             AddContent();
+            CreateEliteTier();
+
             EliteRamp.AddRamp(AffixBrassModalityElite, eliteRamp);
             ContentAddition.AddEquipmentDef(AffixBrassModalityEquipment);
             On.RoR2.CharacterBody.OnBuffFirstStackGained += CharacterBody_OnBuffFirstStackGained;
@@ -92,7 +94,11 @@ namespace CaeliImperium.Elites
                                          "Damage Multiplier",
                                          3f,
                                          "Control the damage multiplier of Brass Modality elite");
-                BrassModalityCostMult = Config.Bind<float>("Elite : Brass Modality",
+            BrassModalityTier = Config.Bind<float>("Elite : Brass Modality",
+                                         "Tier",
+                                         2f,
+                                         "Control the tier of Brass Modality elite\n1: Default\n2: Appear from stage 2\n3: Appear from first loop");
+            BrassModalityCostMult = Config.Bind<float>("Elite : Brass Modality",
                              "Cost Multiplier",
                              1.2f,
                              "Control the cost multiplier of this elite");
@@ -163,6 +169,7 @@ namespace CaeliImperium.Elites
             ModSettingsManager.AddOption(new CheckBoxOption(BrassModalityEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityHealthMult));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityDamageMult));
+            ModSettingsManager.AddOption(new StepSliderOption(BrassModalityTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityCostMult, new FloatFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new IntFieldOption(BrassModalityLoopCount, new IntFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new IntFieldOption(BrassModalityStageCount, new IntFieldConfig() { restartRequired = true }));
@@ -247,36 +254,40 @@ namespace CaeliImperium.Elites
             AffixBrassModalityTier = new CombatDirector.EliteTierDef()
             {
                 costMultiplier = CombatDirector.baseEliteCostMultiplier * BrassModality.BrassModalityCostMult.Value,
-                eliteTypes = new EliteDef[1]{AffixBrassModalityElite},
+                eliteTypes = new EliteDef[]{AffixBrassModalityElite},
                 canSelectWithoutAvailableEliteDef = false,
-                isAvailable = ((SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= BrassModality.BrassModalityLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= BrassModality.BrassModalityStageCount.Value),
+                isAvailable = (SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= BrassModality.BrassModalityLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= BrassModality.BrassModalityStageCount.Value,
             };
+
+            var baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
+            var indexToInsertAt = Array.FindIndex(baseEliteTierDefs, x => x.costMultiplier >= AffixBrassModalityTier.costMultiplier);
             EliteAPI.AddCustomEliteTier(AffixBrassModalityTier);
+            EliteAPI.Add(new CustomElite(AffixBrassModalityElite, CanAppearInEliteTiers));
         }
-        //private static void CombatDirector_Init(On.RoR2.CombatDirector.orig_Init orig)
-        //{
-        //    orig();
-        //    //if (EliteAPI.VanillaEliteTiers.Length > 2)
-        //    //{
-        //    //    // HONOR
-        //    //    CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[2];
-        //    //    List<EliteDef> elites = targetTier.eliteTypes.ToList();
-        //    //    AffixModalityElite.healthBoostCoefficient = BrassModalityHealthMult.Value / 1.6f;
-        //    //    AffixModalityElite.damageBoostCoefficient = BrassModalityDamageMult.Value / 1.3f;
-        //    //    elites.Add(AffixModalityElite);
-        //    //    targetTier.eliteTypes = elites.ToArray();
-        //    //}
-        //    //if (EliteAPI.VanillaEliteTiers.Length > 1)
-        //    //{
-        //        CombatDirector.EliteTierDef targetTier = AffixBrassModalityTier;
-        //        List<EliteDef> elites = targetTier.eliteTypes.ToList();
-            
-        //        AffixBrassModalityElite.healthBoostCoefficient = BrassModalityHealthMult.Value;
-        //        AffixBrassModalityElite.damageBoostCoefficient = BrassModalityDamageMult.Value;
-        //        elites.Add(AffixBrassModalityElite);
-        //        targetTier.eliteTypes = elites.ToArray();
-        //    //}
-        //}
+        private static void CombatDirector_Init(On.RoR2.CombatDirector.orig_Init orig)
+        {
+            orig();
+            //if (EliteAPI.VanillaEliteTiers.Length > 2)
+            //{
+            //    // HONOR
+            //    CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[2];
+            //    List<EliteDef> elites = targetTier.eliteTypes.ToList();
+            //    AffixModalityElite.healthBoostCoefficient = BrassModalityHealthMult.Value / 1.6f;
+            //    AffixModalityElite.damageBoostCoefficient = BrassModalityDamageMult.Value / 1.3f;
+            //    elites.Add(AffixModalityElite);
+            //    targetTier.eliteTypes = elites.ToArray();
+            //}
+            //if (EliteAPI.VanillaEliteTiers.Length > 1)
+            //{
+            CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[1];
+            List<EliteDef> elites = targetTier.eliteTypes.ToList();
+
+            AffixBrassModalityElite.healthBoostCoefficient = BrassModalityHealthMult.Value;
+            AffixBrassModalityElite.damageBoostCoefficient = BrassModalityDamageMult.Value;
+            //elites.Add(AffixBrassModalityElite);
+            targetTier.eliteTypes = elites.ToArray();
+            //}
+        }
         private static void CharacterBody_OnBuffFirstStackGained(
            On.RoR2.CharacterBody.orig_OnBuffFirstStackGained orig,
            CharacterBody self,
@@ -351,7 +362,7 @@ namespace CaeliImperium.Elites
             AffixBrassModalityEquipment.pickupModelPrefab = PrefabAPI.InstantiateClone(MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixModel.prefab"), "PickupAffixBrassModality", false);
             foreach (Renderer componentsInChild in AffixBrassModalityEquipment.pickupModelPrefab.GetComponentsInChildren<Renderer>())
                 componentsInChild.material = brassModalityMat;
-            AffixBrassModalityEquipment.pickupIconSprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/EliteIce/texAffixWhiteIcon.png").WaitForCompletion();
+            AffixBrassModalityEquipment.pickupIconSprite = MainAssets.LoadAsset<Sprite>("Assets/Icons/BrassModalityAffix.png");
         }
 
         private static void SetupElite()

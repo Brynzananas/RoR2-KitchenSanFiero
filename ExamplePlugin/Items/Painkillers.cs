@@ -417,7 +417,7 @@ localScale = new Vector3(0.05652F, 0.05652F, 0.05652F)
             LanguageAPI.Add("PAINKILLERS_PICKUP", "Slightly increase <style=cIsHealing>all health statistics</style>");
             LanguageAPI.Add("PAINKILLERS_DESC", "Slightly increase <style=cIsHealing>all health statistics</style>");
             LanguageAPI.Add("PAINKILLERS_LORE", "\n" +
-                "May 9" +
+                "\"May 9" +
                 "\n" +
                 "   Rain." +
                 "\n" +
@@ -455,7 +455,7 @@ localScale = new Vector3(0.05652F, 0.05652F, 0.05652F)
                 "\n" +
                 "   when I\'m drugged," +
                 "\n" +
-                "   then who am I anyway?");
+                "   then who am I anyway?\"");
         }
     }
 }

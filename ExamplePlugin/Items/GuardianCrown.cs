@@ -36,6 +36,7 @@ namespace CaeliImperium.Items
         public static ConfigEntry<float> GuardianCrownDistanceMaxChance;
         public static ConfigEntry<float> GuardianCrownMaxChance;
         public static ConfigEntry<float> GuardianCrownBuffTime;
+        public static ConfigEntry<float> GuardianCrownBuffTimeStack;
         public static string name = "Guardian Crown";
         internal static void Init()
         {
@@ -77,7 +78,7 @@ namespace CaeliImperium.Items
                              "Blacklist this item from enemies?");
             GuardianCrownTier = Config.Bind<float>("Item : " + name,
                                          "Item tier",
-                                         1f,
+                                         2f,
                                          "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
             GuardianCrownLuckAffected = Config.Bind<bool>("Item : " + name,
                                          "Luck",
@@ -107,7 +108,11 @@ namespace CaeliImperium.Items
                                          "Dazzled time",
                                          5,
                                          "Change the time of the Dazzled debuff in seconds");
-            
+            GuardianCrownBuffTimeStack = Config.Bind<float>("Item : " + name,
+                                         "Dazzled time stack",
+                                         0,
+                                         "Change the time increase of the Dazzled debuff per item stack in seconds");
+
             ModSettingsManager.AddOption(new CheckBoxOption(GuardianCrownEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(GuardianCrownAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(GuardianCrownTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
@@ -118,6 +123,7 @@ namespace CaeliImperium.Items
             ModSettingsManager.AddOption(new FloatFieldOption(GuardianCrownDistanceMaxChance));
             ModSettingsManager.AddOption(new FloatFieldOption(GuardianCrownMaxChance));
             ModSettingsManager.AddOption(new FloatFieldOption(GuardianCrownBuffTime));
+            ModSettingsManager.AddOption(new FloatFieldOption(GuardianCrownBuffTimeStack));
         }
 
         private static void Item()
@@ -438,7 +444,8 @@ bool roll = false;
                             EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
 
                     }
-                        self.AddTimedBuff(Buffs.DazzledBuff.DazzledBuffDef, GuardianCrownBuffTime.Value);
+                    float timerCount = (Util.GetItemCountGlobal(GuardianCrownItemDef.itemIndex, true) - Util.GetItemCountForTeam(self.teamComponent.teamIndex, GuardianCrownItemDef.itemIndex, true) - 1) * GuardianCrownBuffTimeStack.Value;
+                        self.AddTimedBuff(Buffs.DazzledBuff.DazzledBuffDef, GuardianCrownBuffTime.Value + timerCount);
                     return;
                 }
             }
@@ -514,8 +521,8 @@ bool roll = false;
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_NAME", name);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "On enemy attack, stun them with " + GuardianCrownChance.Value + "%<style=cStack>(+ " + GuardianCrownChance.Value + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease +"%</style>.");
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "On enemy attack, stun them with " + GuardianCrownChance.Value + "%<style=cStack>(+ " + GuardianCrownChance.Value + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease + "%</style>.");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "On enemy attack, stun them with " + GuardianCrownChance.Value + "%<style=cStack>(+ " + GuardianCrownChance.Value + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value +"%</style>.");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "On enemy attack, stun them with " + GuardianCrownChance.Value + "%<style=cStack>(+ " + GuardianCrownChance.Value + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value + "%</style>.");
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_LORE", "To protect, to support, to relief, this crown will help. Let it be your honor to protect the weak. Let it be your duty to protect this world");
         }
 

@@ -352,27 +352,32 @@ localScale = new Vector3(1F, 1F, 1F)
                 }
                 for (int i = 0; i < itemCount; i++)
                 {
-
-                    if (!Util.CheckRoll(EnergyChocolateStageConsumeChance.Value, -luckDown))
+                    //Debug.Log(Util.CheckRoll(EnergyChocolateStageConsumeChance.Value, -luckDown));
+                    if (Util.CheckRoll(EnergyChocolateStageConsumeChance.Value, -luckDown))
                     {
                         itemsToConsume++;
                     }
                 }
-                switch (EnergyChocolateNextStage.Value)
+                //Debug.Log(itemsToConsume);
+                if (itemsToConsume > 0)
                 {
-                    case 0:
-                        break;
-                    case 1:
-                        self.inventory.GiveItem(UsedEnergyChocolateBar.ConsumedEnergyChocolateBarItemDef, itemsToConsume);
-                        self.inventory.RemoveItem(EnergyChocolateBarItemDef, itemsToConsume);
-                        CharacterMasterNotificationQueue.SendTransformNotification(self, EnergyChocolateBarItemDef.itemIndex, UsedEnergyChocolateBar.ConsumedEnergyChocolateBarItemDef.itemIndex, CharacterMasterNotificationQueue.TransformationType.Default);
-                        break;
-                    case 2:
-                        self.inventory.GiveItem(RoR2Content.Items.ScrapWhite, itemsToConsume);
-                        self.inventory.RemoveItem(EnergyChocolateBarItemDef, itemsToConsume);
-                        CharacterMasterNotificationQueue.SendTransformNotification(self, EnergyChocolateBarItemDef.itemIndex, RoR2Content.Items.ScrapWhite.itemIndex, CharacterMasterNotificationQueue.TransformationType.Default);
-                        break;
+                    switch (EnergyChocolateNextStage.Value)
+                    {
+                        case 0:
+                            break;
+                        case 1:
+                            self.inventory.GiveItem(UsedEnergyChocolateBar.ConsumedEnergyChocolateBarItemDef, itemsToConsume);
+                            self.inventory.RemoveItem(EnergyChocolateBarItemDef, itemsToConsume);
+                            CharacterMasterNotificationQueue.SendTransformNotification(self, EnergyChocolateBarItemDef.itemIndex, UsedEnergyChocolateBar.ConsumedEnergyChocolateBarItemDef.itemIndex, CharacterMasterNotificationQueue.TransformationType.Default);
+                            break;
+                        case 2:
+                            self.inventory.GiveItem(RoR2Content.Items.ScrapWhite, itemsToConsume);
+                            self.inventory.RemoveItem(EnergyChocolateBarItemDef, itemsToConsume);
+                            CharacterMasterNotificationQueue.SendTransformNotification(self, EnergyChocolateBarItemDef.itemIndex, RoR2Content.Items.ScrapWhite.itemIndex, CharacterMasterNotificationQueue.TransformationType.Default);
+                            break;
+                    }
                 }
+                
 
             }
         }
@@ -412,8 +417,8 @@ localScale = new Vector3(1F, 1F, 1F)
                 nextStageBehaviour = "";
             }
             LanguageAPI.Add("ENERGYCHOCOLATEBAR_NAME", "Energised Chocolate Bar");
-            LanguageAPI.Add("ENERGYCHOCOLATEBAR_PICKUP", "Gain " + EnergyChocolateBuffStats.Value + "%<style=cStack>(+" + EnergyChocolateBuffStatsStack.Value + "% per item stack)</style> to all <style=cIsDamage>all statistics</style>." + nextStageBehaviour);
-            LanguageAPI.Add("ENERGYCHOCOLATEBAR_DESC", "Gain " + EnergyChocolateBuffStats.Value + "%<style=cStack>(+" + EnergyChocolateBuffStatsStack.Value + "% per item stack)</style> <style=cIsDamage>all stat bonus</style>." + nextStageBehaviour);
+            LanguageAPI.Add("ENERGYCHOCOLATEBAR_PICKUP", "Gain <style=cIsDamage>>" + EnergyChocolateBuffStats.Value + "%</style> <style=cStack>(+" + EnergyChocolateBuffStatsStack.Value + "% per item stack)</style> to all <style=cIsDamage>all statistics</style>." + nextStageBehaviour);
+            LanguageAPI.Add("ENERGYCHOCOLATEBAR_DESC", "Gain <style=cIsDamage>" + EnergyChocolateBuffStats.Value + "%</style> <style=cStack>(+" + EnergyChocolateBuffStatsStack.Value + "% per item stack)</style> <style=cIsDamage>all stat bonus</style>." + nextStageBehaviour);
             LanguageAPI.Add("ENERGYCHOCOLATEBAR_LORE", "mmmm yummy");
         }
     }

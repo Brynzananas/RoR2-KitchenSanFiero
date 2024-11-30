@@ -26,7 +26,7 @@ namespace CaeliImperium.Items
         internal static void Init()
         {
             CoolHatPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/archnemesishat.prefab");
-            CoolHatIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/BrassBellIcon.png");
+            CoolHatIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/ArchNemesisHat.png");
 
             Item();
 
@@ -47,7 +47,7 @@ namespace CaeliImperium.Items
             CoolHatItemDef.canRemove = false;
             CoolHatItemDef.hidden = true;
             CoolHatItemDef.requiredExpansion = CaeliImperiumExpansionDef;
-            var tags = new List<ItemTag>() { ItemTag.Damage, ItemTag.AIBlacklist, ItemTag.WorldUnique, ItemTag.RebirthBlacklist, ItemTag.BrotherBlacklist };
+            var tags = new List<ItemTag>() { ItemTag.AIBlacklist, ItemTag.WorldUnique, ItemTag.RebirthBlacklist, ItemTag.BrotherBlacklist };
             CoolHatItemDef.tags = tags.ToArray();
             var displayRules = new ItemDisplayRuleDict(null);
             ItemAPI.Add(new CustomItem(CoolHatItemDef, displayRules));
@@ -79,6 +79,7 @@ namespace CaeliImperium.Items
                 {
                     characterMaster.inventory.SetEquipmentIndex(AffixArchNemesisEquipment.equipmentIndex);
                     characterMaster.inventory.GiveItem(RoR2Content.Items.MinionLeash);
+                    characterMaster.inventory.GiveItem(RoR2Content.Items.TeleportWhenOob);
                     string archNemesisInventory = File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Inventory.txt"));
                     if (archNemesisInventory != null)
                     {
@@ -115,9 +116,9 @@ namespace CaeliImperium.Items
         public static void AddLanguageTokens()
         {
             LanguageAPI.Add("COOLHAT_NAME", "Cool Hat");
-            LanguageAPI.Add("COOLHAT_PICKUP", "Turn Arch Nemesis to your side");
-            LanguageAPI.Add("COOLHAT_DESC", "Turn Arch Nemesis to your side");
-            LanguageAPI.Add("COOLHAT_LORE", "");
+            LanguageAPI.Add("COOLHAT_PICKUP", "Turn <color=#ed1010>Arch Nemesis</color> to your side");
+            LanguageAPI.Add("COOLHAT_DESC", "Turn <color=#ed1010>Arch Nemesis</color> to your side");
+            LanguageAPI.Add("COOLHAT_LORE", "\"Here's to you, Nicola and Bart\nRest forever here in our hearts\nThe last and final moment is yours\nThat agony is your triumph\"");
         }
     }
 }

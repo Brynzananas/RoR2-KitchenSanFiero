@@ -22,6 +22,7 @@ using CaeliImperium.Items;
 using RiskOfOptions.OptionConfigs;
 using System.Numerics;
 using System.Xml.Linq;
+using static RoR2.CombatDirector;
 
 namespace CaeliImperium.Elites
 {
@@ -35,6 +36,7 @@ namespace CaeliImperium.Elites
         public static float healthMult = 4f;
         public static float damageMult = 2f;
         public static float affixDropChance = 0.00025f;
+        public static EliteTierDef[] CanAppearInEliteTiers = EliteAPI.GetCombatDirectorEliteTiers();
         private static GameObject DredgedWard = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteHaunted/AffixHauntedWard.prefab").WaitForCompletion(), "DredgedWard");
         private static Material dredgedMat = MainAssets.LoadAsset<Material>("Assets/Materials/dredged_ramp.mat");
         private static Texture2D eliteRamp = MainAssets.LoadAsset<Texture2D>("Assets/Textures/dredged_ramp.png");
@@ -71,12 +73,13 @@ namespace CaeliImperium.Elites
             }
             DredgedWard.transform.GetChild(0).GetChild(0).GetComponent<MeshRenderer>().material = dredgedMat;
             AddLanguageTokens();
-            CreateEliteTier();
             SetupBuff();
             SetupEquipment();
             SetupElite();
             AddContent();
-            ColdHeart.Init();
+            CreateEliteTier();
+
+            //ColdHeart.Init();
             DeathCountBuff.Init();
             EliteRamp.AddRamp(AffixDredgedElite, eliteRamp);
             ContentAddition.AddEquipmentDef(AffixDredgedEquipment);
@@ -344,6 +347,7 @@ namespace CaeliImperium.Elites
                 {
                     vector = (TeleportHelper.FindSafeTeleportDestination(self.master.deathFootPosition, self, RoR2Application.rng) ?? self.master.deathFootPosition);
                 }
+                
                 try
                 {
 
@@ -356,7 +360,7 @@ namespace CaeliImperium.Elites
                             rotation = UnityEngine.Quaternion.identity,
                             teamIndexOverride = new TeamIndex?(self.GetComponent<CharacterBody>().teamComponent.teamIndex),
                             useAmbientLevel = true,
-                            summonerBodyObject = null,
+                            summonerBodyObject = self.master.minionOwnership ? self.master.minionOwnership.gameObject : null,
                             inventoryToCopy = self.inventory,
                             ignoreTeamMemberLimit = true,
 
@@ -383,35 +387,40 @@ namespace CaeliImperium.Elites
             AffixDredgedTier = new CombatDirector.EliteTierDef()
             {
                 costMultiplier = CombatDirector.baseEliteCostMultiplier * Dredged.DredgedCostMult.Value,
-                eliteTypes = new EliteDef[1]{AffixDredgedElite},
+                eliteTypes = new EliteDef[]{AffixDredgedElite},
                 canSelectWithoutAvailableEliteDef = false,
                 isAvailable = ((SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= Dredged.DredgedLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= Dredged.DredgedStageCount.Value),
             };
+            var baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
+            var indexToInsertAt = Array.FindIndex(baseEliteTierDefs, x => x.costMultiplier >= AffixDredgedTier.costMultiplier);
             EliteAPI.AddCustomEliteTier(AffixDredgedTier);
+            EliteAPI.Add(new CustomElite(AffixDredgedElite, CanAppearInEliteTiers));
         }
-        //private static void CombatDirector_Init(On.RoR2.CombatDirector.orig_Init orig)
-        //{
-        //    orig();
-        //    //if (EliteAPI.VanillaEliteTiers.Length > 2)
-        //    //{
-        //    //    // HONOR
-        //    //    CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[2];
-        //    //    List<EliteDef> elites = targetTier.eliteTypes.ToList();
-        //    //    AffixDredgedElite.healthBoostCoefficient = DredgedHealthMult.Value / 1.6f;
-        //    //    AffixDredgedElite.damageBoostCoefficient = DredgedDamageMult.Value / 1.3f;
-        //    //    elites.Add(AffixDredgedElite);
-        //    //    targetTier.eliteTypes = elites.ToArray();
-        //    //}
-        //    //if (EliteAPI.VanillaEliteTiers.Length > 1)
-        //    //{
-        //        CombatDirector.EliteTierDef targetTier = AffixDredgedTier;
-        //        List<EliteDef> elites = targetTier.eliteTypes.ToList();
-        //        AffixDredgedElite.healthBoostCoefficient = DredgedHealthMult.Value;
-        //        AffixDredgedElite.damageBoostCoefficient = DredgedDamageMult.Value;
-        //        elites.Add(AffixDredgedElite);
-        //        targetTier.eliteTypes = elites.ToArray();
-        //    //}
-        //}
+        private static void CombatDirector_Init(On.RoR2.CombatDirector.orig_Init orig)
+        {
+            orig();
+            //if (EliteAPI.VanillaEliteTiers.Length > 2)
+            //{
+            //    // HONOR
+            //    CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[2];
+            //    List<EliteDef> elites = targetTier.eliteTypes.ToList();
+            //    AffixDredgedElite.healthBoostCoefficient = DredgedHealthMult.Value / 1.6f;
+            //    AffixDredgedElite.damageBoostCoefficient = DredgedDamageMult.Value / 1.3f;
+            //    elites.Add(AffixDredgedElite);
+            //    targetTier.eliteTypes = elites.ToArray();
+            //}
+            //if (EliteAPI.VanillaEliteTiers.Length > 1)
+            //{
+            Array.Resize(ref CombatDirector.eliteTiers, CombatDirector.eliteTiers.Length + 1);
+            CombatDirector.eliteTiers[CombatDirector.eliteTiers.Length - 1] = AffixDredgedTier;
+            //CombatDirector.EliteTierDef targetTier = AffixDredgedTier;
+            //List<EliteDef> elites = targetTier.eliteTypes.ToList();
+            //AffixDredgedElite.healthBoostCoefficient = DredgedHealthMult.Value;
+            //AffixDredgedElite.damageBoostCoefficient = DredgedDamageMult.Value;
+            ////elites.Add(AffixDredgedElite);
+            //targetTier.eliteTypes = elites.ToArray();
+            //}
+        }
 
         private static void CharacterBody_OnBuffFirstStackGained(
            On.RoR2.CharacterBody.orig_OnBuffFirstStackGained orig,
@@ -483,7 +492,7 @@ namespace CaeliImperium.Elites
             AffixDredgedEquipment.pickupModelPrefab = PrefabAPI.InstantiateClone(MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixModel.prefab"), "PickupAffixDredged", false);
             foreach (Renderer componentsInChild in AffixDredgedEquipment.pickupModelPrefab.GetComponentsInChildren<Renderer>())
                 componentsInChild.material = dredgedMat;
-            AffixDredgedEquipment.pickupIconSprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/EliteIce/texAffixWhiteIcon.png").WaitForCompletion();
+            AffixDredgedEquipment.pickupIconSprite = MainAssets.LoadAsset<Sprite>("Assets/Icons/DredgedAffix.png");
 
             AffixDredgedEquipment.nameToken = "EQUIPMENT_AFFIX_DREDGED_NAME";
             AffixDredgedEquipment.descriptionToken = "EQUIPMENT_AFFIX_DREDGED_DESC";

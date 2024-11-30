@@ -222,7 +222,7 @@ namespace CaeliImperium.Items
             int count = 0;
             if (body != null)
             {
-                count = body.inventory.GetItemCount(RejectedDaggerItemDef);
+                count = body.inventory ? body.inventory.GetItemCount(RejectedDaggerItemDef) : 0;
 
             }
             if (count > 0)

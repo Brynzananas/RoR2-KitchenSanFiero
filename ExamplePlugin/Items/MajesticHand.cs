@@ -73,7 +73,7 @@ namespace CaeliImperium.Items
                              "Blacklist this item from enemies?");
             MajesticHandTier = Config.Bind<float>("Item : " + name,
                                          "Item tier",
-                                         2f,
+                                         3f,
                                          "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
             MajesticHandChance = Config.Bind<float>("Item : " + name,
                                          "Death chance",
@@ -81,15 +81,15 @@ namespace CaeliImperium.Items
                                          "Control the death chance in percerntage\nSet to 0 to disable this effect");
             MajesticHandMaxChance = Config.Bind<float>("Item : " + name,
                                          "Max chance",
-                                         5f,
+                                         15f,
                                          "Control the maximum death chance in percerntage");
             MajesticHandDoDamage = Config.Bind<float>("Item : " + name,
                              "Damage increase",
-                             24f,
+                             12f,
                              "Control how much damage increases based on the targets remaining health percentage in percentage\nSet to 0 to disable this effect");
             MajesticHandDoDamageStack = Config.Bind<float>("Item : " + name,
                              "Damage increase stack",
-                             12f,
+                             24f,
                              "Control how much damage increases based on the targets remaining health percentage per item stack in percentage");
             //MajesticHandFunction = Config.Bind<bool>("Item : " + name,
             //                             "Alternative Killswitch function",
@@ -99,7 +99,9 @@ namespace CaeliImperium.Items
             ModSettingsManager.AddOption(new CheckBoxOption(MajesticHandAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(MajesticHandTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(MajesticHandChance));
+            ModSettingsManager.AddOption(new FloatFieldOption(MajesticHandMaxChance));
             ModSettingsManager.AddOption(new FloatFieldOption(MajesticHandDoDamage));
+            ModSettingsManager.AddOption(new FloatFieldOption(MajesticHandDoDamageStack));
             //ModSettingsManager.AddOption(new CheckBoxOption(MajesticHandFunction, new CheckBoxConfig() { restartRequired = true }));
         }
 
@@ -159,7 +161,7 @@ namespace CaeliImperium.Items
                 }
                 if (itemCount > 0)
                 {
-                    damageInfo.damage *= 1 + ((1 - self.combinedHealthFraction) * itemCount * (MajesticHandDoDamage.Value / 100));
+                    damageInfo.damage *= 1 + ((1 - self.combinedHealthFraction) * ((MajesticHandDoDamage.Value / 100) + ((itemCount - 1) * (MajesticHandDoDamageStack.Value / 100))));
                 }
             }
             orig(self, damageInfo);
@@ -378,7 +380,7 @@ public class KillswitchComponent : MonoBehaviour
             }
             if (MajesticHandDoDamage.Value > 0)
             {
-                death += "Deal <style=cIsDamage>more damage</style> the <style=cIsHealth>weaker</style> the enemy is up to <style=cIsDamage>" + MajesticHandDoDamage.Value +"%</style> <style=cStack>(+" + MajesticHandDoDamage.Value + "% per item stack)</style>";
+                death += "Deal <style=cIsDamage>more damage</style> the <style=cIsHealth>weaker</style> the enemy is up to <style=cIsDamage>" + MajesticHandDoDamage.Value +"%</style> <style=cStack>(+" + MajesticHandDoDamageStack.Value + "% per item stack)</style>";
             }
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_NAME", name);
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", death);

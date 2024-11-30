@@ -32,6 +32,7 @@ namespace CaeliImperium.Elites
         public static EliteTierDef AffixDefenderTier;
         public static float healthMult = 4f;
         public static float damageMult = 2f;
+        public static EliteTierDef[] CanAppearInEliteTiers = EliteAPI.GetCombatDirectorEliteTiers();
         //public static GameObject DroneSupport = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteHaunted/AffixHauntedWard.prefab").WaitForCompletion();
         public static float affixDropChance = 0.00025f;
         private static GameObject DefenderWard = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteHaunted/AffixHauntedWard.prefab").WaitForCompletion(), "BrassModalityWard");
@@ -41,6 +42,7 @@ namespace CaeliImperium.Elites
         // RoR2/Base/Common/ColorRamps/texRampWarbanner.png 
         public static ConfigEntry<float> DefenderHealthMult;
         public static ConfigEntry<float> DefenderDamageMult;
+        public static ConfigEntry<float> DefenderTier;
         public static ConfigEntry<float> DefenderCostMult;
         public static ConfigEntry<int> DefenderLoopCount;
         public static ConfigEntry<int> DefenderStageCount;
@@ -61,11 +63,12 @@ namespace CaeliImperium.Elites
             }
             DefenderWard.transform.GetChild(0).GetChild(0).GetComponent<MeshRenderer>().material = DefenderMat;
             AddLanguageTokens();
-            CreateEliteTiers();
             SetupBuff();
             SetupEquipment();
             SetupElite();
             AddContent();
+            CreateEliteTiers();
+
             EliteRamp.AddRamp(AffixDefenderElite, eliteRamp);
             ContentAddition.AddEquipmentDef(AffixDefenderEquipment);
             On.RoR2.CharacterBody.OnBuffFirstStackGained += CharacterBody_OnBuffFirstStackGained;
@@ -88,6 +91,10 @@ namespace CaeliImperium.Elites
                                          "Damage Multiplier",
                                          10f,
                                          "Control the damage multiplier of this elite");
+            DefenderTier = Config.Bind<float>("Elite : " + name,
+                             "Tier",
+                             2f,
+                             "Control the tier of Defender elite\n1: Default\n2: Appear from stage 2\n3: Appear from first loop");
             DefenderCostMult = Config.Bind<float>("Elite : " + name,
                                          "Cost Multiplier",
                                          6f,
@@ -128,6 +135,7 @@ namespace CaeliImperium.Elites
             ModSettingsManager.AddOption(new CheckBoxOption(DefenderEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderHealthMult, new FloatFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderDamageMult, new FloatFieldConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new StepSliderOption(DefenderTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderCostMult, new FloatFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new IntFieldOption(DefenderLoopCount, new IntFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new IntFieldOption(DefenderStageCount, new IntFieldConfig() { restartRequired = true }));
@@ -142,39 +150,45 @@ namespace CaeliImperium.Elites
             AffixDefenderTier = new CombatDirector.EliteTierDef()
             {
                 costMultiplier = CombatDirector.baseEliteCostMultiplier * Defender.DefenderCostMult.Value,
-                eliteTypes = new EliteDef[1]{AffixDefenderElite},
+                eliteTypes = new EliteDef[]{AffixDefenderElite},
                 canSelectWithoutAvailableEliteDef = false,
                 isAvailable = ((SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= Defender.DefenderLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= Defender.DefenderStageCount.Value),
 
             };
-            EliteAPI.AddCustomEliteTier(AffixDefenderTier);
+            var baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
+
+            var indexToInsertAt = Array.FindIndex(baseEliteTierDefs, x => x.costMultiplier >= AffixDefenderTier.costMultiplier);
+            EliteAPI.AddCustomEliteTier(AffixDefenderTier, indexToInsertAt);
+            EliteAPI.Add(new CustomElite(AffixDefenderElite, CanAppearInEliteTiers));
         }
-        //private static void CombatDirector_Init(On.RoR2.CombatDirector.orig_Init orig)
-        //{
-                
-            
-        //    orig();
-        //    /*if (EliteAPI.VanillaEliteTiers.Length > 2)
-        //    {
-        //        // HONOR
-        //        CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[2];
-        //        List<EliteDef> elites = targetTier.eliteTypes.ToList();
-        //        AffixDefenderElite.healthBoostCoefficient = DefenderHealthMult.Value / 1.6f;
-        //        AffixDefenderElite.damageBoostCoefficient = DefenderDamageMult.Value / 1.3f;
-        //        //targetTier.costMultiplier *= 6;
-        //        elites.Add(AffixDefenderElite);
-        //        targetTier.eliteTypes = elites.ToArray();
-        //    }*/
-        //    //if (EliteAPI.VanillaEliteTiers.Length > 1)
-        //    //{
-        //        CombatDirector.EliteTierDef targetTier = AffixDefenderTier;
-        //        List<EliteDef> elites = targetTier.eliteTypes.ToList();
-        //        AffixDefenderElite.healthBoostCoefficient = DefenderHealthMult.Value;
-        //        AffixDefenderElite.damageBoostCoefficient = DefenderDamageMult.Value;
-        //        elites.Add(AffixDefenderElite);
-        //        targetTier.eliteTypes = elites.ToArray();
-        //    //}
-        //}
+        private static void CombatDirector_Init(On.RoR2.CombatDirector.orig_Init orig)
+        {
+
+
+            orig();
+            /*if (EliteAPI.VanillaEliteTiers.Length > 2)
+            {
+                // HONOR
+                CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[2];
+                List<EliteDef> elites = targetTier.eliteTypes.ToList();
+                AffixDefenderElite.healthBoostCoefficient = DefenderHealthMult.Value / 1.6f;
+                AffixDefenderElite.damageBoostCoefficient = DefenderDamageMult.Value / 1.3f;
+                //targetTier.costMultiplier *= 6;
+                elites.Add(AffixDefenderElite);
+                targetTier.eliteTypes = elites.ToArray();
+            }*/
+            //if (EliteAPI.VanillaEliteTiers.Length > 1)
+            //{
+            Array.Resize(ref CombatDirector.eliteTiers, CombatDirector.eliteTiers.Length + 1);
+            CombatDirector.eliteTiers[CombatDirector.eliteTiers.Length - 1] = AffixDefenderTier;
+            //CombatDirector.EliteTierDef targetTier = AffixDefenderTier;
+            //List<EliteDef> elites = targetTier.eliteTypes.ToList();
+            //AffixDefenderElite.healthBoostCoefficient = DefenderHealthMult.Value;
+            //AffixDefenderElite.damageBoostCoefficient = DefenderDamageMult.Value;
+            ////elites.Add(AffixDefenderElite);
+            //targetTier.eliteTypes = elites.ToArray();
+            //}
+        }
         private static void Stats(CharacterBody sender, StatHookEventArgs args)
         {
             if (sender.HasBuff(AffixDefenderBuff))
@@ -349,7 +363,7 @@ namespace CaeliImperium.Elites
             AffixDefenderEquipment.pickupModelPrefab = PrefabAPI.InstantiateClone(MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixModel.prefab"), "PickupAffixDefender", false);
             foreach (Renderer componentsInChild in AffixDefenderEquipment.pickupModelPrefab.GetComponentsInChildren<Renderer>())
                 componentsInChild.material = DefenderMat;
-            AffixDefenderEquipment.pickupIconSprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/EliteIce/texAffixWhiteIcon.png").WaitForCompletion();
+            AffixDefenderEquipment.pickupIconSprite = MainAssets.LoadAsset<Sprite>("Assets/Icons/DefenderAffix.png");
         }
 
         private static void SetupElite()
@@ -362,28 +376,28 @@ namespace CaeliImperium.Elites
             AffixDefenderElite.healthBoostCoefficient = DefenderHealthMult.Value;
             AffixDefenderElite.damageBoostCoefficient = DefenderDamageMult.Value;
             AffixDefenderBuff.eliteDef = AffixDefenderElite;
-            /*var baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
-            if (VanillaTier != 0)
-            {
-                if (!DefenderEliteTier.All(x => baseEliteTierDefs.Contains(x)))
-                {
-                    var distinctEliteTierDefs = DefenderEliteTier.Except(baseEliteTierDefs);
-                    foreach (EliteTierDef eliteTierDef in distinctEliteTierDefs)
-                    {
-                        var indexToInsertAt = Array.FindIndex(baseEliteTierDefs, x => x.costMultiplier >= eliteTierDef.costMultiplier);
-                        if (indexToInsertAt >= 0)
-                        {
-                            EliteAPI.AddCustomEliteTier(eliteTierDef, indexToInsertAt);
-                        }
-                        else
-                        {
-                            EliteAPI.AddCustomEliteTier(eliteTierDef);
-                        }
-                        baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
-                    }
-                }
-                EliteAPI.Add(new CustomElite(EliteDef, DefenderEliteTier));
-            }*/
+            //var baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
+            //if (VanillaTier != 0)
+            //{
+            //    if (!DefenderEliteTier.All(x => baseEliteTierDefs.Contains(x)))
+            //    {
+            //        var distinctEliteTierDefs = DefenderEliteTier.Except(baseEliteTierDefs);
+            //        foreach (EliteTierDef eliteTierDef in distinctEliteTierDefs)
+            //        {
+            //            var indexToInsertAt = Array.FindIndex(baseEliteTierDefs, x => x.costMultiplier >= eliteTierDef.costMultiplier);
+            //            if (indexToInsertAt >= 0)
+            //            {
+            //                EliteAPI.AddCustomEliteTier(eliteTierDef, indexToInsertAt);
+            //            }
+            //            else
+            //            {
+            //                EliteAPI.AddCustomEliteTier(eliteTierDef);
+            //            }
+            //            baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
+            //        }
+            //    }
+            //    EliteAPI.Add(new CustomElite(EliteDef, DefenderEliteTier));
+            //}
         }
 
         private static void AddLanguageTokens()

@@ -163,15 +163,18 @@ namespace CaeliImperium.Items
             {
                 var attackerBody = damageInfo.attacker ? damageInfo.attacker.GetComponent<CharacterBody>() : null;
                 int itemCount = 0;
-                try
+                if (attackerBody != null)
                 {
-                itemCount = attackerBody.inventory ? attackerBody.inventory.GetItemCount(LikeADragonItemDef) : 0;
+                    try
+                    {
+                        itemCount = attackerBody.inventory ? attackerBody.inventory.GetItemCount(LikeADragonItemDef) : 0;
 
+                    }
+                    catch (Exception ex)
+                    {
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Debug.LogError("Like A Dragon");
-                }
+                
                 if (itemCount > 0)
                 {
                     for (int i = 0; i < LikeADragonRoll.Value + ((itemCount - 1) * LikeADragonRollStack.Value); i++)

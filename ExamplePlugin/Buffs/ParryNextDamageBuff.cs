@@ -89,9 +89,18 @@ namespace CaeliImperium.Buffs
                             newDamage.damage *= EnforcerHandReflectDamageMultiplier.Value;
                             newDamage.damage += (attackerToStun.maxHealth * EnforcerHandMaxHealthDamageMulyiplier.Value / 100) + (self.body.damageFromRecalculateStats * EnforcerHandTotalDamageMultiplier.Value / 100);
                             attackerToStun.healthComponent.TakeDamage(newDamage);
+                            float buffTime = EnforcerHandWoundedTime.Value;
+                            var setBuff = attackerToStun;
                             for (int i = 0; i < EnforcerHandWoundedCount.Value; i++)
                             {
-                            attackerToStun.AddBuff(WoundedBuff.WoundedBuffDef);
+                                if (buffTime > 0)
+                                {
+                                    attackerToStun.AddTimedBuff(WoundedBuff.WoundedBuffDef, buffTime);
+                                }
+                                else
+                                {
+                                    attackerToStun.AddBuff(WoundedBuff.WoundedBuffDef);
+                                }
 
                             }
                             if (!attackerToStun.isChampion && EnforcerHandDoStun.Value)

@@ -39,6 +39,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using static UnityEngine.UIElements.StylePropertyAnimationSystem;
 using static CaeliImperium.Elites.ArchNemesis;
 using RoR2.ExpansionManagement;
+using RoR2.Audio;
+using static RoR2.CombatDirector;
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 [assembly: HG.Reflection.SearchableAttribute.OptIn]
 [assembly: HG.Reflection.SearchableAttribute.OptInAttribute]
@@ -61,6 +63,7 @@ namespace CaeliImperiumPlugin
         public static ExpansionDef CaeliImperiumExpansionDef = ScriptableObject.CreateInstance<ExpansionDef>();
         public static AssetBundle MainAssets;
         public static ConfigFile Config;
+        public static EliteTierDef[] CanAppearInEliteTiers = EliteAPI.GetCombatDirectorEliteTiers();
         public static UnityEngine.Vector3[] deadPositionArray = new Vector3[420];
         public static Inventory[] deadInventoryArray = new Inventory[420];
         public static GameObject[] deadMasterPrefabArray = new GameObject[420];
@@ -133,18 +136,18 @@ namespace CaeliImperiumPlugin
                 MainAssets = AssetBundle.LoadFromStream(stream);
             }
             
-            //foreach (Material material in MainAssets.LoadAllAssets<Material>())
-            //{
-            //    if (!material.shader.name.StartsWith("StubbedRoR2"))
-            //    {
-            //        continue;
-            //    }
-            //    var replacementShader = Resources.Load<Shader>(ShaderLookup4[material.shader.name.ToLower()]);
-            //    if (replacementShader)
-            //    {
-            //        material.shader = replacementShader;
-            //    }
-            //}
+            foreach (Material material in MainAssets.LoadAllAssets<Material>())
+            {
+                if (!material.shader.name.StartsWith("StubbedRoR2"))
+                {
+                    continue;
+                }
+                var replacementShader = Resources.Load<Shader>(ShaderLookup4[material.shader.name.ToLower()]);
+                if (replacementShader)
+                {
+                    material.shader = replacementShader;
+                }
+            }
             //ShaderConversion(MainAssets);
             GenerateExpansionDef();
             using (var bankStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CaeliImperium.KSFsounds.bnk"))
@@ -201,9 +204,11 @@ namespace CaeliImperiumPlugin
         //    }
         //}
 
+            
+
         private void Update()
         {
-            if (!PauseManager.isPaused && CapturedPotential.CapturedPotentialEnable.Value)
+            if (!PauseManager.isPaused && CapturedPotential.CapturedPotentialEnable.Value && NetworkUser.readOnlyLocalPlayersList.Count > 0 && NetworkUser.readOnlyLocalPlayersList[0].master?.inventory && NetworkUser.readOnlyLocalPlayersList[0].master?.inventory.GetItemCount(CapturedPotentialItemDef) > 0)
             {
 
                 //var equipArray = GetOrCreateComponent(body.master).equipArray;
@@ -221,10 +226,21 @@ namespace CaeliImperiumPlugin
                 if (key1 && ((Input.mouseScrollDelta == Vector2.up && mouseWheel) || (Input.GetKeyUp(CapturedPotentialKey2.Value.MainKey) || Input.GetKeyUp(CapturedPotentialKey4.Value.MainKey))))
                 {
                     RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList.FirstOrDefault(), "EquipArrayIndexUp");
+                    if (CapturedPotentialSound.Value)
+                    {
+                    EntitySoundManager.EmitSoundServer(EquipArrayUpSound.akId, NetworkUser.readOnlyLocalPlayersList[0].master?.GetBody().gameObject);
+
+                    }
+                    
                 }
                 if (key1 && ((Input.mouseScrollDelta == Vector2.down && mouseWheel) || (Input.GetKeyUp(CapturedPotentialKey3.Value.MainKey) || Input.GetKeyUp(CapturedPotentialKey5.Value.MainKey))))
                 {
                     RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList.FirstOrDefault(), "EquipArrayIndexDown");
+                    if (CapturedPotentialSound.Value)
+                    {
+                    EntitySoundManager.EmitSoundServer(EquipArrayDownSound.akId, NetworkUser.readOnlyLocalPlayersList[0].master?.GetBody().gameObject);
+
+                    }
                 }
             }
         }
@@ -319,11 +335,11 @@ namespace CaeliImperiumPlugin
             Array.Clear(deadMasterPrefabArray, 0, deadMasterPrefabArray.Length);
         }
         
-        public void OnEnable()
-        {
-            //MainAssets ??= AssetBundle.LoadFromFile(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Info.Location), "KitchenSanFiero"));
-            base.StartCoroutine(MainAssets.UpgradeStubbedShadersAsync());
-        }
+        //public void OnEnable()
+        //{
+        //    //MainAssets ??= AssetBundle.LoadFromFile(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Info.Location), "KitchenSanFiero"));
+        //    base.StartCoroutine(MainAssets.UpgradeStubbedShadersAsync());
+        //}
         private void ifItKillsPlayer(On.RoR2.CharacterBody.orig_HandleOnKillEffectsServer orig, CharacterBody self, DamageReport damageReport)
         {
             orig(self, damageReport);
@@ -331,27 +347,27 @@ namespace CaeliImperiumPlugin
             {
                 if (self.isChampion && !ArchNemesisChampions.Value)
                 {
-                    Debug.Log("Death by champion");
+                    //Debug.Log("Death by champion");
                     return;
                 }
                 if (self.master.masterIndex == MithrixBody.GetComponent<CharacterMaster>().masterIndex && !ArchNemesisMithrix.Value)
                 {
-                    Debug.Log("Death by Mithrix");
+                    //Debug.Log("Death by Mithrix");
                     return;
                 }
                 if (self.master.masterIndex == VoidlingBody.GetComponent<CharacterMaster>().masterIndex && ArchNemesisVoidling.Value)
                 {
-                    Debug.Log("Death by Voidling");
+                    //Debug.Log("Death by Voidling");
                     return;
                 }
                 if (self.master.masterIndex == FalseSonBody.GetComponent<CharacterMaster>().masterIndex && ArchNemesisFalseSon.Value)
                 {
-                    Debug.Log("Death by False Son");
+                    //Debug.Log("Death by False Son");
                     return;
                 }
                 if (self.master.masterIndex == ScavengerBody.GetComponent<CharacterMaster>().masterIndex && ArchNemesisScavenger.Value)
                 {
-                    Debug.Log("Death by Scavenger");
+                    //Debug.Log("Death by Scavenger");
                     return;
                 }
                 if ((self.master.masterIndex == LunarScavenger1Body.GetComponent<CharacterMaster>().masterIndex ||
@@ -359,21 +375,21 @@ namespace CaeliImperiumPlugin
                     self.master.masterIndex == LunarScavenger3Body.GetComponent<CharacterMaster>().masterIndex ||
                     self.master.masterIndex == LunarScavenger4Body.GetComponent<CharacterMaster>().masterIndex) && ArchNemesisLunarScavengers.Value)
                 {
-                    Debug.Log("Death by Lunar Scavengers");
+                    //Debug.Log("Death by Lunar Scavengers");
                     return;
                 }
                 //archNemesisMasterPrefab = MasterCatalog.GetMasterPrefab(self.master.masterIndex);
                 //archNemesisInventory = damageReport.victimBody.inventory;
                 //ArchNemesisStageName = RoR2.Stage.instance.sceneDef.cachedName;
-                bool ifLoopTemp = false;
-                if (Stage.instance.sceneDef.stageOrder >= 6)
-                {
-                    ifLoopTemp = true;
-                }
-                else
-                {
-                    ifLoopTemp = false;
-                }
+                //bool ifLoopTemp = false;
+                //if (Stage.instance.sceneDef.stageOrder >= 6)
+                //{
+                //    ifLoopTemp = true;
+                //}
+                //else
+                //{
+                //    ifLoopTemp = false;
+                //}
                 try
                 {
                     Directory.CreateDirectory(SavesDirectory);
@@ -434,7 +450,7 @@ namespace CaeliImperiumPlugin
                         }
                         
                     }
-                    File.WriteAllText(path, self.master.name.ToString());
+                    File.WriteAllText(path, self.master.name.ToString().Replace("(Clone)", ""));
                     File.WriteAllText(path2, string.Join(",", itemsArray));
                     File.WriteAllText(path1, RoR2.Stage.instance.sceneDef.stageOrder.ToString());
                     File.WriteAllText(path3, ((int)self.teamComponent.teamIndex).ToString());

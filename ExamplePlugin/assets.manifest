@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 2269109390
+CRC: 832319890
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 9c0440ad217884c46d24c7e34c268190
+    Hash: ebea6bf125a71bae99b1144a9c628249
   TypeTreeHash:
     serializedVersion: 2
     Hash: 29940bcbe38863e439e9f645fb28329e
@@ -60,6 +60,7 @@ Assets:
 - Assets/Icons/PainKillers.png
 - Assets/Icons/EmergencyMedicalTreatmentIcon.png
 - Assets/Textures/OpposingForcePalette.png
+- Assets/Materials/hasting_ramp.mat
 - Assets/Icons/EnergisedChocolateBarIconTier3.png
 - Assets/Icons/OtherworldlyManuscriptTier1.png
 - Assets/Materials/matGuardianAngelPalette.mat
@@ -72,6 +73,7 @@ Assets:
 - Assets/Icons/LikeADragonTier3.png
 - Assets/Materials/thaolisman.mat
 - Assets/Icons/ColdHeart.png
+- Assets/Icons/BrassModalityAffix.png
 - Assets/Textures/EmergencyMedicalTreatmentColoredEmisssion.png
 - Assets/Models/Prefabs/Talisman.prefab
 - Assets/Icons/OpposingForceTier1.png
@@ -84,9 +86,11 @@ Assets:
 - Assets/Icons/healshield.png
 - Assets/Textures/dredged_ramp.png
 - Assets/Materials/matLemurian_skull_normal.mat
+- Assets/Icons/DredgedAffix.png
 - Assets/Icons/Killswitchbuff.png
 - Assets/Textures/ForbiddenTome_Emission.png
 - Assets/Materials/matForbiddenTome_palette.mat
+- Assets/Icons/DefenderAffix.png
 - Assets/Textures/TalismanExplosion.png
 - Assets/Icons/Irradiated.png
 - Assets/Icons/GuardianAngelCrownTier1.png
@@ -142,12 +146,13 @@ Assets:
 - Assets/Materials/OpposingForcePalette.mat
 - Assets/Icons/RejectedDaggerTier2.png
 - Assets/Icons/EmergencyMedicalTreatmentIconTier2.png
+- Assets/Icons/ArchNemesisAffix.png
 - Assets/Icons/BrassBellIconTier1.png
-- Assets/Icons/KeyChainTier3.png
 - Assets/Textures/MajesticHand.png
 - Assets/Icons/EmergencyMedicalTreatmentIconTier1.png
 - Assets/Models/Prefabs/SkullGammaGun.prefab
 - Assets/Materials/matPainkillers_palette.mat
+- Assets/Icons/KeyChainTier3.png
 - Assets/Textures/ForbiddenTome_palette.png
 - Assets/Icons/PackOfCiggaretsIconTier3.png
 - Assets/Icons/arch_nemesis_icon.png
@@ -200,7 +205,7 @@ Assets:
 - Assets/Icons/SkullGammaGunIconTier3.png
 - Assets/Models/Prefabs/CigWorldModel.prefab
 - Assets/Icons/MajesticHandTier2.png
-- Assets/Textures/CapturedPotentialEmission.png
+- Assets/Icons/ArchNemesisHat.png
 - Assets/Icons/CapturedPotential.png
 - Assets/Textures/SkullGammaGun.001.png
 - Assets/Icons/RejectedDagger.png
@@ -210,10 +215,11 @@ Assets:
 - Assets/Textures/SkullGammaGun.png
 - Assets/Textures/BrassBellBake.png
 - Assets/Models/Prefabs/Ciggaretes.prefab
-- Assets/Models/Prefabs/QuantumDeck.controller
+- Assets/Textures/CapturedPotentialEmission.png
 - Assets/Models/Prefabs/hotelbell.prefab
-- Assets/Materials/matFraileGiftBox.mat
+- Assets/Icons/HastingAffix.png
 - Assets/Textures/NecronomiconEmission.png
 - Assets/Icons/BellBoosted.png
-- Assets/Materials/hasting_ramp.mat
+- Assets/Models/Prefabs/QuantumDeck.controller
+- Assets/Materials/matFraileGiftBox.mat
 Dependencies: []

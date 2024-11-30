@@ -54,6 +54,7 @@ namespace CaeliImperium.Elites
         public static ConfigEntry<float> ArchNemesisHealthMult;
         public static ConfigEntry<float> ArchNemesisDamageMult;
         public static ConfigEntry<int> ArchNemesisStageBegin;
+        public static ConfigEntry<float> ArchNemesisSpawnChance;
         public static ConfigEntry<bool> ArchNemesisAIBlacklistItems;
         public static ConfigEntry<bool> ArchNemesisChampions;
         public static ConfigEntry<bool> ArchNemesisMithrix;
@@ -62,6 +63,7 @@ namespace CaeliImperium.Elites
         public static ConfigEntry<bool> ArchNemesisScavenger;
         public static ConfigEntry<bool> ArchNemesisLunarScavengers;
         public static ConfigEntry<float> ArchNemesisDropChance;
+        public static ConfigEntry<float> ArchNemesisDropChancePlayer;
         private static NetworkSoundEventDef ArchNemesisAppearSound;
 
         // RoR2/Base/Common/ColorRamps/texRampWarbanner.png 
@@ -100,16 +102,24 @@ namespace CaeliImperium.Elites
                  "Enable this elite?");
             ArchNemesisHealthMult = Config.Bind<float>("Elite : Arch Nemesis",
                                          "Health Multiplier",
-                                         6f,
+                                         32f,
                                          "Control the health multiplier of Arch Nemesis elite");
             ArchNemesisDamageMult = Config.Bind<float>("Elite : Arch Nemesis",
                                          "Damage Multiplier",
-                                         3f,
+                                         10f,
                                          "Control the damage multiplier of Arch Nemesis elite");
             ArchNemesisDropChance = Config.Bind<float>("Elite : Arch Nemesis",
                                          "Item drop chance",
-                                         100f,
+                                         2f,
                                          "Control the chance Arch Nemesis elite drops its item");
+            ArchNemesisDropChancePlayer = Config.Bind<float>("Elite : Arch Nemesis",
+                                         "Item drop chance the second",
+                                         100f,
+                                         "Control the chance Arch Nemesis elite drops its item on Player team");
+            ArchNemesisSpawnChance = Config.Bind<float>("Elite : Arch Nemesis",
+                                         "Spawn chance",
+                                         100f,
+                                         "Control Arch Nemesis spawn chance");
             ArchNemesisStageBegin = Config.Bind<int>("Elite : Arch Nemesis",
                                          "Stage",
                                          2,
@@ -146,6 +156,8 @@ namespace CaeliImperium.Elites
             ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisHealthMult));
             ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisDamageMult));
             ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisDropChance));
+            ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisDropChancePlayer));
+            ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisSpawnChance));
             ModSettingsManager.AddOption(new IntFieldOption(ArchNemesisStageBegin));
             ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisAIBlacklistItems));
             ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisChampions));
@@ -161,7 +173,7 @@ namespace CaeliImperium.Elites
             //var path = System.IO.Path.Combine(SavesDirectory, "Prefab.txt");
             if (File.Exists(System.IO.Path.Combine(SavesDirectory, "Prefab.txt")))
             {
-                File.WriteAllText(System.IO.Path.Combine(SavesDirectory, "IsDefeated.txt"), "False");
+                //File.WriteAllText(System.IO.Path.Combine(SavesDirectory, "IsDefeated.txt"), "False");
                 //isThereArchNemesis = true;
 
             }
@@ -221,9 +233,18 @@ namespace CaeliImperium.Elites
                 //ArchNemesisAllyMasterprefab = MasterCatalog.GetMasterPrefab(self.master.masterIndex);
                 ArchNemesisAllyPosition = self.transform.position;
                 //ArchNemesisAllyInventory = self.inventory;
-                if (Util.CheckRoll(ArchNemesisDropChance.Value))
+                bool roll = false;
+                if (self.teamComponent.teamIndex == TeamIndex.Player)
                 {
-                PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(CoolHat.CoolHatItemDef.itemIndex), self.transform.position, self.transform.rotation.eulerAngles * 20f);
+                    roll = Util.CheckRoll(ArchNemesisDropChancePlayer.Value);
+                }
+                else
+                {
+                    roll = Util.CheckRoll(ArchNemesisDropChance.Value);
+                }
+                if (roll)
+                {
+                PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(CoolHat.CoolHatItemDef.itemIndex), self.transform.position, self.transform.up * 20f);
 
                 }
 
@@ -267,7 +288,7 @@ namespace CaeliImperium.Elites
                 TeamIndex ArchNemesisTeam = (TeamIndex)int.Parse(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Team.txt")));
 
                     //Chat.AddMessage("There is an Arch Nemesis here");
-                    GameObject archNemesisMasterPrefab = GetMasterPrefab(FindMasterIndex(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Prefab.txt")).Replace("(Clone)", "")));
+                    GameObject archNemesisMasterPrefab = GetMasterPrefab(FindMasterIndex(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Prefab.txt"))));
                     NodeGraph nodeGraph = SceneInfo.instance.GetNodeGraph(MapNodeGroup.GraphType.Ground);
                     List<NodeGraph.NodeIndex> source = nodeGraph.FindNodesInRange(stage.transform.position, 50f, 200f, HullMask.Human);
                     Vector3 vector;
@@ -290,6 +311,7 @@ namespace CaeliImperium.Elites
                     if (characterMaster)
                     {
                         characterMaster.inventory.SetEquipmentIndex(AffixArchNemesisEquipment.equipmentIndex);
+                        characterMaster.inventory.GiveItem(RoR2Content.Items.TeleportWhenOob);
                         string archNemesisInventory = File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Inventory.txt"));
                         if (archNemesisInventory != null)
                         {
@@ -316,15 +338,14 @@ namespace CaeliImperium.Elites
 
                             }
                         }
-                        foreach (var playerCharacterMaster in PlayerCharacterMasterController.instances)
-                        {
-                            if (playerCharacterMaster != null && playerCharacterMaster.master && playerCharacterMaster.master.GetBody())
-                            {
-                            EntitySoundManager.EmitSoundServer(ArchNemesisAppearSound.akId, playerCharacterMaster.master.GetBody().gameObject);
-                            }
-                            //You can get the master via playerCharacterMaster.master
-                            //and the body via playerCharacterMaster.master.GetBody()
-                        }
+                        EntitySoundManager.EmitSoundServer(ArchNemesisAppearSound.akId, characterMaster.GetBodyObject());
+                        //foreach (var playerCharacterMaster in PlayerCharacterMasterController.instances)
+                        //{
+                        //    if (playerCharacterMaster != null && playerCharacterMaster.master && playerCharacterMaster.master.GetBody())
+                        //    {
+                        //    EntitySoundManager.EmitSoundServer(ArchNemesisAppearSound.akId, playerCharacterMaster.master.GetBody().gameObject);
+                        //    }
+                        //}
                     }
                 }/*
                 if (!ArchNemesisDead && stage.sceneDef.cachedName == ArchNemesisStageName && stage.sceneDef.cachedName != null)
@@ -447,7 +468,7 @@ namespace CaeliImperium.Elites
             AffixArchNemesisEquipment.pickupModelPrefab = PrefabAPI.InstantiateClone(MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixModel.prefab"), "PickupAffixArchNemesis", false);
             foreach (Renderer componentsInChild in AffixArchNemesisEquipment.pickupModelPrefab.GetComponentsInChildren<Renderer>())
                 componentsInChild.material = ArchNemesisMat;
-            AffixArchNemesisEquipment.pickupIconSprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/EliteIce/texAffixWhiteIcon.png").WaitForCompletion();
+            AffixArchNemesisEquipment.pickupIconSprite = MainAssets.LoadAsset<Sprite>("Assets/Icons/ArchNemesisAffix.png");
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
             rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule

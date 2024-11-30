@@ -14,6 +14,7 @@ using RiskOfOptions.Options;
 using RiskOfOptions;
 using BepInEx.Configuration;
 using RiskOfOptions.OptionConfigs;
+using static RoR2.CombatDirector;
 
 namespace CaeliImperium.Elites
 {
@@ -27,6 +28,7 @@ namespace CaeliImperium.Elites
         public static float healthMult = 4f;
         public static float damageMult = 2f;
         public static float affixDropChance = 0.00025f;
+        public static EliteTierDef[] CanAppearInEliteTiers = EliteAPI.GetCombatDirectorEliteTiers();
         private static GameObject HastingWard = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/EliteHaunted/AffixHauntedWard.prefab").WaitForCompletion(), "HastingWard");
         private static Material hastingMat = MainAssets.LoadAsset<Material>("Assets/Materials/hasting_ramp.mat");
         private static Texture2D eliteRamp = MainAssets.LoadAsset<Texture2D>("Assets/Textures/hasting_ramp.png");
@@ -53,11 +55,12 @@ namespace CaeliImperium.Elites
             }
             HastingWard.transform.GetChild(0).GetChild(0).GetComponent<MeshRenderer>().material = hastingMat;
             this.AddLanguageTokens();
-            this.CreateEliteTier();
             this.SetupBuff();
             this.SetupEquipment();
             this.SetupElite();
             this.AddContent();
+            this.CreateEliteTier();
+
             EliteRamp.AddRamp(AffixHastingElite, eliteRamp);
             ContentAddition.AddEquipmentDef(AffixHastingEquipment);
             On.RoR2.CharacterBody.OnBuffFirstStackGained += CharacterBody_OnBuffFirstStackGained;
@@ -182,31 +185,36 @@ namespace CaeliImperium.Elites
                 canSelectWithoutAvailableEliteDef = false,
                 isAvailable = ((SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= Hasting.HastingLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= Hasting.HastingStageCount.Value),
             };
+            var baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
+            var indexToInsertAt = Array.FindIndex(baseEliteTierDefs, x => x.costMultiplier >= AffixHastingTier.costMultiplier);
             EliteAPI.AddCustomEliteTier(AffixHastingTier);
+            EliteAPI.Add(new CustomElite(AffixHastingElite, CanAppearInEliteTiers));
         }
-        //private void CombatDirector_Init(On.RoR2.CombatDirector.orig_Init orig)
-        //{
-        //    orig();
-        //    //if (EliteAPI.VanillaEliteTiers.Length > 2)
-        //    //{
-        //    //    // HONOR
-        //    //    CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[2];
-        //    //    List<EliteDef> elites = targetTier.eliteTypes.ToList();
-        //    //    AffixHastingElite.healthBoostCoefficient = HastingHealthMult.Value / 1.6f;
-        //    //    AffixHastingElite.damageBoostCoefficient = HastingDamageMult.Value / 1.3f;
-        //    //    elites.Add(AffixHastingElite);
-        //    //    targetTier.eliteTypes = elites.ToArray();
-        //    //}
-        //    //if (EliteAPI.VanillaEliteTiers.Length > 1)
-        //    //{
-        //        CombatDirector.EliteTierDef targetTier = AffixHastingTier;
-        //        List<EliteDef> elites = targetTier.eliteTypes.ToList();
-        //        AffixHastingElite.healthBoostCoefficient = HastingHealthMult.Value;
-        //        AffixHastingElite.damageBoostCoefficient = HastingDamageMult.Value;
-        //        elites.Add(AffixHastingElite);
-        //        targetTier.eliteTypes = elites.ToArray();
-        //    //}
-        //}
+        private void CombatDirector_Init(On.RoR2.CombatDirector.orig_Init orig)
+        {
+            orig();
+            //if (EliteAPI.VanillaEliteTiers.Length > 2)
+            //{
+            //    // HONOR
+            //    CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[2];
+            //    List<EliteDef> elites = targetTier.eliteTypes.ToList();
+            //    AffixHastingElite.healthBoostCoefficient = HastingHealthMult.Value / 1.6f;
+            //    AffixHastingElite.damageBoostCoefficient = HastingDamageMult.Value / 1.3f;
+            //    elites.Add(AffixHastingElite);
+            //    targetTier.eliteTypes = elites.ToArray();
+            //}
+            //if (EliteAPI.VanillaEliteTiers.Length > 1)
+            //{
+            Array.Resize(ref CombatDirector.eliteTiers, CombatDirector.eliteTiers.Length + 1);
+            CombatDirector.eliteTiers[CombatDirector.eliteTiers.Length - 1] = AffixHastingTier;
+            //CombatDirector.EliteTierDef targetTier = AffixHastingTier;
+            //List<EliteDef> elites = targetTier.eliteTypes.ToList();
+            //AffixHastingElite.healthBoostCoefficient = HastingHealthMult.Value;
+            //AffixHastingElite.damageBoostCoefficient = HastingDamageMult.Value;
+            ////elites.Add(AffixHastingElite);
+            //targetTier.eliteTypes = elites.ToArray();
+            //}
+        }
 
         private void CharacterBody_OnBuffFirstStackGained(
            On.RoR2.CharacterBody.orig_OnBuffFirstStackGained orig,
@@ -276,8 +284,8 @@ namespace CaeliImperium.Elites
             AffixHastingEquipment.pickupModelPrefab = PrefabAPI.InstantiateClone(MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/AffixModel.prefab"), "PickupAffixHasting", false);
             foreach (Renderer componentsInChild in AffixHastingEquipment.pickupModelPrefab.GetComponentsInChildren<Renderer>())
                 componentsInChild.material = hastingMat;
-            AffixHastingEquipment.pickupIconSprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/EliteIce/texAffixWhiteIcon.png").WaitForCompletion();
-            
+            AffixHastingEquipment.pickupIconSprite = MainAssets.LoadAsset<Sprite>("Assets/Icons/HastingAffix.png");
+
             AffixHastingEquipment.nameToken = "EQUIPMENT_AFFIX_HASTING_NAME";
             AffixHastingEquipment.descriptionToken = "EQUIPMENT_AFFIX_HASTING_DESC";
             AffixHastingEquipment.pickupToken = "EQUIPMENT_AFFIX_HASTING_PICKUP";

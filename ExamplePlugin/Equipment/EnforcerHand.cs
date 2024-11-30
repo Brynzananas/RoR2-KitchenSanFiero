@@ -31,6 +31,7 @@ namespace CaeliImperium.Equipment
         public static ConfigEntry<float> EnforcerHandTotalDamageMultiplier;
         public static ConfigEntry<float> EnforcerHandMaxHealthDamageMulyiplier;
         public static ConfigEntry<int> EnforcerHandWoundedCount;
+        public static ConfigEntry<float> EnforcerHandWoundedTime;
         public static ConfigEntry<bool> EnforcerHandDoStun;
         public static ConfigEntry<bool> EnforcerHandEnable;
         public static ConfigEntry<float> EnforcerHandCooldownDeduction;
@@ -73,7 +74,7 @@ namespace CaeliImperium.Equipment
                                          "Control the max health damage percentage upon the parry");
             EnforcerHandCooldownDeduction = Config.Bind<float>("Equipment : Enforcer Hand",
                                          "Cooldown decuction",
-                                         10f,
+                                         15f,
                                          "Control the equipment cooldown deduction upon the parry in seconds");
             EnforcerHandDoStun = Config.Bind<bool>("Equipment : Enforcer Hand",
                                          "Stun",
@@ -84,12 +85,16 @@ namespace CaeliImperium.Equipment
                                          true,
                                          "Enable Enforcer Hand equipment?");
             EnforcerHandWoundedCount = Config.Bind<int>("Equipment : Enforcer Hand",
-                                         "Wound",
+                                         "Wound amount",
                                          1,
                                          "Control the amount of the Wounded debuff applied upon the parry");
+            EnforcerHandWoundedTime = Config.Bind<float>("Equipment : Enforcer Hand",
+                                         "Wound time",
+                                         10,
+                                         "Control the time of the Wounded debuff applied upon the parry in seconds\nSet it to 0 to make it permanent");
             EnforcerHandCooldown = Config.Bind<float>("Equipment : Enforcer Hand",
                              "Cooldown",
-                             10f,
+                             15f,
                              "Control the equipment cooldown");
             EnforcerHandImmunity = Config.Bind<float>("Equipment : Enforcer Hand",
                              "Immunity",
@@ -107,6 +112,7 @@ namespace CaeliImperium.Equipment
             ModSettingsManager.AddOption(new FloatFieldOption(EnforcerHandMaxHealthDamageMulyiplier));
             ModSettingsManager.AddOption(new FloatFieldOption(EnforcerHandTotalDamageMultiplier));
             ModSettingsManager.AddOption(new IntFieldOption(EnforcerHandWoundedCount));
+            ModSettingsManager.AddOption(new FloatFieldOption(EnforcerHandWoundedTime));
             ModSettingsManager.AddOption(new CheckBoxOption(EnforcerHandDoStun));
             ModSettingsManager.AddOption(new FloatFieldOption(EnforcerHandCooldownDeduction));
             ModSettingsManager.AddOption(new FloatFieldOption(EnforcerHandImmunity));
@@ -399,9 +405,25 @@ localScale = new Vector3(0.40697F, 0.40697F, 0.40697F)
         public static void AddLanguageTokens()
         {
             LanguageAPI.Add("ENFORCERHAND_NAME", "Enforcer Hand");
-            LanguageAPI.Add("ENFORCERHAND_PICKUP", "Parry an incoming attack back to the attacker");
-            LanguageAPI.Add("ENFORCERHAND_DESC", "parry an incoming attack back to the attacker");
-            LanguageAPI.Add("ENFORCERHAND_LORE", "mmmm yummy");
+            LanguageAPI.Add("ENFORCERHAND_PICKUP", "<style=cIsDamage>Parry</style> an <style=cIsDamage>incoming attack</style> back to the attacker");
+            LanguageAPI.Add("ENFORCERHAND_DESC", "<style=cIsDamage>Parry</style> an <style=cIsDamage>incoming attack</style> back to the attacker");
+            LanguageAPI.Add("ENFORCERHAND_LORE", "<style=cMono>//--SURVIVOR №17 STATUS--//</style>" +
+                "\n" +
+                "CLASS: Enforcer" +
+                "\n" +
+                "SURVIVOR ID: 12A s8 17" +
+                "\n" +
+                "SURVIVOR NAME: <style=cDeath>MISSING INFORMATION.</style> USER INPUT: \"Please save me\". LATEST DATA: JOHN DOE" +
+                "\n" +
+                "SURVIVOR LOCATION: <style=cDeath>ERROR.</style> USER IMPUT: \"place that makes no sense\". LATEST DATA: o63,283 i45,818 SKY MEADOWS" +
+                "\n" +
+                "BEACON ID: 12A o3 4" +
+                "\n" +
+                "BEACON LOCATION: <style=cDeath>ERROR.</style> LATEST DATA: o59,356 i43,284 SKY MEADOWS" +
+                "\n" +
+                "HEALTH STATUS: ALIVE. MISSING LEFT ARM. HEAVY BLOOD LOSS. FOREIGN OBJECTS DETECTED. SIGNS OF CORRUPTION" +
+                "\n" +
+                "NOTE: \"Teleporter has been completed\". EDITED 12 HOURS AGO");
         }
     }
 }

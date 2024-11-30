@@ -28,6 +28,8 @@ namespace CaeliImperium.Items
         public static ConfigEntry<float> OpposingForceArmorGainStack;
         public static ConfigEntry<float> OpposingForceDamage;
         public static ConfigEntry<float> OpposingForceDamageStack;
+        public static ConfigEntry<float> OpposingForcePower;
+        public static ConfigEntry<float> OpposingForceProc;
         public static string name = "Opposing Force";
 
         internal static void Init()
@@ -82,12 +84,20 @@ namespace CaeliImperium.Items
                                          "Control the armor gain per item stack");
             OpposingForceDamage = Config.Bind<float>("Item : " + name,
                                          "Damage",
-                                         100f,
+                                         400f,
                                          "Control the damage in percentage");
             OpposingForceDamageStack = Config.Bind<float>("Item : " + name,
                                          "Damage stack",
-                                         100f,
+                                         400f,
                                          "Control the damage increase per item stack in percentage");
+            OpposingForcePower = Config.Bind<float>("Item : " + name,
+                                         "Power",
+                                         1.5f,
+                                         "Control the power of reflected damage");
+            OpposingForceProc = Config.Bind<float>("Item : " + name,
+                                         "Proc",
+                                         0.5f,
+                                         "Control the proc of reflected damage");
             ModSettingsManager.AddOption(new CheckBoxOption(OpposingForceEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(OpposingForceAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(OpposingForceTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
@@ -95,6 +105,8 @@ namespace CaeliImperium.Items
             ModSettingsManager.AddOption(new StepSliderOption(OpposingForceArmorGainStack));
             ModSettingsManager.AddOption(new StepSliderOption(OpposingForceDamage));
             ModSettingsManager.AddOption(new StepSliderOption(OpposingForceDamageStack));
+            ModSettingsManager.AddOption(new StepSliderOption(OpposingForcePower));
+            ModSettingsManager.AddOption(new StepSliderOption(OpposingForceProc));
         }
 
         private static void Item()
@@ -141,15 +153,19 @@ namespace CaeliImperium.Items
             if (damageInfo.attacker && victim)
             {
                 
-                CharacterBody victimBody = victim.GetComponent<CharacterBody>();
-                int itemCount = victimBody.inventory ? victimBody.inventory.GetItemCount(OpposingForceItemDef) : 0;
+                CharacterBody victimBody = victim.GetComponent<CharacterBody>() ? victim.GetComponent<CharacterBody>() : null;
+                int itemCount = 0;
+                if (victimBody != null)
+                {
+                itemCount = victimBody.inventory ? victimBody.inventory.GetItemCount(OpposingForceItemDef) : 0;
+                }
                 if (itemCount > 0 && victimBody.armor > 0)
                 {                   
                     CharacterBody attackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
 
                     DamageInfo damageInfo2 = new DamageInfo
                     {
-                        damage = damageInfo.damage * (1 - (100 / (100 + victimBody.armor))) * (OpposingForceDamage.Value / 100) + ((itemCount - 1) * OpposingForceDamageStack.Value / 100),
+                        damage = (float)Math.Pow(damageInfo.damage, OpposingForcePower.Value) * (1 - (100 / (100 + victimBody.armor))) * (OpposingForceDamage.Value / 100) + ((itemCount - 1) * OpposingForceDamageStack.Value / 100),
                         damageColorIndex = DamageColorIndex.Item,
                         damageType = DamageType.Silent,
                         attacker = victim,
@@ -158,7 +174,7 @@ namespace CaeliImperium.Items
                         inflictor = null,
                         position = attackerBody.transform.position,
                         procChainMask = damageInfo.procChainMask,
-                        procCoefficient = 0f
+                        procCoefficient = OpposingForceProc.Value
                     };
                     attackerBody.healthComponent.TakeDamage(damageInfo2);
                 }

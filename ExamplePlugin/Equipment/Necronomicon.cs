@@ -485,8 +485,8 @@ localScale = new Vector3(0.29592F, 0.29592F, 0.29592F)
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add("NECRONOMICON_NAME", "Necronomicon");
-            LanguageAPI.Add("NECRONOMICON_PICKUP", "Revive <style=cIsDamage>" + NecronomiconSpawnAmount.Value + "</style> last dead monsters to <style=cIsStyle>your side</style>");
-            LanguageAPI.Add("NECRONOMICON_DESC", "Revive <style=cIsDamage>" + NecronomiconSpawnAmount.Value + "</style> last dead monsters to <style=cIsStyle>your side</style>");
+            LanguageAPI.Add("NECRONOMICON_PICKUP", "Revive <style=cIsDamage>" + NecronomiconSpawnAmount.Value + "</style> last dead monsters to <style=cIsDamagee>your side</style>");
+            LanguageAPI.Add("NECRONOMICON_DESC", "Revive <style=cIsDamage>" + NecronomiconSpawnAmount.Value + "</style> last dead monsters to <style=cIsDamage>your side</style>");
             LanguageAPI.Add("NECRONOMICON_LORE", "");
         }
     }

@@ -521,8 +521,8 @@ bool roll = false;
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_NAME", name);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "On enemy attack, stun them with " + GuardianCrownChance.Value + "% <style=cStack>(+ " + GuardianCrownChance.Value + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value +"%</style>.");
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "On enemy attack, stun them with " + GuardianCrownChance.Value + "% <style=cStack>(+ " + GuardianCrownChance.Value + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value + "%</style>.");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "On enemy attack, stun them with " + GuardianCrownChance.Value + "% <style=cStack>(+" + GuardianCrownChance.Value + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value +"%</style>.");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "On enemy attack, stun them with " + GuardianCrownChance.Value + "% <style=cStack>(+" + GuardianCrownChance.Value + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value + "%</style>.");
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_LORE", "To protect, to support, to relief, this crown will help. Let it be your honor to protect the weak. Let it be your duty to protect this world");
         }
 

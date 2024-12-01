@@ -235,17 +235,17 @@ localAngles = new Vector3(350.008F, 180F, 0F),
 localScale = new Vector3(0.12937F, 0.12937F, 0.12937F)
                 }
             });
-            rules.Add("mdlEngiTurrety", new RoR2.ItemDisplayRule[]{
-                new RoR2.ItemDisplayRule
-                {
-                    ruleType = ItemDisplayRuleType.ParentedPrefab,
-                    followerPrefab = MicrowavePrefab,
-                    childName = "Chest",
-                    localPos = new Vector3(0f, 0f, 0f),
-                    localAngles = new Vector3(0f, 0f, 0f),
-                    localScale = new Vector3(1f, 1f, 1f)
-                }
-            });
+            //rules.Add("mdlEngiTurrety", new RoR2.ItemDisplayRule[]{
+            //    new RoR2.ItemDisplayRule
+            //    {
+            //        ruleType = ItemDisplayRuleType.ParentedPrefab,
+            //        followerPrefab = MicrowavePrefab,
+            //        childName = "Chest",
+            //        localPos = new Vector3(0f, 0f, 0f),
+            //        localAngles = new Vector3(0f, 0f, 0f),
+            //        localScale = new Vector3(1f, 1f, 1f)
+            //    }
+            //});
             rules.Add("mdlMage", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -267,7 +267,7 @@ localPos = new Vector3(-0.09267F, 0.18578F, 0.04265F),
 localAngles = new Vector3(0F, 180F, 315.4285F),
 localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                 }
-            });
+            });/*
             rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -377,7 +377,7 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(1f, 1f, 1f)
                 }
-            });
+            });*/
             var displayRules = new ItemDisplayRuleDict(null);
             ItemAPI.Add(new CustomItem(SkullGammaGunItemDef, rules));
             On.RoR2.CharacterBody.OnInventoryChanged += ActivateBehaviour;
@@ -444,7 +444,7 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                                 {
                                     damage = damage * ((SkullGammaGunDamage.Value / 100) + ((stack - 1) * (SkullGammaGunDamageStack.Value / 100))),// * ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2)),
                                     damageColorIndex = DamageColorIndex.Item,
-                                    damageType = DamageType.BypassArmor,
+                                    damageType = DamageType.Generic,
                                     attacker = body.gameObject,
                                     crit = Util.CheckRoll(body.crit),
                                     force = Vector3.zero,
@@ -546,8 +546,8 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add("SKULLGAMMAGUN_NAME", "Skull Gamma Gun");
-            LanguageAPI.Add("SKULLGAMMAGUN_PICKUP", "In " + SkullGammaGunAngle.Value + " (+" + SkullGammaGunAngleStack.Value + " per item stack) degree radius and " + SkullGammaGunRange.Value + " (+ " + SkullGammaGunRangeStack.Value + " per item stack) meter distance irradiate enemies for 100% base damage");
-            LanguageAPI.Add("SKULLGAMMAGUN_DESC", "In " + SkullGammaGunAngle.Value + " (+" + SkullGammaGunAngleStack.Value + " per item stack) degree radius and " + SkullGammaGunRange.Value + " (+ " + SkullGammaGunRangeStack.Value + " per item stack) meter distance irradiate enemies for 100% base damage");
+            LanguageAPI.Add("SKULLGAMMAGUN_PICKUP", "In " + SkullGammaGunAngle.Value + " <style=cStack>(+" + SkullGammaGunAngleStack.Value + " per item stack)</style> degree radius and " + SkullGammaGunRange.Value + " <style=cStack>(+ " + SkullGammaGunRangeStack.Value + " per item stack)</style> meter distance <style=cIsDamage>irradiate</style> enemies for <style=cIsDamage>" + SkullGammaGunDamage.Value + "%</style> <style=cStack>(+" + SkullGammaGunDamageStack.Value + "% per item stack)</style> <style=cIsDamage>base damage</style>");
+            LanguageAPI.Add("SKULLGAMMAGUN_DESC", "In " + SkullGammaGunAngle.Value + " <style=cStack>(+" + SkullGammaGunAngleStack.Value + " per item stack)</style> degree radius and " + SkullGammaGunRange.Value + " <style=cStack>(+ " + SkullGammaGunRangeStack.Value + " per item stack)</style> meter distance <style=cIsDamage>irradiate</style> enemies for <style=cIsDamage>" + SkullGammaGunDamage.Value + "%</style> <style=cStack>(+" + SkullGammaGunDamageStack.Value + "% per item stack)</style> <style=cIsDamage>base damage</style>");
             LanguageAPI.Add("SKULLGAMMAGUN_LORE", "She enters the room with some papers, walking to show them to the professor" +
                 "\n" +
                 "\n" +

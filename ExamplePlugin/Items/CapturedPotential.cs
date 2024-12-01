@@ -260,17 +260,17 @@ localAngles = new Vector3(28.7177F, 0F, 0F),
 localScale = new Vector3(0.22816F, 0.22816F, 0.22816F)
                 }
             });
-            rules.Add("mdlEngiTurret", new RoR2.ItemDisplayRule[]{
-                new RoR2.ItemDisplayRule
-                {
-                    ruleType = ItemDisplayRuleType.ParentedPrefab,
-                    followerPrefab = CapturedPotentialPrefab,
-                    childName = "Chest",
-                    localPos = new Vector3(0f, 0f, 0f),
-                    localAngles = new Vector3(0f, 0f, 0f),
-                    localScale = new Vector3(1f, 1f, 1f)
-                }
-            });
+            //rules.Add("mdlEngiTurret", new RoR2.ItemDisplayRule[]{
+            //    new RoR2.ItemDisplayRule
+            //    {
+            //        ruleType = ItemDisplayRuleType.ParentedPrefab,
+            //        followerPrefab = CapturedPotentialPrefab,
+            //        childName = "Chest",
+            //        localPos = new Vector3(0f, 0f, 0f),
+            //        localAngles = new Vector3(0f, 0f, 0f),
+            //        localScale = new Vector3(1f, 1f, 1f)
+            //    }
+            //});
             rules.Add("mdlMage", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -292,7 +292,7 @@ localPos = new Vector3(0F, 0.13605F, 0.03262F),
 localAngles = new Vector3(354.4589F, 141.4038F, 4.4072F),
 localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
                 }
-            });
+            });/*
             rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -402,7 +402,7 @@ localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(1f, 1f, 1f)
                 }
-            });
+            });*/
             var displayRules = new ItemDisplayRuleDict(null);
             ItemAPI.Add(new CustomItem(CapturedPotentialItemDef, rules));
             //On.RoR2.CharacterBody.Update += KeyInputUpdate;
@@ -1203,7 +1203,7 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
             LanguageAPI.Add("CAPTUREDPOTENTIAL_NAME", "Captured Potential");
             LanguageAPI.Add("CAPTUREDPOTENTIAL_PICKUP", "Gain <style=cIsUtility>+" + CapturedPotentialEquipSlots.Value + "</style> <style=cStack>(+" + CapturedPotentialEquipSlotsStack.Value + " per item stack)</style> <style=cIsUtility>equipment slots</style>");
             LanguageAPI.Add("CAPTUREDPOTENTIAL_DESC", "Gain <style=cIsUtility>+" + CapturedPotentialEquipSlots.Value + "</style> <style=cStack>(+" + CapturedPotentialEquipSlotsStack.Value + " per item stack)</style> <style=cIsUtility>equipment slots</style>");
-            LanguageAPI.Add("CAPTUREDPOTENTIAL_LORE", "<style=cMono>//--ATTEMPT № 45123--//</style>" +
+            LanguageAPI.Add("CAPTUREDPOTENTIAL_LORE", "<style=cMono>//--ATTEMPT № 45122--//</style>" +
                 "\n" +
                 "Void: 67.23%" +
                 "\n" +
@@ -1212,7 +1212,7 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
                 "Status: <style=cDeath>FAILURE</style>" +
                 "\n" +
                 "\n" +
-                "<style=cMono>//--ATTEMPT № 45124--//</style>" +
+                "<style=cMono>//--ATTEMPT № 45123--//</style>" +
                 "\n" +
                 "Void: 67.23%" +
                 "\n" +

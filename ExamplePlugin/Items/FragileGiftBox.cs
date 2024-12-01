@@ -192,13 +192,13 @@ namespace CaeliImperium.Items
             LanguageAPI.Add("FRAGILEGIFTBOX_NAME", "Fragile Gift Box");
             LanguageAPI.Add("FRAGILEGIFTBOX_PICKUP", "Gain +" + FragileGiftBoxReward.Value + " <style=cStack>(+" + FragileGiftBoxRewardPerStack.Value + " per item stack)</style> more items from chests. " + FragileGiftBoxRewardChance.Value + "& chance to receive all or nothing. Get Wound on chest opening");
             LanguageAPI.Add("FRAGILEGIFTBOX_DESC", "Gain +" + FragileGiftBoxReward.Value + " <style=cStack>(+" + FragileGiftBoxRewardPerStack.Value + " per item stack)</style> more items from chests. " + FragileGiftBoxRewardChance.Value + "& chance to receive all or nothing. Get Wound on chest opening");
-            LanguageAPI.Add("FRAGILEGIFTBOX_LORE", "\"Pick\"" +
+            LanguageAPI.Add("FRAGILEGIFTBOX_LORE", "I never though you are also a cook brother"/*"\"Pick\"" +
                 "\n" +
                 "He picks the left one. The other one gives him what appears to be a gift box, made out of glass. The receiver looks at him badly, takes the box, takes the breath and crushes it, covering his arms in blood. Inside it there was a blue cupcake, he takes it, examines it and proceeds to consume it. His eyes fills with joy and pleasure." +
                 "\n" +
                 "\"Such a delicious meal. I never thought you are also a cook, brother... May I ask you what's also on your right hand?\"" +
                 "\n" +
-                "The \"brother\" then serrves him another box of it. He immediately took and smashed the box. On this time, it appears to be nothing inside of it.");
+                "The \"brother\" then serrves him another box of it. He immediately took and smashed the box. On this time, it appears to be nothing inside of it."*/);
         }
 
     }

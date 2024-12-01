@@ -53,8 +53,14 @@ namespace CaeliImperium.Elites
         public static ConfigEntry<bool> ArchNemesisEnable;
         public static ConfigEntry<float> ArchNemesisHealthMult;
         public static ConfigEntry<float> ArchNemesisDamageMult;
+        public static ConfigEntry<float> ArchNemesisAttackSpeedMult;
+        public static ConfigEntry<float> ArchNemesisCrit;
+        public static ConfigEntry<float> ArchNemesisArmor;
+        public static ConfigEntry<float> ArchNemesisMoveSpeedMult;
+        public static ConfigEntry<float> ArchNemesisCooldownMult;
         public static ConfigEntry<int> ArchNemesisStageBegin;
         public static ConfigEntry<float> ArchNemesisSpawnChance;
+        public static ConfigEntry<bool> ArchNemesisRemove;
         public static ConfigEntry<bool> ArchNemesisAIBlacklistItems;
         public static ConfigEntry<bool> ArchNemesisChampions;
         public static ConfigEntry<bool> ArchNemesisMithrix;
@@ -64,6 +70,7 @@ namespace CaeliImperium.Elites
         public static ConfigEntry<bool> ArchNemesisLunarScavengers;
         public static ConfigEntry<float> ArchNemesisDropChance;
         public static ConfigEntry<float> ArchNemesisDropChancePlayer;
+        public static string[] forbiddenStages = { "arena,moon2,voidstage,voidraid,artifactworld,artifactworld01,artifactworld02,artifactworld03,bazaar,golshores,limbo,mysteryspace" };
         private static NetworkSoundEventDef ArchNemesisAppearSound;
 
         // RoR2/Base/Common/ColorRamps/texRampWarbanner.png 
@@ -108,6 +115,26 @@ namespace CaeliImperium.Elites
                                          "Damage Multiplier",
                                          10f,
                                          "Control the damage multiplier of Arch Nemesis elite");
+            ArchNemesisAttackSpeedMult = Config.Bind<float>("Elite : Arch Nemesis",
+                                         "Attack Speed Multiplier",
+                                         2f,
+                                         "Control the attack speed multiplier of Arch Nemesis elite");
+            ArchNemesisCrit = Config.Bind<float>("Elite : Arch Nemesis",
+                                         "Crit",
+                                         25f,
+                                         "Control the crit addition of Arch Nemesis elite");
+            ArchNemesisArmor = Config.Bind<float>("Elite : Arch Nemesis",
+                                         "Armor",
+                                         300f,
+                                         "Control the armor of Arch Nemesis elite");
+            ArchNemesisMoveSpeedMult = Config.Bind<float>("Elite : Arch Nemesis",
+                                         "Move speed multiplier",
+                                         1.5f,
+                                         "Control the mult speed multiplier of Arch Nemesis elite");
+            ArchNemesisCooldownMult = Config.Bind<float>("Elite : Arch Nemesis",
+                                         "Cooldown reduction multiplier",
+                                         1.25f,
+                                         "Control the cooldown reduction multiplier of Arch Nemesis elite");
             ArchNemesisDropChance = Config.Bind<float>("Elite : Arch Nemesis",
                                          "Item drop chance",
                                          2f,
@@ -124,6 +151,10 @@ namespace CaeliImperium.Elites
                                          "Stage",
                                          2,
                                          "Control from which stage monsters can become an Arch Nemesis");
+            ArchNemesisRemove = Config.Bind<bool>("Elite : Arch Nemesis",
+                                         "Remove on kill",
+                                         true,
+                                         "Prevent Arch Nemesis from spawning once killed?");
             ArchNemesisAIBlacklistItems = Config.Bind<bool>("Elite : Arch Nemesis",
                                          "AI Blacklisted items",
                                          false,
@@ -155,10 +186,16 @@ namespace CaeliImperium.Elites
             ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisHealthMult));
             ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisDamageMult));
+            ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisAttackSpeedMult));
+            ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisCrit));
+            ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisArmor));
+            ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisMoveSpeedMult));
+            ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisCooldownMult));
             ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisDropChance));
             ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisDropChancePlayer));
             ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisSpawnChance));
             ModSettingsManager.AddOption(new IntFieldOption(ArchNemesisStageBegin));
+            ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisRemove));
             ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisAIBlacklistItems));
             ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisChampions));
             ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisMithrix));
@@ -251,7 +288,7 @@ namespace CaeliImperium.Elites
                 //archNemesisInventory = null;
                 //ArchNemesisDead = true;
                 //File.Delete(System.IO.Path.Combine(SavesDirectory, "IsDefeated.txt"));
-                if (File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "IsDefeated.txt")) == "False")
+                if (File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "IsDefeated.txt")) == "False" && ArchNemesisRemove.Value)
                 {
                     File.WriteAllText(System.IO.Path.Combine(SavesDirectory, "IsDefeated.txt"), "True");
                 }
@@ -282,7 +319,7 @@ namespace CaeliImperium.Elites
             {
                 int ArchNemesisStageCount = int.Parse(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Stage.txt")));
                 string isDefeated = File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "IsDefeated.txt"));
-                if (stage.sceneDef.stageOrder >= ArchNemesisStageCount && isDefeated == "False")
+                if (stage.sceneDef.stageOrder >= ArchNemesisStageCount && !forbiddenStages.Contains(stage.sceneDef.cachedName)  && isDefeated == "False")
                 {
 
                 TeamIndex ArchNemesisTeam = (TeamIndex)int.Parse(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Team.txt")));
@@ -376,11 +413,11 @@ namespace CaeliImperium.Elites
             if (sender.HasBuff(AffixArchNemesisBuff))
             {
                 //args.damageMultAdd = 1f;
-                args.attackSpeedMultAdd += 1f;
-                args.critAdd += 25f;
-                args.armorAdd += 100f;
-                args.moveSpeedMultAdd += 0.5f;
-                args.cooldownMultAdd += -0.25f;
+                args.attackSpeedMultAdd += ArchNemesisAttackSpeedMult.Value - 1;
+                args.critAdd += ArchNemesisCrit.Value;
+                args.armorAdd += ArchNemesisArmor.Value;
+                args.moveSpeedMultAdd += ArchNemesisMoveSpeedMult.Value - 1;
+                args.cooldownMultAdd += -(ArchNemesisCooldownMult.Value - 1);
 
             }
 

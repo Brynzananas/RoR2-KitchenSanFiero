@@ -44,6 +44,7 @@ namespace CaeliImperium.Elites
         public static ConfigEntry<float> BrassModalityHealthMult;
         public static ConfigEntry<float> BrassModalityDamageMult;
         public static ConfigEntry<float> BrassModalityTier;
+        public static ConfigEntry<bool> BrassModalityHonor;
         public static ConfigEntry<float> BrassModalityCostMult;
         public static ConfigEntry<int> BrassModalityLoopCount;
         public static ConfigEntry<int> BrassModalityStageCount;
@@ -74,13 +75,13 @@ namespace CaeliImperium.Elites
             SetupEquipment();
             SetupElite();
             AddContent();
-            CreateEliteTier();
+            //CreateEliteTier();
 
             EliteRamp.AddRamp(AffixBrassModalityElite, eliteRamp);
             ContentAddition.AddEquipmentDef(AffixBrassModalityEquipment);
             On.RoR2.CharacterBody.OnBuffFirstStackGained += CharacterBody_OnBuffFirstStackGained;
             On.RoR2.CharacterBody.OnBuffFinalStackLost += CharacterBody_OnBuffFinalStackLost;
-            //On.RoR2.CombatDirector.Init += CombatDirector_Init;
+            On.RoR2.CombatDirector.Init += CombatDirector_Init;
             On.RoR2.GlobalEventManager.OnHitEnemy += WoundThem;
             GetStatCoefficients += Stats;
         }
@@ -98,18 +99,22 @@ namespace CaeliImperium.Elites
                                          "Tier",
                                          2f,
                                          "Control the tier of Brass Modality elite\n1: Default\n2: Appear from stage 2\n3: Appear from first loop");
+            BrassModalityHonor = Config.Bind<bool>("Elite : Brass Modality",
+                                         "Honor",
+                                         false,
+                                         "Enable Honor variant?");
             BrassModalityCostMult = Config.Bind<float>("Elite : Brass Modality",
                              "Cost Multiplier",
                              1.2f,
-                             "Control the cost multiplier of this elite");
+                             "Control the cost multiplier of this elite\nWIP: Does not work");
             BrassModalityLoopCount = Config.Bind<int>("Elite : Brass Modality",
                                          "Loop count",
                                          0,
-                                         "Control from which loop this elite appears");
+                                         "Control from which loop this elite appears\nWIP: Does not work");
             BrassModalityStageCount = Config.Bind<int>("Elite : Brass Modality",
                                          "Stage count",
                                          2,
-                                         "Control from which stage this elite appears"); ;
+                                         "Control from which stage this elite appears\nWIP: Does not work"); ;
             BrassModalityDamageMultAddition = Config.Bind<float>("Elite : Brass Modality",
                                          "Additional damage multiplier",
                                          3f,
@@ -144,7 +149,7 @@ namespace CaeliImperium.Elites
                                          "Enable: Applies flat amount of Wound on hit\nDisable: Applies scaled from damage amount of Wound on Hit");
             BrassModalityDoWoundTime = Config.Bind<bool>("Elite : Brass Modality",
                                          "Wound time function",
-                                         true,
+                                         false,
                                          "Enable: Wound lasts flat amount of time\nDisable: Wound lasts based on damage");
             BrassModalityFlatWoundTime = Config.Bind<float>("Elite : Brass Modality",
                                          "Flat Wound time",
@@ -156,7 +161,7 @@ namespace CaeliImperium.Elites
                                          "Control the multiplier upon converting damage to Wound time");
             BrassModalityFlatWoundAmount = Config.Bind<int>("Elite : Brass Modality",
                                          "Flat Wound amount",
-                                         10,
+                                         2,
                                          "Control the amount of Wound per hit");
             BrassModalityDamageWoundAmount = Config.Bind<float>("Elite : Brass Modality",
                                          "Damage to Wound amount",
@@ -170,6 +175,7 @@ namespace CaeliImperium.Elites
             ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityHealthMult));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityDamageMult));
             ModSettingsManager.AddOption(new StepSliderOption(BrassModalityTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(BrassModalityHonor, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityCostMult, new FloatFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new IntFieldOption(BrassModalityLoopCount, new IntFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new IntFieldOption(BrassModalityStageCount, new IntFieldConfig() { restartRequired = true }));
@@ -270,21 +276,44 @@ namespace CaeliImperium.Elites
             //if (EliteAPI.VanillaEliteTiers.Length > 2)
             //{
             //    // HONOR
-            //    CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[2];
-            //    List<EliteDef> elites = targetTier.eliteTypes.ToList();
-            //    AffixModalityElite.healthBoostCoefficient = BrassModalityHealthMult.Value / 1.6f;
-            //    AffixModalityElite.damageBoostCoefficient = BrassModalityDamageMult.Value / 1.3f;
-            //    elites.Add(AffixModalityElite);
-            //    targetTier.eliteTypes = elites.ToArray();
+            if (BrassModalityHonor.Value)
+            {
+                CombatDirector.EliteTierDef targetTier2 = EliteAPI.VanillaEliteTiers[2];
+                List<EliteDef> elites2 = targetTier2.eliteTypes.ToList();
+                AffixBrassModalityElite.healthBoostCoefficient = BrassModalityHealthMult.Value / 1.6f;
+                AffixBrassModalityElite.damageBoostCoefficient = BrassModalityDamageMult.Value / 1.3f;
+                elites2.Add(AffixBrassModalityElite);
+                targetTier2.eliteTypes = elites2.ToArray();
+            }
+                
             //}
             //if (EliteAPI.VanillaEliteTiers.Length > 1)
             //{
-            CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[1];
+            //var eliteTier = new CombatDirector.EliteTierDef()
+            //{
+            //    costMultiplier = CombatDirector.baseEliteCostMultiplier * BrassModality.BrassModalityCostMult.Value,
+            //    eliteTypes = new EliteDef[] { AffixBrassModalityElite },
+            //    canSelectWithoutAvailableEliteDef = false,
+            //    isAvailable = (SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= BrassModality.BrassModalityLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= BrassModality.BrassModalityStageCount.Value,
+            //};
+            //var targetTiers = CombatDirector.eliteTiers;
+            //targetTiers.ToList().Add(eliteTier);
+            //targetTiers.ToArray();
+            //CombatDirector.eliteTiers = targetTiers;
+            int index = 1;
+            switch (BrassModalityTier.Value)
+            {
+                case 1: index = 1; break;
+                case 2: index = 3; break;
+                case 3: index = 4; break;
+
+            }
+            CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[index];
             List<EliteDef> elites = targetTier.eliteTypes.ToList();
 
             AffixBrassModalityElite.healthBoostCoefficient = BrassModalityHealthMult.Value;
             AffixBrassModalityElite.damageBoostCoefficient = BrassModalityDamageMult.Value;
-            //elites.Add(AffixBrassModalityElite);
+            elites.Add(AffixBrassModalityElite);
             targetTier.eliteTypes = elites.ToArray();
             //}
         }

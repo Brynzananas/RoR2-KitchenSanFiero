@@ -129,6 +129,7 @@ namespace CaeliImperium.Equipment
             NecronomiconEquipDef.appearsInMultiPlayer = true;
             NecronomiconEquipDef.appearsInSinglePlayer = true;
             NecronomiconEquipDef.cooldown = NecronomiconCooldown.Value;
+            NecronomiconEquipDef.requiredExpansion = CaeliImperiumExpansionDef;
             NecronomiconEquipDef.canDrop = true;
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
             rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]{
@@ -218,7 +219,7 @@ localPos = new Vector3(0.11285F, 0.13791F, -0.01707F),
 localAngles = new Vector3(353.9679F, 4.27201F, 167.4407F),
 localScale = new Vector3(0.29592F, 0.29592F, 0.29592F)
                 }
-            });
+            });/*
             rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -328,7 +329,7 @@ localScale = new Vector3(0.29592F, 0.29592F, 0.29592F)
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(1f, 1f, 1f)
                 }
-            });
+            });*/
             var displayRules = new ItemDisplayRuleDict(null);
             ItemAPI.Add(new CustomEquipment(NecronomiconEquipDef, displayRules));
             On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformAction;

@@ -73,7 +73,7 @@ namespace CaeliImperium.Items
                              "Blacklist this item from enemies?");
             MajesticHandTier = Config.Bind<float>("Item : " + name,
                                          "Item tier",
-                                         3f,
+                                         2f,
                                          "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
             MajesticHandChance = Config.Bind<float>("Item : " + name,
                                          "Death chance",
@@ -89,7 +89,7 @@ namespace CaeliImperium.Items
                              "Control how much damage increases based on the targets remaining health percentage in percentage\nSet to 0 to disable this effect");
             MajesticHandDoDamageStack = Config.Bind<float>("Item : " + name,
                              "Damage increase stack",
-                             24f,
+                             12f,
                              "Control how much damage increases based on the targets remaining health percentage per item stack in percentage");
             //MajesticHandFunction = Config.Bind<bool>("Item : " + name,
             //                             "Alternative Killswitch function",

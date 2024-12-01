@@ -73,7 +73,7 @@ namespace CaeliImperium.Artifact
                                          "Control the zone radius multiplier");
             BattleTime = Config.Bind<float>("Artifact : Battle",
                                          "Teleport time",
-                                         240f,
+                                         360f,
                                          "Control the teleport time in seconds");
             BattleDrizzleDifficulty = Config.Bind<float>("Artifact : Battle",
                                          "Credits multiplier on Drizzle and lower",

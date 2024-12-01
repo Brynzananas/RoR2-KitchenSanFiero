@@ -49,6 +49,8 @@ namespace CaeliImperium.Elites
         //public static int buffCOunt = 0;
         public static ConfigEntry<float> DredgedHealthMult;
         public static ConfigEntry<float> DredgedDamageMult;
+        public static ConfigEntry<float> DredgedTier;
+        public static ConfigEntry<bool> DredgedHonor;
         public static ConfigEntry<float> DredgedCostMult;
         public static ConfigEntry<int> DredgedLoopCount;
         public static ConfigEntry<int> DredgedStageCount;
@@ -77,7 +79,7 @@ namespace CaeliImperium.Elites
             SetupEquipment();
             SetupElite();
             AddContent();
-            CreateEliteTier();
+            //CreateEliteTier();
 
             //ColdHeart.Init();
             DeathCountBuff.Init();
@@ -85,7 +87,7 @@ namespace CaeliImperium.Elites
             ContentAddition.AddEquipmentDef(AffixDredgedEquipment);
             On.RoR2.CharacterBody.OnBuffFirstStackGained += CharacterBody_OnBuffFirstStackGained;
             On.RoR2.CharacterBody.OnBuffFinalStackLost += CharacterBody_OnBuffFinalStackLost;
-            //On.RoR2.CombatDirector.Init += CombatDirector_Init;
+            On.RoR2.CombatDirector.Init += CombatDirector_Init;
             On.RoR2.CharacterBody.OnDeathStart += OnDeath;
             On.RoR2.CharacterBody.OnInventoryChanged += GainDio;
             //On.RoR2.CharacterBody.Start += OnRespawn;
@@ -114,18 +116,26 @@ namespace CaeliImperium.Elites
                                          "Damage Multiplier",
                                          3f,
                                          "Control the damage multiplier of Dredged elite");
+            DredgedTier = Config.Bind<float>("Elite : Dredged",
+                 "Tier",
+                 2f,
+                 "Control the tier of Dredged elite\n1: Default\n2: Appear from stage 2\n3: Appear from first loop");
+            DredgedHonor = Config.Bind<bool>("Elite : Dredged",
+                             "Honor",
+                             true,
+                             "Enable Honor variant?");
             DredgedCostMult = Config.Bind<float>("Elite : Dredged",
                              "Cost Multiplier",
-                             6f,
-                             "Control the cost multiplier of this elite");
+                             1.2f,
+                             "Control the cost multiplier of this elite\nWIP: Does not work");
             DredgedLoopCount = Config.Bind<int>("Elite : Dredged",
                                          "Loop count",
                                          1,
-                                         "Control from which loop this elite appears");
+                                         "Control from which loop this elite appears\nWIP: Does not work");
             DredgedStageCount = Config.Bind<int>("Elite : Dredged",
                                          "Stage count",
                                          0,
-                                         "Control from which stage this elite appears");
+                                         "Control from which stage this elite appears\nWIP: Does not work");
             DredgedDamageReviveCount = Config.Bind<int>("Elite : Dredged",
                                          "Maximum revive count",
                                          2,
@@ -165,6 +175,8 @@ namespace CaeliImperium.Elites
             ModSettingsManager.AddOption(new CheckBoxOption(DredgedEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(DredgedHealthMult));
             ModSettingsManager.AddOption(new FloatFieldOption(DredgedDamageMult));
+            ModSettingsManager.AddOption(new StepSliderOption(DredgedTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(DredgedHonor, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(DredgedCostMult, new FloatFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new IntFieldOption(DredgedLoopCount, new IntFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new IntFieldOption(DredgedStageCount, new IntFieldConfig() { restartRequired = true }));
@@ -384,13 +396,7 @@ namespace CaeliImperium.Elites
         }
         private static void CreateEliteTier()
         {
-            AffixDredgedTier = new CombatDirector.EliteTierDef()
-            {
-                costMultiplier = CombatDirector.baseEliteCostMultiplier * Dredged.DredgedCostMult.Value,
-                eliteTypes = new EliteDef[]{AffixDredgedElite},
-                canSelectWithoutAvailableEliteDef = false,
-                isAvailable = ((SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= Dredged.DredgedLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= Dredged.DredgedStageCount.Value),
-            };
+            
             var baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
             var indexToInsertAt = Array.FindIndex(baseEliteTierDefs, x => x.costMultiplier >= AffixDredgedTier.costMultiplier);
             EliteAPI.AddCustomEliteTier(AffixDredgedTier);
@@ -402,23 +408,46 @@ namespace CaeliImperium.Elites
             //if (EliteAPI.VanillaEliteTiers.Length > 2)
             //{
             //    // HONOR
-            //    CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[2];
-            //    List<EliteDef> elites = targetTier.eliteTypes.ToList();
-            //    AffixDredgedElite.healthBoostCoefficient = DredgedHealthMult.Value / 1.6f;
-            //    AffixDredgedElite.damageBoostCoefficient = DredgedDamageMult.Value / 1.3f;
-            //    elites.Add(AffixDredgedElite);
-            //    targetTier.eliteTypes = elites.ToArray();
+            if (DredgedHonor.Value)
+            {
+                CombatDirector.EliteTierDef targetTier2 = EliteAPI.VanillaEliteTiers[2];
+                List<EliteDef> elites2 = targetTier2.eliteTypes.ToList();
+                AffixDredgedElite.healthBoostCoefficient = DredgedHealthMult.Value / 1.6f;
+                AffixDredgedElite.damageBoostCoefficient = DredgedDamageMult.Value / 1.3f;
+                elites2.Add(AffixDredgedElite);
+                targetTier2.eliteTypes = elites2.ToArray();
+            }
+            
             //}
             //if (EliteAPI.VanillaEliteTiers.Length > 1)
             //{
-            Array.Resize(ref CombatDirector.eliteTiers, CombatDirector.eliteTiers.Length + 1);
-            CombatDirector.eliteTiers[CombatDirector.eliteTiers.Length - 1] = AffixDredgedTier;
-            //CombatDirector.EliteTierDef targetTier = AffixDredgedTier;
-            //List<EliteDef> elites = targetTier.eliteTypes.ToList();
-            //AffixDredgedElite.healthBoostCoefficient = DredgedHealthMult.Value;
-            //AffixDredgedElite.damageBoostCoefficient = DredgedDamageMult.Value;
-            ////elites.Add(AffixDredgedElite);
-            //targetTier.eliteTypes = elites.ToArray();
+            //var eliteTier = new CombatDirector.EliteTierDef()
+            //{
+            //    costMultiplier = CombatDirector.baseEliteCostMultiplier * Dredged.DredgedCostMult.Value,
+            //    eliteTypes = new EliteDef[] { AffixDredgedElite },
+            //    canSelectWithoutAvailableEliteDef = false,
+            //    isAvailable = ((SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= Dredged.DredgedLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= Dredged.DredgedStageCount.Value),
+            //};
+            //var targetTiers = CombatDirector.eliteTiers;
+            //targetTiers.ToList().Add(eliteTier);
+            //targetTiers.ToArray();
+            //CombatDirector.eliteTiers = targetTiers;
+            //Array.Resize(ref CombatDirector.eliteTiers, CombatDirector.eliteTiers.Length + 1);
+            //CombatDirector.eliteTiers[CombatDirector.eliteTiers.Length - 1] = AffixDredgedTier;
+            int index = 1;
+            switch (DredgedTier.Value)
+            {
+                case 1: index = 1; break;
+                case 2: index = 3; break;
+                case 3: index = 4; break;
+
+            }
+            CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[index];
+            List<EliteDef> elites = targetTier.eliteTypes.ToList();
+            AffixDredgedElite.healthBoostCoefficient = DredgedHealthMult.Value;
+            AffixDredgedElite.damageBoostCoefficient = DredgedDamageMult.Value;
+            elites.Add(AffixDredgedElite);
+            targetTier.eliteTypes = elites.ToArray();
             //}
         }
 

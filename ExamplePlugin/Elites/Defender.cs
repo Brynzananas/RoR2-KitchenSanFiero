@@ -43,6 +43,7 @@ namespace CaeliImperium.Elites
         public static ConfigEntry<float> DefenderHealthMult;
         public static ConfigEntry<float> DefenderDamageMult;
         public static ConfigEntry<float> DefenderTier;
+        public static ConfigEntry<bool> DefenderHonor;
         public static ConfigEntry<float> DefenderCostMult;
         public static ConfigEntry<int> DefenderLoopCount;
         public static ConfigEntry<int> DefenderStageCount;
@@ -67,13 +68,13 @@ namespace CaeliImperium.Elites
             SetupEquipment();
             SetupElite();
             AddContent();
-            CreateEliteTiers();
+            //CreateEliteTiers();
 
             EliteRamp.AddRamp(AffixDefenderElite, eliteRamp);
             ContentAddition.AddEquipmentDef(AffixDefenderEquipment);
             On.RoR2.CharacterBody.OnBuffFirstStackGained += CharacterBody_OnBuffFirstStackGained;
             On.RoR2.CharacterBody.OnBuffFinalStackLost += CharacterBody_OnBuffFinalStackLost;
-            //On.RoR2.CombatDirector.Init += CombatDirector_Init;
+            On.RoR2.CombatDirector.Init += CombatDirector_Init;
             On.RoR2.CharacterBody.OnSkillActivated += OnEnemySkillUse;
             On.RoR2.HealthComponent.TakeDamageProcess += AbsorbDamage;
             GetStatCoefficients += Stats;
@@ -93,20 +94,24 @@ namespace CaeliImperium.Elites
                                          "Control the damage multiplier of this elite");
             DefenderTier = Config.Bind<float>("Elite : " + name,
                              "Tier",
-                             2f,
+                             3f,
                              "Control the tier of Defender elite\n1: Default\n2: Appear from stage 2\n3: Appear from first loop");
+            DefenderHonor = Config.Bind<bool>("Elite : " + name,
+                             "Honor",
+                             false,
+                             "Enable Honor variant?");
             DefenderCostMult = Config.Bind<float>("Elite : " + name,
                                          "Cost Multiplier",
                                          6f,
-                                         "Control the cost multiplier of this elite");
+                                         "Control the cost multiplier of this elite\nWIP: Does not work");
             DefenderLoopCount = Config.Bind<int>("Elite : " + name,
                                          "Loop count",
                                          1,
-                                         "Control from which loop this elite appears");
+                                         "Control from which loop this elite appears\nWIP: Does not work");
             DefenderStageCount = Config.Bind<int>("Elite : " + name,
                                          "Stage count",
                                          4,
-                                         "Control from which stage this elite appears");
+                                         "Control from which stage this elite appears\nWIP: Does not work");
             DefenderArmor = Config.Bind<float>("Elite : " + name,
                                          "Armor",
                                          500f,
@@ -135,6 +140,7 @@ namespace CaeliImperium.Elites
             ModSettingsManager.AddOption(new CheckBoxOption(DefenderEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderHealthMult, new FloatFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderDamageMult, new FloatFieldConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(DefenderHonor, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(DefenderTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderCostMult, new FloatFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new IntFieldOption(DefenderLoopCount, new IntFieldConfig() { restartRequired = true }));
@@ -166,27 +172,51 @@ namespace CaeliImperium.Elites
 
 
             orig();
-            /*if (EliteAPI.VanillaEliteTiers.Length > 2)
-            {
+            //if (EliteAPI.VanillaEliteTiers.Length > 2)
+            //{
                 // HONOR
-                CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[2];
-                List<EliteDef> elites = targetTier.eliteTypes.ToList();
+                if (DefenderHonor.Value)
+            {
+                CombatDirector.EliteTierDef targetTier2 = EliteAPI.VanillaEliteTiers[2];
+                List<EliteDef> elites2 = targetTier2.eliteTypes.ToList();
                 AffixDefenderElite.healthBoostCoefficient = DefenderHealthMult.Value / 1.6f;
                 AffixDefenderElite.damageBoostCoefficient = DefenderDamageMult.Value / 1.3f;
                 //targetTier.costMultiplier *= 6;
-                elites.Add(AffixDefenderElite);
-                targetTier.eliteTypes = elites.ToArray();
-            }*/
+                elites2.Add(AffixDefenderElite);
+                targetTier2.eliteTypes = elites2.ToArray();
+            }
+                
+            //}
             //if (EliteAPI.VanillaEliteTiers.Length > 1)
             //{
-            Array.Resize(ref CombatDirector.eliteTiers, CombatDirector.eliteTiers.Length + 1);
-            CombatDirector.eliteTiers[CombatDirector.eliteTiers.Length - 1] = AffixDefenderTier;
-            //CombatDirector.EliteTierDef targetTier = AffixDefenderTier;
-            //List<EliteDef> elites = targetTier.eliteTypes.ToList();
-            //AffixDefenderElite.healthBoostCoefficient = DefenderHealthMult.Value;
-            //AffixDefenderElite.damageBoostCoefficient = DefenderDamageMult.Value;
-            ////elites.Add(AffixDefenderElite);
-            //targetTier.eliteTypes = elites.ToArray();
+            //var eliteTier = new CombatDirector.EliteTierDef()
+            //{
+            //    costMultiplier = CombatDirector.baseEliteCostMultiplier * Defender.DefenderCostMult.Value,
+            //    eliteTypes = new EliteDef[] { AffixDefenderElite },
+            //    canSelectWithoutAvailableEliteDef = false,
+            //    isAvailable = ((SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= Defender.DefenderLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= Defender.DefenderStageCount.Value),
+
+            //};
+            //var targetTiers = CombatDirector.eliteTiers;
+            //targetTiers.ToList().Add(eliteTier);
+            //targetTiers.ToArray();
+            //CombatDirector.eliteTiers = targetTiers;
+            //Array.Resize(ref CombatDirector.eliteTiers, CombatDirector.eliteTiers.Length + 1);
+            //CombatDirector.eliteTiers[CombatDirector.eliteTiers.Length - 1] = AffixDefenderTier;
+            int index = 1;
+            switch (DefenderTier.Value)
+            {
+                case 1: index = 1; break;
+                case 2: index = 3; break;
+                case 3: index = 4; break;
+
+            }
+            CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[index];
+            List<EliteDef> elites = targetTier.eliteTypes.ToList();
+            AffixDefenderElite.healthBoostCoefficient = DefenderHealthMult.Value;
+            AffixDefenderElite.damageBoostCoefficient = DefenderDamageMult.Value;
+            //elites.Add(AffixDefenderElite);
+            targetTier.eliteTypes = elites.ToArray();
             //}
         }
         private static void Stats(CharacterBody sender, StatHookEventArgs args)

@@ -213,17 +213,17 @@ localAngles = new Vector3(5.42078F, 71.9818F, 174.0692F),
 localScale = new Vector3(0.04987F, 0.04987F, 0.04987F)
                 }
             });
-            rules.Add("mdlEngiTurrety", new RoR2.ItemDisplayRule[]{
-                new RoR2.ItemDisplayRule
-                {
-                    ruleType = ItemDisplayRuleType.ParentedPrefab,
-                    followerPrefab = PainkillersPrefab,
-                    childName = "Chest",
-                    localPos = new Vector3(0f, 0f, 0f),
-                    localAngles = new Vector3(0f, 0f, 0f),
-                    localScale = new Vector3(1f, 1f, 1f)
-                }
-            });
+            //rules.Add("mdlEngiTurrety", new RoR2.ItemDisplayRule[]{
+            //    new RoR2.ItemDisplayRule
+            //    {
+            //        ruleType = ItemDisplayRuleType.ParentedPrefab,
+            //        followerPrefab = PainkillersPrefab,
+            //        childName = "Chest",
+            //        localPos = new Vector3(0f, 0f, 0f),
+            //        localAngles = new Vector3(0f, 0f, 0f),
+            //        localScale = new Vector3(1f, 1f, 1f)
+            //    }
+            //});
             rules.Add("mdlMage", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -245,7 +245,7 @@ localPos = new Vector3(0.21222F, 0.08415F, -0.01188F),
 localAngles = new Vector3(348.6433F, 262.1263F, 187.7867F),
 localScale = new Vector3(0.05652F, 0.05652F, 0.05652F)
                 }
-            });
+            });/*
             rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -355,7 +355,7 @@ localScale = new Vector3(0.05652F, 0.05652F, 0.05652F)
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(1f, 1f, 1f)
                 }
-            });
+            });*/
             var displayRules = new ItemDisplayRuleDict(null);
             ItemAPI.Add(new CustomItem(PainkillersItemDef, rules));
             //On.RoR2.CharacterBody.OnInventoryChanged += HealOnPickup;

@@ -238,17 +238,17 @@ localAngles = new Vector3(349.4762F, 0F, 0F),
 localScale = new Vector3(0.0958F, 0.0958F, 0.0958F)
                 }
             });
-            rules.Add("mdlEngiTurrety", new RoR2.ItemDisplayRule[]{
-                new RoR2.ItemDisplayRule
-                {
-                    ruleType = ItemDisplayRuleType.ParentedPrefab,
-                    followerPrefab = EmergencyMedicalTreatmentPrefab,
-                    childName = "Chest",
-                    localPos = new Vector3(0f, 0f, 0f),
-                    localAngles = new Vector3(0f, 0f, 0f),
-                    localScale = new Vector3(1f, 1f, 1f)
-                }
-            });
+            //rules.Add("mdlEngiTurrety", new RoR2.ItemDisplayRule[]{
+            //    new RoR2.ItemDisplayRule
+            //    {
+            //        ruleType = ItemDisplayRuleType.ParentedPrefab,
+            //        followerPrefab = EmergencyMedicalTreatmentPrefab,
+            //        childName = "Chest",
+            //        localPos = new Vector3(0f, 0f, 0f),
+            //        localAngles = new Vector3(0f, 0f, 0f),
+            //        localScale = new Vector3(1f, 1f, 1f)
+            //    }
+            //});
             rules.Add("mdlMage", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -270,7 +270,7 @@ localPos = new Vector3(-0.20172F, 0.15582F, -0.14041F),
 localAngles = new Vector3(7.86398F, 30.33241F, 339.6068F),
 localScale = new Vector3(0.05425F, 0.05425F, 0.05425F)
                 }
-            });
+            });/*
             rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -380,7 +380,7 @@ localScale = new Vector3(0.05425F, 0.05425F, 0.05425F)
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(1f, 1f, 1f)
                 }
-            });
+            });*/
             var displayRules = new ItemDisplayRuleDict(null);
             ItemAPI.Add(new CustomItem(EmergencyMedicalTreatmentItemDef, displayRules));
             On.RoR2.CharacterBody.OnInventoryChanged += GainBuff;
@@ -421,7 +421,7 @@ localScale = new Vector3(0.05425F, 0.05425F, 0.05425F)
                     self.body.AddTimedBuff(RoR2Content.Buffs.Immune, EmergencyMedicalTreatmentInvicibilityBase.Value + (itemCount - 1) * EmergencyMedicalTreatmentInvicibilityPerStack.Value);// itemCount * EmergencyMedicalTreatmentInvicibilityPerStack.Value);
                     Util.CleanseBody(self.body, true, false, false, true, true, true);
                     self.barrier += EmergencyMedicalTreatmentBarrierBase.Value + ((itemCount - 1) * EmergencyMedicalTreatmentBarrierPerStack.Value);
-                    self.HealFraction(0.75f, default(ProcChainMask));
+                    self.HealFraction(1 - self.combinedHealthFraction, default(ProcChainMask));
                     self.RechargeShieldFull();
                     damageInfo.rejected = true;
                     EffectData effectData = new EffectData
@@ -550,8 +550,8 @@ localScale = new Vector3(0.05425F, 0.05425F, 0.05425F)
                 stackType = " <style=cStack>(-" + EmergencyMedicalTreatmentPercentageCooldownReduction.Value + "% per item stack)</style>";
             }
             LanguageAPI.Add("EMERGENCYMEDICALTREATMENT_NAME", "Emergency Medical Treatment");
-            LanguageAPI.Add("EMERGENCYMEDICALTREATMENT_PICKUP", "Taking damage to bellow <style=cIsHealth>" + EmergencyMedicalTreatmentHealth.Value + "% health</style>, <style=cIsHealing>fully heal</style>. Recharges in " + EmergencyMedicalTreatmentStartCooldown.Value + stackType + " seconds");
-            LanguageAPI.Add("EMERGENCYMEDICALTREATMENT_DESC", "Taking damage to bellow <style=cIsHealth>" + EmergencyMedicalTreatmentHealth.Value + "% health</style>, <style=cIsHealing>fully heal</style>. Recharges in " + EmergencyMedicalTreatmentStartCooldown.Value + stackType + " seconds");
+            LanguageAPI.Add("EMERGENCYMEDICALTREATMENT_PICKUP", "Taking damage to bellow <style=cIsHealth>" + EmergencyMedicalTreatmentHealth.Value + "% health</style>, <style=cIsHealing>fully heal</style>. Recharges in " + EmergencyMedicalTreatmentStartCooldown.Value + stackType + " seconds. Increase <style=cIsHealing>regen</style> by <style=cIsHealing>" + EmergencyMedicalTreatmentRegen.Value + "%</style> <style=cStack>(+" + EmergencyMedicalTreatmentRegenStack.Value + "% per item stack)</style> of the <style=cIsHealing>maximum health</style>");
+            LanguageAPI.Add("EMERGENCYMEDICALTREATMENT_DESC", "Taking damage to bellow <style=cIsHealth>" + EmergencyMedicalTreatmentHealth.Value + "% health</style>, <style=cIsHealing>fully heal</style>. Recharges in " + EmergencyMedicalTreatmentStartCooldown.Value + stackType + " seconds. Increase <style=cIsHealing>regen</style> by <style=cIsHealing>" + EmergencyMedicalTreatmentRegen.Value + "%</style> <style=cStack>(+" + EmergencyMedicalTreatmentRegenStack.Value + "% per item stack)</style> of the <style=cIsHealing>maximum health</style>");
             LanguageAPI.Add("EMERGENCYMEDICALTREATMENT_LORE", "");
         }
 

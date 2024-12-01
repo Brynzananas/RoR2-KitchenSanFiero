@@ -215,17 +215,17 @@ localAngles = new Vector3(29.92985F, 180F, 180F),
 localScale = new Vector3(0.16227F, 0.16227F, 0.16227F)
                 }
             });
-            rules.Add("mdlEngiTurrety", new RoR2.ItemDisplayRule[]{
-                new RoR2.ItemDisplayRule
-                {
-                    ruleType = ItemDisplayRuleType.ParentedPrefab,
-                    followerPrefab = GuardianCrownPrefab,
-                    childName = "Chest",
-                    localPos = new Vector3(0f, 0f, 0f),
-                    localAngles = new Vector3(0f, 0f, 0f),
-                    localScale = new Vector3(1f, 1f, 1f)
-                }
-            });
+            //rules.Add("mdlEngiTurrety", new RoR2.ItemDisplayRule[]{
+            //    new RoR2.ItemDisplayRule
+            //    {
+            //        ruleType = ItemDisplayRuleType.ParentedPrefab,
+            //        followerPrefab = GuardianCrownPrefab,
+            //        childName = "Chest",
+            //        localPos = new Vector3(0f, 0f, 0f),
+            //        localAngles = new Vector3(0f, 0f, 0f),
+            //        localScale = new Vector3(1f, 1f, 1f)
+            //    }
+            //});
             rules.Add("mdlMage", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -247,7 +247,7 @@ localPos = new Vector3(0F, 0.33108F, -0.00001F),
 localAngles = new Vector3(0F, 180F, 0F),
 localScale = new Vector3(0.23871F, 0.23871F, 0.23871F)
                 }
-            });
+            });/*
             rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -357,7 +357,7 @@ localScale = new Vector3(0.23871F, 0.23871F, 0.23871F)
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(1f, 1f, 1f)
                 }
-            });
+            });*/
             var displayRules = new ItemDisplayRuleDict(null);
             ItemAPI.Add(new CustomItem(GuardianCrownItemDef, rules));
             On.RoR2.CharacterBody.OnSkillActivated += OnEnemySkillUse;
@@ -521,8 +521,8 @@ bool roll = false;
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_NAME", name);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "On enemy attack, stun them with " + GuardianCrownChance.Value + "%<style=cStack>(+ " + GuardianCrownChance.Value + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value +"%</style>.");
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "On enemy attack, stun them with " + GuardianCrownChance.Value + "%<style=cStack>(+ " + GuardianCrownChance.Value + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value + "%</style>.");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "On enemy attack, stun them with " + GuardianCrownChance.Value + "% <style=cStack>(+ " + GuardianCrownChance.Value + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value +"%</style>.");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "On enemy attack, stun them with " + GuardianCrownChance.Value + "% <style=cStack>(+ " + GuardianCrownChance.Value + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value + "%</style>.");
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_LORE", "To protect, to support, to relief, this crown will help. Let it be your honor to protect the weak. Let it be your duty to protect this world");
         }
 

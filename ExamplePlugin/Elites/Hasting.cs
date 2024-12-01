@@ -15,6 +15,7 @@ using RiskOfOptions;
 using BepInEx.Configuration;
 using RiskOfOptions.OptionConfigs;
 using static RoR2.CombatDirector;
+using R2API.Utils;
 
 namespace CaeliImperium.Elites
 {
@@ -36,6 +37,8 @@ namespace CaeliImperium.Elites
         // RoR2/Base/Common/ColorRamps/texRampWarbanner.png 
         public static ConfigEntry<float> HastingHealthMult;
         public static ConfigEntry<float> HastingDamageMult;
+        public static ConfigEntry<float> HastingTier;
+        public static ConfigEntry<bool> HastingHonor;
         public static ConfigEntry<float> HastingCostMult;
         public static ConfigEntry<int> HastingLoopCount;
         public static ConfigEntry<int> HastingStageCount;
@@ -59,13 +62,13 @@ namespace CaeliImperium.Elites
             this.SetupEquipment();
             this.SetupElite();
             this.AddContent();
-            this.CreateEliteTier();
+            //this.CreateEliteTier();
 
             EliteRamp.AddRamp(AffixHastingElite, eliteRamp);
             ContentAddition.AddEquipmentDef(AffixHastingEquipment);
             On.RoR2.CharacterBody.OnBuffFirstStackGained += CharacterBody_OnBuffFirstStackGained;
             On.RoR2.CharacterBody.OnBuffFinalStackLost += CharacterBody_OnBuffFinalStackLost;
-            //On.RoR2.CombatDirector.Init += CombatDirector_Init;
+            On.RoR2.CombatDirector.Init += CombatDirector_Init;
             //On.RoR2.CharacterBody.FixedUpdate += LessHPMoreSpeed;
             //On.RoR2.CharacterBody.OnTakeDamageServer += OnDamageTake;
             GetStatCoefficients += Stats;
@@ -79,19 +82,27 @@ namespace CaeliImperium.Elites
             HastingDamageMult = Config.Bind<float>("Elite : Hasting",
                                          "Damage Multiplier",
                                          2f,
-                                         "Control the damage multiplier of Dredged elite");
+                                         "Control the damage multiplier of Hasting elite");
+            HastingTier = Config.Bind<float>("Elite : Hasting",
+                 "Tier",
+                 1f,
+                 "Control the tier of Hasting elite\n1: Default\n2: Appear from stage 2\n3: Appear from first loop");
+            HastingHonor = Config.Bind<bool>("Elite : Hasting",
+                             "Honor",
+                             true,
+                             "Enable Honor variant?");
             HastingCostMult = Config.Bind<float>("Elite : Hasting",
                              "Cost Multiplier",
                              1f,
-                             "Control the cost multiplier of this elite");
+                             "Control the cost multiplier of this elite\nWIP: Does not work");
             HastingLoopCount = Config.Bind<int>("Elite : Hasting",
                                          "Loop count",
                                          0,
-                                         "Control from which loop this elite appears");
+                                         "Control from which loop this elite appears\nWIP: Does not work");
             HastingStageCount = Config.Bind<int>("Elite : Hasting",
                                          "Stage count",
                                          1,
-                                         "Control from which stage this elite appears");
+                                         "Control from which stage this elite appears\nWIP: Does not work");
             HastingSpeedMult = Config.Bind<float>("Elite : Hasting",
                                          "Base Speed Multiplier",
                                          2f,
@@ -99,11 +110,11 @@ namespace CaeliImperium.Elites
             HastingAttackSpeedMult = Config.Bind<float>("Elite : Hasting",
                                          "Base Attack Speed Multiplier",
                                          2f,
-                                         "Control the base attack speed multiplier of Dredged elite");
+                                         "Control the base attack speed multiplier of Hasting elite");
             HastingCooldownReductionMult = Config.Bind<float>("Elite : Hasting",
-                                         "Base Cooldown Reduction Multiplier",
+                                         "Base Skill Cooldown Reduction Multiplier",
                                          0.5f,
-                                         "Control the cooldown multiplier of Dredged elite\nPS: Don't touch this if you don't know how it works");
+                                         "Control the skill cooldown multiplier of Hasting elite");
             HastingSpeedMultAddition = Config.Bind<float>("Elite : Hasting",
                                          "Extra Speed Multiplier",
                                          1f,
@@ -119,6 +130,8 @@ namespace CaeliImperium.Elites
             ModSettingsManager.AddOption(new CheckBoxOption(HastingEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(HastingHealthMult));
             ModSettingsManager.AddOption(new FloatFieldOption(HastingDamageMult));
+            ModSettingsManager.AddOption(new CheckBoxOption(HastingHonor, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new StepSliderOption(HastingTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(HastingCostMult, new FloatFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new IntFieldOption(HastingLoopCount, new IntFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new IntFieldOption(HastingStageCount, new IntFieldConfig() { restartRequired = true }));
@@ -178,13 +191,7 @@ namespace CaeliImperium.Elites
         */
         private void CreateEliteTier()
         {
-            AffixHastingTier = new CombatDirector.EliteTierDef()
-            {
-                costMultiplier = CombatDirector.baseEliteCostMultiplier * Hasting.HastingCostMult.Value,
-                eliteTypes = new EliteDef[1]{AffixHastingElite},
-                canSelectWithoutAvailableEliteDef = false,
-                isAvailable = ((SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= Hasting.HastingLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= Hasting.HastingStageCount.Value),
-            };
+            
             var baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
             var indexToInsertAt = Array.FindIndex(baseEliteTierDefs, x => x.costMultiplier >= AffixHastingTier.costMultiplier);
             EliteAPI.AddCustomEliteTier(AffixHastingTier);
@@ -196,23 +203,46 @@ namespace CaeliImperium.Elites
             //if (EliteAPI.VanillaEliteTiers.Length > 2)
             //{
             //    // HONOR
-            //    CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[2];
-            //    List<EliteDef> elites = targetTier.eliteTypes.ToList();
-            //    AffixHastingElite.healthBoostCoefficient = HastingHealthMult.Value / 1.6f;
-            //    AffixHastingElite.damageBoostCoefficient = HastingDamageMult.Value / 1.3f;
-            //    elites.Add(AffixHastingElite);
-            //    targetTier.eliteTypes = elites.ToArray();
+            if (HastingHonor.Value)
+            {
+                CombatDirector.EliteTierDef targetTier2 = EliteAPI.VanillaEliteTiers[2];
+                List<EliteDef> elites2 = targetTier2.eliteTypes.ToList();
+                AffixHastingElite.healthBoostCoefficient = HastingHealthMult.Value / 1.6f;
+                AffixHastingElite.damageBoostCoefficient = HastingDamageMult.Value / 1.3f;
+                elites2.Add(AffixHastingElite);
+                targetTier2.eliteTypes = elites2.ToArray();
+            }
+                
             //}
             //if (EliteAPI.VanillaEliteTiers.Length > 1)
             //{
-            Array.Resize(ref CombatDirector.eliteTiers, CombatDirector.eliteTiers.Length + 1);
-            CombatDirector.eliteTiers[CombatDirector.eliteTiers.Length - 1] = AffixHastingTier;
-            //CombatDirector.EliteTierDef targetTier = AffixHastingTier;
-            //List<EliteDef> elites = targetTier.eliteTypes.ToList();
-            //AffixHastingElite.healthBoostCoefficient = HastingHealthMult.Value;
-            //AffixHastingElite.damageBoostCoefficient = HastingDamageMult.Value;
-            ////elites.Add(AffixHastingElite);
-            //targetTier.eliteTypes = elites.ToArray();
+            //Array.Resize(ref CombatDirector.eliteTiers, CombatDirector.eliteTiers.Length + 1);
+            //CombatDirector.eliteTiers[CombatDirector.eliteTiers.Length - 1] = AffixHastingTier;
+            // var eliteTier = new CombatDirector.EliteTierDef()
+            // {
+            //     costMultiplier = CombatDirector.baseEliteCostMultiplier * Hasting.HastingCostMult.Value,
+            //     eliteTypes = new EliteDef[] { AffixHastingElite },
+            //     canSelectWithoutAvailableEliteDef = false,
+            //     isAvailable = ((SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= Hasting.HastingLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= Hasting.HastingStageCount.Value),
+            // };
+            //var targetTiers = CombatDirector.eliteTiers;
+            // targetTiers.ToList().Add(eliteTier);
+            // targetTiers.ToArray();
+            // CombatDirector.eliteTiers = targetTiers;
+            int index = 1;
+            switch (HastingTier.Value)
+            {
+                case 1: index = 1; break;
+                    case 2: index = 3; break;
+                    case 3: index = 4; break;
+
+            }
+            CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[index];
+            List<EliteDef> elites = targetTier.eliteTypes.ToList();
+            AffixHastingElite.healthBoostCoefficient = HastingHealthMult.Value;
+            AffixHastingElite.damageBoostCoefficient = HastingDamageMult.Value;
+            elites.Add(AffixHastingElite);
+            targetTier.eliteTypes = elites.ToArray();
             //}
         }
 

@@ -131,6 +131,7 @@ namespace CaeliImperium.Equipment
             EnforcerHandEquipDef.appearsInSinglePlayer = true;
             EnforcerHandEquipDef.canBeRandomlyTriggered = false;
             EnforcerHandEquipDef.canDrop = true;
+            EnforcerHandEquipDef.requiredExpansion = CaeliImperiumExpansionDef;
             EnforcerHandEquipDef.cooldown = EnforcerHandCooldown.Value;
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
             rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]{
@@ -220,7 +221,7 @@ localPos = new Vector3(-0.08653F, 0.17649F, -0.10837F),
 localAngles = new Vector3(0F, 0F, 0F),
 localScale = new Vector3(0.40697F, 0.40697F, 0.40697F)
                 }
-            });
+            });/*
             rules.Add("mdlTreebot", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -330,7 +331,7 @@ localScale = new Vector3(0.40697F, 0.40697F, 0.40697F)
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(1f, 1f, 1f)
                 }
-            });
+            });*/
             var displayRules = new ItemDisplayRuleDict(null);
             ItemAPI.Add(new CustomEquipment(EnforcerHandEquipDef, rules));
             On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformAction;
@@ -415,7 +416,7 @@ localScale = new Vector3(0.40697F, 0.40697F, 0.40697F)
                 "\n" +
                 "SURVIVOR NAME: <style=cDeath>MISSING INFORMATION.</style> USER INPUT: \"Please save me\". LATEST DATA: JOHN DOE" +
                 "\n" +
-                "SURVIVOR LOCATION: <style=cDeath>ERROR.</style> USER IMPUT: \"place that makes no sense\". LATEST DATA: o63,283 i45,818 SKY MEADOWS" +
+                "SURVIVOR LOCATION: <style=cDeath>ERROR.</style> USER INPUT: \"place that makes no sense\". LATEST DATA: o63,283 i45,818 SKY MEADOWS" +
                 "\n" +
                 "BEACON ID: 12A o3 4" +
                 "\n" +

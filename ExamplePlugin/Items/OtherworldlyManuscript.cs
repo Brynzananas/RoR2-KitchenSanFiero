@@ -94,9 +94,9 @@ namespace CaeliImperium.Items
                                          10f,
                                          "Controll the cooldown of this item");
             OtherworldlyManuscriptDamageMultiplier = Config.Bind<float>("Item : Otherworldly Manuscript",
-                                         "Damage Multiplier",
-                                         1f,
-                                         "Controll the damage multiplier of this item explosion");
+                                         "Damage",
+                                         100f,
+                                         "Controll the damage of this item explosion in percentage");
             OtherworldlyManuscriptCurseAmount = Config.Bind<int>("Item : Otherworldly Manuscript",
                                          "Wound amount",
                                          1,
@@ -203,17 +203,17 @@ localAngles = new Vector3(25.31622F, 0F, 0F),
 localScale = new Vector3(0.06543F, 0.06543F, 0.06543F)
                 }
             });
-            rules.Add("mdlEngiTurret", new RoR2.ItemDisplayRule[]{
-                new RoR2.ItemDisplayRule
-                {
-                    ruleType = ItemDisplayRuleType.ParentedPrefab,
-                    followerPrefab = TalismanPrefab,
-                    childName = "Chest",
-                    localPos = new Vector3(0f, 0f, 0f),
-                    localAngles = new Vector3(0f, 0f, 0f),
-                    localScale = new Vector3(1f, 1f, 1f)
-                }
-            });
+            //rules.Add("mdlEngiTurret", new RoR2.ItemDisplayRule[]{
+            //    new RoR2.ItemDisplayRule
+            //    {
+            //        ruleType = ItemDisplayRuleType.ParentedPrefab,
+            //        followerPrefab = TalismanPrefab,
+            //        childName = "Chest",
+            //        localPos = new Vector3(0f, 0f, 0f),
+            //        localAngles = new Vector3(0f, 0f, 0f),
+            //        localScale = new Vector3(1f, 1f, 1f)
+            //    }
+            //});
             rules.Add("mdlMage", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -427,7 +427,7 @@ int count = self.inventory ? self.inventory.GetItemCount(OtherworldlyManuscriptI
                         victimBody.SetBuffCount(Buffs.TalismanVictimBuff.TalismanVictimBuffDef.buffIndex, 0);
                         body.SetBuffCount(Buffs.TalismanAttackerBuff.TalismanAttackerBuffDef.buffIndex, 0);
                         body.AddTimedBuff(Buffs.TalismanCooldownBuff.TalismanCooldownBuffDef, OtherworldlyManuscriptCooldown.Value);
-                        float damage = Util.OnHitProcDamage(damageInfo.damage, body.damage, count * OtherworldlyManuscriptDamageMultiplier.Value);
+                        float damage = Util.OnHitProcDamage(damageInfo.damage, body.damage, count * (OtherworldlyManuscriptDamageMultiplier.Value / 100));
                         Vector3 position2 = damageInfo.position;
                         ProcChainMask procChainMask5 = damageInfo.procChainMask;
                         procChainMask5.AddProc(ProcType.Rings);
@@ -469,9 +469,9 @@ int count = self.inventory ? self.inventory.GetItemCount(OtherworldlyManuscriptI
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add("OTHERWORLDLYMANUSCRIPT_NAME", "Otherworldly Manuscript");
-            LanguageAPI.Add("OTHERWORLDLYMANUSCRIPT_PICKUP", "Hitting enemies continually " + OtherworldlyManuscriptTalismanedCount.Value + " times in a span of " + OtherworldlyManuscriptTalismanedTimer.Value + " seconds will make them explode for " + OtherworldlyManuscriptDamageMultiplier.Value * 100 + "% (+" + OtherworldlyManuscriptDamageMultiplier.Value * 100 + "% per item stack) TOTAL damage and applies " + OtherworldlyManuscriptCurseAmount.Value + " (+" + OtherworldlyManuscriptCurseAmount.Value + " per item stack) amount of Wounds");
-            LanguageAPI.Add("OTHERWORLDLYMANUSCRIPT_DESC", "Hitting enemies continually " + OtherworldlyManuscriptTalismanedCount.Value + " times in a span of " + OtherworldlyManuscriptTalismanedTimer.Value + " seconds will make them explode for " + OtherworldlyManuscriptDamageMultiplier.Value * 100 + "% (+" + OtherworldlyManuscriptDamageMultiplier.Value * 100 + "% per item stack) TOTAL damage and applies " + OtherworldlyManuscriptCurseAmount.Value + " (+" + OtherworldlyManuscriptCurseAmount.Value + " per item stack) amount of Wounds");
-            LanguageAPI.Add("OTHERWORLDLYMANUSCRIPT_LORE", "None Sols");
+            LanguageAPI.Add("OTHERWORLDLYMANUSCRIPT_PICKUP", "<style=cIsDamage>Hitting</style> enemies continually " + OtherworldlyManuscriptTalismanedCount.Value + " times in a span of " + OtherworldlyManuscriptTalismanedTimer.Value + " seconds will make them <style=cIsDamage>explode</style> for <style=cIsDamage>" + OtherworldlyManuscriptDamageMultiplier.Value + "%</style> <style=cStack>(+" + OtherworldlyManuscriptDamageMultiplier.Value + "% per item stack)</style> <style=cIsDamage>TOTAL damage</style> and applies " + OtherworldlyManuscriptCurseAmount.Value + " <style=cStack>(+" + OtherworldlyManuscriptCurseAmount.Value + " per item stack)</style> amount of Wounds for " + OtherworldlyManuscriptCurseTime.Value + " seconds");
+            LanguageAPI.Add("OTHERWORLDLYMANUSCRIPT_DESC", "<style=cIsDamage>Hitting</style> enemies continually " + OtherworldlyManuscriptTalismanedCount.Value + " times in a span of " + OtherworldlyManuscriptTalismanedTimer.Value + " seconds will make them <style=cIsDamage>explode</style> for <style=cIsDamage>" + OtherworldlyManuscriptDamageMultiplier.Value + "%</style> <style=cStack>(+" + OtherworldlyManuscriptDamageMultiplier.Value + "% per item stack)</style> <style=cIsDamage>TOTAL damage</style> and applies " + OtherworldlyManuscriptCurseAmount.Value + " <style=cStack>(+" + OtherworldlyManuscriptCurseAmount.Value + " per item stack)</style> amount of Wounds for " + OtherworldlyManuscriptCurseTime.Value + " seconds");
+            LanguageAPI.Add("OTHERWORLDLYMANUSCRIPT_LORE", "");
         }
     }
 

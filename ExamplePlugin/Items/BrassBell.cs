@@ -123,7 +123,7 @@ namespace CaeliImperium.Items
                                          "Will this item reload special skill on activation?");
             BrassBellIsReloadSound = Config.Bind<bool>("Item : " + name,
                                          "Sound",
-                                         true,
+                                         false,
                                          "Play sound on activation?");
 
             ModSettingsManager.AddOption(new CheckBoxOption(BrassBellEnable, new CheckBoxConfig() { restartRequired = true }));

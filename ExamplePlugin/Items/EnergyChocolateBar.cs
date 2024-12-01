@@ -188,17 +188,17 @@ localAngles = new Vector3(41.9376F, 240.1781F, 70.90697F),
 localScale = new Vector3(0.19937F, 0.19937F, 0.19937F)
                 }
             });
-            rules.Add("mdlEngiTurrety", new RoR2.ItemDisplayRule[]{
-                new RoR2.ItemDisplayRule
-                {
-                    ruleType = ItemDisplayRuleType.ParentedPrefab,
-                    followerPrefab = EnergyChocolateBarPrefab,
-                    childName = "Chest",
-                    localPos = new Vector3(0f, 0f, 0f),
-                    localAngles = new Vector3(0f, 0f, 0f),
-                    localScale = new Vector3(1f, 1f, 1f)
-                }
-            });
+            //rules.Add("mdlEngiTurrety", new RoR2.ItemDisplayRule[]{
+            //    new RoR2.ItemDisplayRule
+            //    {
+            //        ruleType = ItemDisplayRuleType.ParentedPrefab,
+            //        followerPrefab = EnergyChocolateBarPrefab,
+            //        childName = "Chest",
+            //        localPos = new Vector3(0f, 0f, 0f),
+            //        localAngles = new Vector3(0f, 0f, 0f),
+            //        localScale = new Vector3(1f, 1f, 1f)
+            //    }
+            //});
             rules.Add("mdlMage", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -231,7 +231,7 @@ localPos = new Vector3(-0.31788F, 1.4358F, 0.35937F),
 localAngles = new Vector3(311.4557F, 117.9195F, 196.9814F),
 localScale = new Vector3(1F, 1F, 1F)
                 }
-            });
+            });/*
             rules.Add("mdlLoader", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
                 {
@@ -330,7 +330,7 @@ localScale = new Vector3(1F, 1F, 1F)
                     localAngles = new Vector3(0f, 0f, 0f),
                     localScale = new Vector3(1f, 1f, 1f)
                 }
-            });
+            });*/
             var displayRules = new ItemDisplayRuleDict(null);
             ItemAPI.Add(new CustomItem(EnergyChocolateBarItemDef, rules));
             GetStatCoefficients += Stats;

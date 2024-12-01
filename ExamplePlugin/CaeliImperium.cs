@@ -1,54 +1,43 @@
 using BepInEx;
 using BepInEx.Configuration;
 using R2API;
-using RiskOfOptions.Options;
 using RiskOfOptions;
 using RoR2;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using RiskOfOptions.OptionConfigs;
 using CaeliImperium.Buffs;
 using CaeliImperium.Items;
 using CaeliImperium.Equipment;
 using CaeliImperium.Elites;
 using System;
 using CaeliImperium.Artifact;
-using R2API.Networking;
-using CaeliImperium;
 using System.IO;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.ResourceManagement.ResourceLocations;
-using System.Collections;
-using Newtonsoft.Json.Linq;
 using System.Linq;
-using PSTinyJson;
 using System.Security.Permissions;
-using UnityEngine.Networking;
 using static CaeliImperium.Items.CapturedPotential;
-using ShaderSwapper;
-using R2API.Networking.Interfaces;
-using Mono.Cecil.Cil;
 using R2API.Utils;
-using TMPro;
-using System.Runtime.InteropServices;
-using System.Xml.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using static UnityEngine.UIElements.StylePropertyAnimationSystem;
 using static CaeliImperium.Elites.ArchNemesis;
 using RoR2.ExpansionManagement;
 using RoR2.Audio;
 using static RoR2.CombatDirector;
+using ProperSave;
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 [assembly: HG.Reflection.SearchableAttribute.OptIn]
 [assembly: HG.Reflection.SearchableAttribute.OptInAttribute]
 namespace CaeliImperiumPlugin
 {
     
-    [BepInDependency(ItemAPI.PluginGUID)]
-    [BepInDependency(LanguageAPI.PluginGUID)]
+    [BepInDependency(ItemAPI.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency(LanguageAPI.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency(EliteAPI.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency(RecalculateStatsAPI.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency(SoundAPI.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency(DotAPI.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency(ProperSavePlugin.GUID, BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency(CommandHelper.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     [System.Serializable]
@@ -58,7 +47,7 @@ namespace CaeliImperiumPlugin
         public const string PluginGUID = PluginAuthor + PluginName;
         public const string PluginAuthor = "Brynzananas";
         public const string PluginName = "CaeliImperium";
-        public const string PluginVersion = "0.7.0";
+        public const string PluginVersion = "0.7.1";
         public static string SavesDirectory { get; } = System.IO.Path.Combine(Application.persistentDataPath, "ArchNemesis");
         public static ExpansionDef CaeliImperiumExpansionDef = ScriptableObject.CreateInstance<ExpansionDef>();
         public static AssetBundle MainAssets;

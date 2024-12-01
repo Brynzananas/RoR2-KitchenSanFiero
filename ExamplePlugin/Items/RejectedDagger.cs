@@ -14,7 +14,6 @@ using CaeliImperium.Buffs;
 using static R2API.RecalculateStatsAPI;
 using Rewired;
 using UnityEngine.UIElements;
-using static R2API.DamageAPI;
 
 namespace CaeliImperium.Items
 {

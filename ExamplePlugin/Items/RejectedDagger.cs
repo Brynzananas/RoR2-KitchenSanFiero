@@ -26,6 +26,7 @@ namespace CaeliImperium.Items
         public static ConfigEntry<bool> RejectedDaggerAIBlacklist;
         public static ConfigEntry<float> RejectedDaggerTier;
         public static ConfigEntry<bool> RejectedDaggerAltFunc;
+        public static ConfigEntry<bool> RejectedDaggerTeamCount;
         public static ConfigEntry<bool> RejectedDaggerGlobalCount;
         public static ConfigEntry<float> RejectedDaggerDamageToAll;
         public static ConfigEntry<float> RejectedDaggerDamageToAllStack;
@@ -80,6 +81,10 @@ namespace CaeliImperium.Items
                              "Alternative function",
                              false,
                              "Enable alternative function?\nInstead of damaging all enemies, damage the same enemy\nDamage division replaces with multiplication");
+            RejectedDaggerTeamCount = Config.Bind<bool>("Item : " + name,
+                             "Team count",
+                             false,
+                             "Count all enemy teams?");
             RejectedDaggerGlobalCount = Config.Bind<bool>("Item : " + name,
                              "Global count",
                              false,
@@ -108,6 +113,7 @@ namespace CaeliImperium.Items
             ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(RejectedDaggerTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerAltFunc));
+            ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerTeamCount));
             ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerGlobalCount));
             ModSettingsManager.AddOption(new FloatFieldOption(RejectedDaggerDamageToAll));
             ModSettingsManager.AddOption(new FloatFieldOption(RejectedDaggerDamageToAllStack));
@@ -241,18 +247,27 @@ namespace CaeliImperium.Items
                         //Debug.Log("CharacterBody: " + characterBody);
                         //Debug.Log("CharacterTeam: " + characterBody.teamComponent.teamIndex);
                         //Debug.Log("CharacterTeam " + characterBody.master.masterIndex);
-                        bool globalCount = true;
-                        if (!RejectedDaggerGlobalCount.Value)
-                        {
-                            globalCount = victimBody && characterBody && victimBody.master.masterIndex == characterBody.master.masterIndex;
-                        }
+                        
                         //Debug.Log("GlobalCount: " +  globalCount);
-                        if (victimBody && characterBody && victimBody.teamComponent.teamIndex == characterBody.teamComponent.teamIndex && globalCount)// && victimBody.master.masterIndex == characterBody.master.masterIndex && victimBody != characterBody)
+                        if (victimBody && characterBody && body.teamComponent.teamIndex != characterBody.teamComponent.teamIndex)// && victimBody.master.masterIndex == characterBody.master.masterIndex && victimBody != characterBody)
                         {
-
-                            enemiesLeft++;
-                            Array.Resize(ref characterBodyArray, enemiesLeft);
-                            characterBodyArray.SetValue(characterBody, enemiesLeft - 1);
+                            bool teamCount = true;
+                            if (!RejectedDaggerTeamCount.Value)
+                            {
+                                teamCount = victimBody.teamComponent.teamIndex == characterBody.teamComponent.teamIndex;
+                            }
+                            bool globalCount = true;
+                            if (!RejectedDaggerGlobalCount.Value)
+                            {
+                                globalCount = victimBody.master && characterBody.master && victimBody.master.masterIndex == characterBody.master.masterIndex;
+                            }
+                            if (globalCount && teamCount)
+                            {
+                                enemiesLeft++;
+                                Array.Resize(ref characterBodyArray, enemiesLeft);
+                                characterBodyArray.SetValue(characterBody, enemiesLeft - 1);
+                            }
+                            
                             
 
                         }
@@ -342,13 +357,22 @@ namespace CaeliImperium.Items
         private static void AddLanguageTokens()
         {
             string damage = "";
+            string team = "";
+            if (!RejectedDaggerTeamCount.Value)
+            {
+                team = " on the same team";
+            }
+            if (!RejectedDaggerGlobalCount.Value)
+            {
+                team = " of the same type";
+            }
             if (RejectedDaggerAltFunc.Value)
             {
-                damage = "On hit, <style=cIsDamage>damage</style> the same enemy for <style=cIsDamage>" + RejectedDaggerDamageToAll.Value + "%</style> <style=cStack>(+" + RejectedDaggerDamageToAll.Value + "% per item stack)</style> <style=cIsDamage>TOTAL damage</style>. Damage is multiplied by the number of all enemies";
+                damage = "On hit, <style=cIsDamage>damage</style> the same enemy for <style=cIsDamage>" + RejectedDaggerDamageToAll.Value + "%</style> <style=cStack>(+" + RejectedDaggerDamageToAll.Value + "% per item stack)</style> <style=cIsDamage>TOTAL damage</style>. Damage is multiplied by the number of all enemies" +team;
             }
             else
             {
-                damage = "On hit, <style=cIsDamage>damage</style> all enemies for <style=cIsDamage>" + RejectedDaggerDamageToAll.Value + "%</style> <style=cStack>(+" + RejectedDaggerDamageToAll.Value + "% per item stack)</style> <style=cIsDamage>TOTAL damage</style>. Damage is divided by the number of all enemies";
+                damage = "On hit, <style=cIsDamage>damage</style> all enemies" + team + " for <style=cIsDamage>" + RejectedDaggerDamageToAll.Value + "%</style> <style=cStack>(+" + RejectedDaggerDamageToAll.Value + "% per item stack)</style> <style=cIsDamage>TOTAL damage</style>. Damage is divided by the number of all enemies" + team;
             }
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name);
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", damage);

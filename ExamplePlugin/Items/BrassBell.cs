@@ -15,6 +15,7 @@ using static CaeliImperiumPlugin.CaeliImperium;
 using System.Runtime.CompilerServices;
 using static CaeliImperium.Items.EmergencyMedicalTreatment;
 using RoR2.Audio;
+using static UnityEditorInternal.ReorderableList;
 
 namespace CaeliImperium.Items
 {
@@ -75,56 +76,56 @@ namespace CaeliImperium.Items
             BrassBellEnable = Config.Bind<bool>("Item : " + name,
                  "Activation",
                  true,
-                 "Enable this item?");
+                 "Enable this item?");//\nDefault value: " + BrassBellEnable.DefaultValue);
 
             BrassBellAIBlacklist = Config.Bind<bool>("Item : " + name,
                                          "AI Blacklist",
                                          false,
-                                         "Blacklist this item from enemies?");
+                                         "Blacklist this item from enemies?");//\nDefault value: " + BrassBellAIBlacklist.DefaultValue);
             BrassBellTier = Config.Bind<float>("Item : " + name,
                                          "Item tier",
                                          2f,
-                                         "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
+                                         "1: Common/White\n2: Rare/Green\n3: Legendary/Red");//\nDefault value: " + BrassBellTier.DefaultValue);
             BrassBellCooldown = Config.Bind<float>("Item : " + name,
                                          "Interval between effects",
                                          15f,
-                                         "Control the interval for this item activation");
+                                         "Control the interval for this item activation");//\nDefault value: " + BrassBellCooldown.DefaultValue);
             BrassBellCooldownStack = Config.Bind<float>("Item : " + name,
                                          "Interval reduction",
                                          0f,
-                                         "Control the interval reduction per stack in percentage\nSet to 0 to disable stacking");
+                                         "Control the interval reduction per stack in percentage\nSet to 0 to disable stacking");//\nDefault value: " + BrassBellCooldownStack.DefaultValue);
             BrassBellEffectTime = Config.Bind<float>("Item : " + name,
                                          "Effect time",
                                          1f,
-                                         "Control how long this item effect lasts in seconds");
+                                         "Control how long this item effect lasts in seconds");//\nDefault value: " + BrassBellEffectTime.DefaultValue);
             BrassBellEffectTimeStack = Config.Bind<float>("Item : " + name,
                                          "Effect time stack",
                                          0f,
-                                         "Control addition effect duration in seconds");
+                                         "Control addition effect duration in seconds");//\nDefault value: " + BrassBellEffectTimeStack.DefaultValue);
             BrassBellDamageIncrease = Config.Bind<float>("Item : " + name,
                                          "Damage increase",
                                          42f,
-                                         "Control the damage increase in percentage");
+                                         "Control the damage increase in percentage");//\nDefault value: " + BrassBellDamageIncrease.DefaultValue);
             BrassBellDamageIncreaseStack = Config.Bind<float>("Item : " + name,
                                          "Damage increase stack",
                                          42f,
-                                         "Control the damage increase stack in percentage");
+                                         "Control the damage increase stack in percentage");//\nDefault value: " + BrassBellDamageIncreaseStack.DefaultValue);
             BrassBellIsReloadSecondary = Config.Bind<bool>("Item : " + name,
                                          "Secondary skill reload",
                                          true,
-                                         "Will this item reload secondary skill on activation?");
+                                         "Will this item reload secondary skill on activation?");//\nDefault value: " + BrassBellIsReloadSecondary.DefaultValue);
             BrassBellIsReloadutility = Config.Bind<bool>("Item : " + name,
                                          "Utility skill reload",
                                          false,
-                                         "Will this item reload utility skill on activation?");
+                                         "Will this item reload utility skill on activation?");//\nDefault value: " + BrassBellIsReloadutility.DefaultValue);
             BrassBellIsReloadSpecial = Config.Bind<bool>("Item : " + name,
                                          "Special skill reload",
-                                         false,
-                                         "Will this item reload special skill on activation?");
+            false,
+                                         "Will this item reload special skill on activation?");//\nDefault value: " + BrassBellIsReloadSpecial.DefaultValue);
             BrassBellIsReloadSound = Config.Bind<bool>("Item : " + name,
                                          "Sound",
                                          false,
-                                         "Play sound on activation?");
+                                         "Play sound on activation?");//\nDefault value: " + BrassBellIsReloadSound.DefaultValue);
 
             ModSettingsManager.AddOption(new CheckBoxOption(BrassBellEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(BrassBellAIBlacklist, new CheckBoxConfig() { restartRequired = true }));

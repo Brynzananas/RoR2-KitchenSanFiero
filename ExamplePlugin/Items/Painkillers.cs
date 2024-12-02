@@ -414,8 +414,15 @@ localScale = new Vector3(0.05652F, 0.05652F, 0.05652F)
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add("PAINKILLERS_NAME", "Painkillers");
-            LanguageAPI.Add("PAINKILLERS_PICKUP", "Slightly increase <style=cIsHealing>all health statistics</style>");
-            LanguageAPI.Add("PAINKILLERS_DESC", "Slightly increase <style=cIsHealing>all health statistics</style>");
+            LanguageAPI.Add("PAINKILLERS_PICKUP", "Slightly increases <style=cIsHealing>all health statistics</style>");
+            LanguageAPI.Add("PAINKILLERS_DESC", 
+                "Increases <style=cIsHealing>armor</style> by <style=cIsHealing>" + PainkillersArmorAdd.Value + "</style> <style=cStack>(+" + PainkillersArmorAdd.Value + " per item stack)</style>" +
+                "\nIncreases <style=cIsHealing>regeneration</style> by <style=cIsHealing>" + PainkillersRegenAdd.Value + "</style> <style=cStack>(+" + PainkillersRegenAdd.Value + " per item stack)</style>" +
+                "\nIncreases <style=cIsHealth>max health</style> by <style=cIsHealth>" + PainkillersMaxHealthAdd.Value + "</style> <style=cStack>(+" + PainkillersMaxHealthAdd.Value + " per item stack)</style>" +
+                "\nIncreases <style=cIsHealing>healing</style> by <style=cIsHealing>" + PainkillersHealthAdd.Value + "</style> <style=cStack>(+" + PainkillersHealthAdd.Value + " per item stack)</style>" +
+                "\nIncreases <style=cIsHealing>regeneration</style> by <style=cIsHealing>" + PainkillersRegenMult.Value + "%</style> <style=cStack>(+" + PainkillersRegenMult.Value + "% per item stack)</style>" +
+                "\nIncreases <style=cIsHealth>max health</style> by <style=cIsHealth>" + PainkillersMaxHealthMult.Value + "%</style> <style=cStack>(+" + PainkillersMaxHealthMult.Value + "% per item stack)</style>" +
+                "\nIncreases <style=cIsHealing>healing</style> by <style=cIsHealing>" + PainkillersHealthMult.Value + "%</style> <style=cStack>(+" + PainkillersHealthMult.Value + "% per item stack)</style>");
             LanguageAPI.Add("PAINKILLERS_LORE", "\n" +
                 "\"May 9" +
                 "\n" +

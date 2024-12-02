@@ -38,6 +38,7 @@ namespace CaeliImperium.Items
         public static ConfigEntry<float> SkullGammaGunBuffDamageMultiplier;
         public static ConfigEntry<float> SkullGammaGunDamageMultiplier;
         public static ConfigEntry<float> SkullGammaGunDuration;
+        public static ConfigEntry<bool> SkullGammaGunDoDOT;
         public static ConfigEntry<int> SkullGammaGunMaxBuffCount;
         public static ConfigEntry<int> SkullGammaGunMaxBuffCountStack;
 
@@ -84,15 +85,15 @@ namespace CaeliImperium.Items
                                          "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
             SkullGammaGunTimer = Config.Bind<float>("Item : Skull Gamma Gun",
                                          "Interval",
-                                         0.5f,
-                                         "Control the interval this item applies the debuff in seconds");
+                                         1f,
+                                         "Control the interval this item irradiates enemies in seconds");
             SkullGammaGunAngle = Config.Bind<float>("Item : Skull Gamma Gun",
                                          "Base angle",
                                          60f,
                                          "Control the base angle value");
             SkullGammaGunAngleStack = Config.Bind<float>("Item : Skull Gamma Gun",
                                          "Angle per stack",
-                                         30f,
+                                         15f,
                                          "Control the angle increase per item stack");
             SkullGammaGunRange = Config.Bind<float>("Item : Skull Gamma Gun",
                                          "Base range",
@@ -104,16 +105,20 @@ namespace CaeliImperium.Items
                                          "Control the range increase per item stack");
             SkullGammaGunDamage = Config.Bind<float>("Item : Skull Gamma Gun",
                              "Damage",
-                             200f,
-                             "Control how the damage of this item in percentage");
+                             100f,
+                             "Control the damage of this item in percentage");
             SkullGammaGunDamageStack = Config.Bind<float>("Item : Skull Gamma Gun",
                              "Damage stack",
                              100f,
-                             "Control how the damage increase of this item in percentage");
+                             "Control the damage increase of this item per item stack in percentage");
             SkullGammaGunProc = Config.Bind<float>("Item : Skull Gamma Gun",
                              "Proc",
                              0.6f,
-                             "Control how the proc of this item");
+                             "Control the proc of this item");
+            SkullGammaGunDoDOT = Config.Bind<bool>("Item : Skull Gamma Gun",
+                             "DO DOT",
+                             true,
+                             "Apply Irradiated DOT?");
             SkullGammaGunBuffDamageMultiplier = Config.Bind<float>("Item : Skull Gamma Gun",
                                          "DOT Damage",
                                          100f,
@@ -454,20 +459,23 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                                     procCoefficient = 1f
                                 };
                                 characterBody.healthComponent.TakeDamage(damageInfo2);
-
-                                InflictDotInfo dotInfo = new InflictDotInfo()
+                                if (SkullGammaGunDoDOT.Value)
                                 {
-                                    attackerObject = body.gameObject,
-                                    victimObject = characterBody.gameObject,
-                                    totalDamage = body.damage * (SkullGammaGunBuffDamageMultiplier.Value / 100), //* PackOfCiggaretesDuration.Value,
-                                    damageMultiplier = stack,// * ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2)),
-                                    duration = SkullGammaGunDuration.Value,
-                                    dotIndex = Buffs.IrradiatedBuff.IrradiatedDOTDef,
-                                    maxStacksFromAttacker = (uint?)(SkullGammaGunMaxBuffCount.Value + ((stack - 1) * SkullGammaGunMaxBuffCountStack.Value))
+                                    InflictDotInfo dotInfo = new InflictDotInfo()
+                                    {
+                                        attackerObject = body.gameObject,
+                                        victimObject = characterBody.gameObject,
+                                        totalDamage = body.damage * (SkullGammaGunBuffDamageMultiplier.Value / 100), //* PackOfCiggaretesDuration.Value,
+                                        damageMultiplier = stack,// * ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2)),
+                                        duration = SkullGammaGunDuration.Value,
+                                        dotIndex = Buffs.IrradiatedBuff.IrradiatedDOTDef,
+                                        maxStacksFromAttacker = (uint?)(SkullGammaGunMaxBuffCount.Value + ((stack - 1) * SkullGammaGunMaxBuffCountStack.Value))
 
-                                };
-                                //StrengthenBurnUtils.CheckDotForUpgrade(self.inventory, ref dotInfo);
-                                DotController.InflictDot(ref dotInfo);
+                                    };
+                                    //StrengthenBurnUtils.CheckDotForUpgrade(self.inventory, ref dotInfo);
+                                    DotController.InflictDot(ref dotInfo);
+                                }
+                                
                             }
                             timer1 = 0;
 

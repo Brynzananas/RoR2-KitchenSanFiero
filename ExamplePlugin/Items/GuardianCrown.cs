@@ -86,7 +86,7 @@ namespace CaeliImperium.Items
                                          "Is luck affected?");
             GuardianCrownChance = Config.Bind<float>("Item : " + name,
                                          "Chance for players",
-                                         20,
+                                         15,
                                          "Change the chance of enemies being stunned on their attack");
             GuardianCrownEnemyChance = Config.Bind<float>("Item : " + name,
                                          "Chance for enemies",

@@ -87,11 +87,11 @@ namespace CaeliImperium.Items
                                          "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
             EmergencyMedicalTreatmentRegen = Config.Bind<float>("Item : Emergency Medical Treatment",
                                          "Regen",
-                                         2f,
+                                         5f,
                                          "Control the regen increase based on max health in percentage");
             EmergencyMedicalTreatmentRegenStack = Config.Bind<float>("Item : Emergency Medical Treatment",
                                          "Regen stack",
-                                         2f,
+                                         2.5f,
                                          "Control the regen increase based on max health per item stack in percentage");
             EmergencyMedicalTreatmentHealth = Config.Bind<float>("Item : Emergency Medical Treatment",
                                          "Health threshold",

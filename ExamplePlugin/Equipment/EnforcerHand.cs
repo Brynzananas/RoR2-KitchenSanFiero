@@ -406,8 +406,8 @@ localScale = new Vector3(0.40697F, 0.40697F, 0.40697F)
         public static void AddLanguageTokens()
         {
             LanguageAPI.Add("ENFORCERHAND_NAME", "Enforcer Hand");
-            LanguageAPI.Add("ENFORCERHAND_PICKUP", "<style=cIsDamage>Parry</style> an <style=cIsDamage>incoming attack</style> back to the attacker");
-            LanguageAPI.Add("ENFORCERHAND_DESC", "<style=cIsDamage>Parry</style> an <style=cIsDamage>incoming attack</style> back to the attacker");
+            LanguageAPI.Add("ENFORCERHAND_PICKUP", "<style=cIsDamage>Parry</style> an <style=cIsDamage>incoming attack</style> back to the attacker in a " + EnforcerHandTimeWindow.Value + "seconds time window on use");
+            LanguageAPI.Add("ENFORCERHAND_DESC", "<style=cIsDamage>Parry</style> an <style=cIsDamage>incoming attack</style> back to the attacker in a " + EnforcerHandTimeWindow.Value + "seconds time window on use");
             LanguageAPI.Add("ENFORCERHAND_LORE", "<style=cMono>//--SURVIVOR №17 STATUS--//</style>" +
                 "\n" +
                 "CLASS: Enforcer" +

@@ -58,7 +58,7 @@ namespace CaeliImperium.Buffs
                              "Can this DOT stack, increase all its damage values?");
             IrradiatedRange = Config.Bind<float>("Buff : Irradiated",
                              "Range",
-                             0.4f,
+                             3.6f,
                              "Control the range value");
             IrradiatedUsualDamage = Config.Bind<float>("Buff : Irradiated",
                              "Damage",

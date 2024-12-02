@@ -376,7 +376,7 @@ public class KillswitchComponent : MonoBehaviour
             string death = "";
             if (MajesticHandChance.Value > 0)
             {
-                death += "Monsters have <style=cDeath>" + MajesticHandChance.Value + "%</style> <style=cStack>(+" + MajesticHandChance.Value + "% per item stack hyperbollicaly)</style> to <style=cDeath>die</style> on spawn. ";
+                death += "Monsters have <style=cDeath>" + MajesticHandChance.Value + "%</style> <style=cStack>(+" + MajesticHandChance.Value + "% per item stack hyperbollicaly)</style> to <style=cDeath>die</style> on spawn up to " + MajesticHandMaxChance.Value + "%. ";
             }
             if (MajesticHandDoDamage.Value > 0)
             {

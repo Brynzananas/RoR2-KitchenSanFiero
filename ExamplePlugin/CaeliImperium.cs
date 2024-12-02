@@ -47,7 +47,7 @@ namespace CaeliImperiumPlugin
         public const string PluginGUID = PluginAuthor + PluginName;
         public const string PluginAuthor = "Brynzananas";
         public const string PluginName = "CaeliImperium";
-        public const string PluginVersion = "0.7.1";
+        public const string PluginVersion = "0.7.2";
         public static string SavesDirectory { get; } = System.IO.Path.Combine(Application.persistentDataPath, "ArchNemesis");
         public static ExpansionDef CaeliImperiumExpansionDef = ScriptableObject.CreateInstance<ExpansionDef>();
         public static AssetBundle MainAssets;
@@ -153,7 +153,7 @@ namespace CaeliImperiumPlugin
             WoundedBuff.Init();
             IrradiatedBuff.Init();
             DazzledBuff.Init();
-            Ciggaretes.Init();
+            PackOfCiggaretes.Init();
             GuardianCrown.Init();
             Painkillers.Init();
             EnergyChocolateBar.Init();

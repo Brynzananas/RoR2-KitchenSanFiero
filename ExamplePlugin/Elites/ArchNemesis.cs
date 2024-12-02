@@ -321,10 +321,14 @@ namespace CaeliImperium.Elites
                 string isDefeated = File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "IsDefeated.txt"));
                 if (stage.sceneDef.stageOrder >= ArchNemesisStageCount && !forbiddenStages.Contains(stage.sceneDef.cachedName)  && isDefeated == "False")
                 {
+                    if (!Util.CheckRoll(ArchNemesisSpawnChance.Value))
+                    {
+                        return;
+                    }
 
                 TeamIndex ArchNemesisTeam = (TeamIndex)int.Parse(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Team.txt")));
 
-                    //Chat.AddMessage("There is an Arch Nemesis here");
+                    //Chat.AddMessage("There is an Arch Nemesis here");=
                     GameObject archNemesisMasterPrefab = GetMasterPrefab(FindMasterIndex(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Prefab.txt"))));
                     NodeGraph nodeGraph = SceneInfo.instance.GetNodeGraph(MapNodeGroup.GraphType.Ground);
                     List<NodeGraph.NodeIndex> source = nodeGraph.FindNodesInRange(stage.transform.position, 50f, 200f, HullMask.Human);
@@ -368,9 +372,9 @@ namespace CaeliImperium.Elites
                                     }
 
                                 }
-                                catch (Exception e)
+                                catch
                                 {
-                                    Debug.LogError(e);
+                                    Debug.LogError("Could not give " + archNemesisInventoryArray[i] + "to Arch Nemesis");
                                 }
 
                             }

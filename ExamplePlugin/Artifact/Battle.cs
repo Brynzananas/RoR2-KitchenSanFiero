@@ -53,27 +53,27 @@ namespace CaeliImperium.Artifact
         {
             BattleInterval = Config.Bind<float>("Artifact : Battle",
                              "Interval",
-                             10f,
+                             15f,
                              "Control the interval between monsters director credits addition");
             BattleCreditsAddition = Config.Bind<float>("Artifact : Battle",
                                          "Credits addition",
-                                         20f,
+                                         25f,
                                          "Control the monsters director credits addition");
             BattleMidwayCredits = Config.Bind<float>("Artifact : Battle",
                                          "One time credits addition",
                                          2000f,
                                          "Control the one time monsters director credits addition midway teleport event");
             BattleChargeOnKill = Config.Bind<float>("Artifact : Battle",
-                                         "Charge on kill multiplier",
-                                         2f,
-                                         "Control the multiplier for charge on kill");
+                                         "Charge on kill",
+                                         3f,
+                                         "Control how many seconds charged on kill");
             BattleZoneRange = Config.Bind<float>("Artifact : Battle",
                                          "Zone radius multiplier",
                                          2f,
                                          "Control the zone radius multiplier");
             BattleTime = Config.Bind<float>("Artifact : Battle",
                                          "Teleport time",
-                                         360f,
+                                         300f,
                                          "Control the teleport time in seconds");
             BattleDrizzleDifficulty = Config.Bind<float>("Artifact : Battle",
                                          "Credits multiplier on Drizzle and lower",

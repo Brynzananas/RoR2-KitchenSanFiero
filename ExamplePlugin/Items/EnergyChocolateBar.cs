@@ -417,9 +417,9 @@ localScale = new Vector3(1F, 1F, 1F)
                 nextStageBehaviour = "";
             }
             LanguageAPI.Add("ENERGYCHOCOLATEBAR_NAME", "Energised Chocolate Bar");
-            LanguageAPI.Add("ENERGYCHOCOLATEBAR_PICKUP", "Gain <style=cIsDamage>>" + EnergyChocolateBuffStats.Value + "%</style> <style=cStack>(+" + EnergyChocolateBuffStatsStack.Value + "% per item stack)</style> to all <style=cIsDamage>all statistics</style>." + nextStageBehaviour);
-            LanguageAPI.Add("ENERGYCHOCOLATEBAR_DESC", "Gain <style=cIsDamage>" + EnergyChocolateBuffStats.Value + "%</style> <style=cStack>(+" + EnergyChocolateBuffStatsStack.Value + "% per item stack)</style> <style=cIsDamage>all stat bonus</style>." + nextStageBehaviour);
-            LanguageAPI.Add("ENERGYCHOCOLATEBAR_LORE", "mmmm yummy");
+            LanguageAPI.Add("ENERGYCHOCOLATEBAR_PICKUP", "Increase <style=cIsDamage>all statistics</style> by <style=cIsDamage>" + EnergyChocolateBuffStats.Value + "%</style> <style=cStack>(+" + EnergyChocolateBuffStatsStack.Value + "% per item stack)." + nextStageBehaviour);
+            LanguageAPI.Add("ENERGYCHOCOLATEBAR_DESC", "Increase <style=cIsDamage>all statistics</style> by <style=cIsDamage>" + EnergyChocolateBuffStats.Value + "%</style> <style=cStack>(+" + EnergyChocolateBuffStatsStack.Value + "% per item stack)." + nextStageBehaviour);
+            LanguageAPI.Add("ENERGYCHOCOLATEBAR_LORE", "");
         }
     }
 }

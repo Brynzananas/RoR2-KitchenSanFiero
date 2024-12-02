@@ -421,10 +421,13 @@ bool roll = false;
                 roll = Util.CheckRoll(ConvertAmplificationPercentageIntoReductionPercentage(stunChance / buffCount, GuardianCrownMaxChance.Value), allLuck);
             if (roll)
             {
-                if (true)
-                {
-                    SetStateOnHurt component = self.GetComponent<SetStateOnHurt>();
-                    if (component.hasEffectiveAuthority)
+                    SetStateOnHurt component = self.GetComponent<SetStateOnHurt>() ;
+                        if (component && !self.isChampion)
+                        {
+                            component.SetStunInternal(0.2f);
+                        }
+                        EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
+                        /*if (component.hasEffectiveAuthority)
                     {
                             //self.AddTimedBuff(DLC2Content.Buffs.DisableAllSkills, 0.2f);
                             if (!self.isChampion)
@@ -443,11 +446,10 @@ bool roll = false;
                             //SetStateOnHurt.SetStunOnObject(self.gameObject, 0.2f);
                             EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
 
-                    }
-                    float timerCount = (Util.GetItemCountGlobal(GuardianCrownItemDef.itemIndex, true) - Util.GetItemCountForTeam(self.teamComponent.teamIndex, GuardianCrownItemDef.itemIndex, true) - 1) * GuardianCrownBuffTimeStack.Value;
+                    }*/
+                    float timerCount = (Util.GetItemCountGlobal(GuardianCrownItemDef.itemIndex, true) - (Util.GetItemCountForTeam(self.teamComponent.teamIndex, GuardianCrownItemDef.itemIndex, true) - 1) * GuardianCrownBuffTimeStack.Value);
                         self.AddTimedBuff(Buffs.DazzledBuff.DazzledBuffDef, GuardianCrownBuffTime.Value + timerCount);
                     return;
-                }
             }
             }
             orig(self, skill);

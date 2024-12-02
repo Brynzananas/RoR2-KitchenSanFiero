@@ -669,9 +669,14 @@ private void Update()
             //LanguageAPI.Add("CIGGARETS_PICKUP", "Enemies gain <style=cDeath>+" + PackOfCiggaretesRegen.Value + " hp/s</style> <style=cStack>(+" + PackOfCiggaretesRegenStack.Value + " hp/s per item stack)</style> and <style=cDeath>" + PackOfCiggaretesRegenPercentage.Value + "%</style> <style=cStack>(+" + PackOfCiggaretesRegenPercentageStack.Value + "% per item stack)</style> <style=cDeath>health drain</style>" + smoke);
             //LanguageAPI.Add("CIGGARETS_DESC", "Enemies gain <style=cDeath>+" + PackOfCiggaretesRegen.Value + " hp/s</style> <style=cStack>(+" + PackOfCiggaretesRegenStack.Value + " hp/s per item stack)</style> and <style=cDeath>" + PackOfCiggaretesRegenPercentage.Value + "%</style> <style=cStack>(+" + PackOfCiggaretesRegenPercentageStack.Value + "% per item stack)</style> <style=cDeath>health drain</style>" + smoke);
             //LanguageAPI.Add("CIGGARETS_LORE", "");
+            string seconds = "second";
+            if (PackOfCiggaretesTime.Value != 1)
+            {
+                seconds += "s";
+            }
             LanguageAPI.Add("PACKOFCIGGARETS_NAME", "Pack of Ciggaretes");
-            LanguageAPI.Add("PACKOFCIGGARETS_PICKUP", "Enemies gain <style=cIsHealth>" + PackOfCiggaretesCurse.Value + "</style> <style=cStack>(+" + PackOfCiggaretesCurseStack.Value + " per item stack)</style <style=cIsHealth>permanent damage</style> every " + PackOfCiggaretesTime.Value + " seconds for " + PackOfCiggaretesCurseTime.Value + " <style=cStack>(+" + PackOfCiggaretesCurseTimeStack.Value + " per item stack)</style>");
-            LanguageAPI.Add("PACKOFCIGGARETS_DESC", "Enemies gain <style=cIsHealth>" + PackOfCiggaretesCurse.Value + "</style> <style=cStack>(+" + PackOfCiggaretesCurseStack.Value + " per item stack)</style <style=cIsHealth>permanent damage</style> every " + PackOfCiggaretesTime.Value + " seconds for " + PackOfCiggaretesCurseTime.Value + " <style=cStack>(+" + PackOfCiggaretesCurseTimeStack.Value + " per item stack)</style>");
+            LanguageAPI.Add("PACKOFCIGGARETS_PICKUP", "Enemies gain <style=cIsHealth>" + PackOfCiggaretesCurse.Value + "</style> <style=cStack>(+" + PackOfCiggaretesCurseStack.Value + " per item stack)</style <style=cIsHealth>permanent damage</style> every " + PackOfCiggaretesTime.Value + " " + seconds + " for " + PackOfCiggaretesCurseTime.Value + " <style=cStack>(+" + PackOfCiggaretesCurseTimeStack.Value + " per item stack)</style> seconds");
+            LanguageAPI.Add("PACKOFCIGGARETS_DESC", "Enemies gain <style=cIsHealth>" + PackOfCiggaretesCurse.Value + "</style> <style=cStack>(+" + PackOfCiggaretesCurseStack.Value + " per item stack)</style <style=cIsHealth>permanent damage</style> every " + PackOfCiggaretesTime.Value + " " + seconds + " for " + PackOfCiggaretesCurseTime.Value + " <style=cStack>(+" + PackOfCiggaretesCurseTimeStack.Value + " per item stack)</style> seconds");
             LanguageAPI.Add("PACKOFCIGGARETS_LORE", "");
         }
 

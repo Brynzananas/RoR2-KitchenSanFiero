@@ -39,6 +39,7 @@ namespace CaeliImperium.Elites
         public static float healthMult = 6f;
         public static float damageMult = 4f;
         public static float affixDropChance = 0f;
+        public static float additionalChance = 0f;
         private static GameObject ArchNemesisWard = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/archnemesishat.prefab");
         private static Material ArchNemesisMat = MainAssets.LoadAsset<Material>("Assets/Materials/arch_nemesis_ramp.mat");
         private static Texture2D eliteRamp = MainAssets.LoadAsset<Texture2D>("Assets/Textures/arch_nemesis_ramp.png");
@@ -59,7 +60,10 @@ namespace CaeliImperium.Elites
         public static ConfigEntry<float> ArchNemesisMoveSpeedMult;
         public static ConfigEntry<float> ArchNemesisCooldownMult;
         public static ConfigEntry<int> ArchNemesisStageBegin;
+        public static ConfigEntry<int> ArchNemesisLoopBegin;
         public static ConfigEntry<float> ArchNemesisSpawnChance;
+        public static ConfigEntry<float> ArchNemesisSpawnAdditionalChance;
+        public static ConfigEntry<bool> ArchNemesisSpawnResetAdditionalChance;
         public static ConfigEntry<bool> ArchNemesisRemove;
         public static ConfigEntry<bool> ArchNemesisAIBlacklistItems;
         public static ConfigEntry<bool> ArchNemesisChampions;
@@ -70,8 +74,10 @@ namespace CaeliImperium.Elites
         public static ConfigEntry<bool> ArchNemesisLunarScavengers;
         public static ConfigEntry<float> ArchNemesisDropChance;
         public static ConfigEntry<float> ArchNemesisDropChancePlayer;
-        public static string[] forbiddenStages = { "arena,moon2,voidstage,voidraid,artifactworld,artifactworld01,artifactworld02,artifactworld03,bazaar,golshores,limbo,mysteryspace" };
+        public static string[] forbiddenStages = { "arena,moon2,voidstage,voidraid,artifactworld,artifactworld01,artifactworld02,artifactworld03,bazaar,goldshores,limbo,mysteryspace" };
         private static NetworkSoundEventDef ArchNemesisAppearSound;
+        //private static NetworkSoundEventDef ArchNemesisAppearMusic;
+        //private static NetworkSoundEventDef ArchNemesisAppearMusicStop;
 
         // RoR2/Base/Common/ColorRamps/texRampWarbanner.png 
 
@@ -79,6 +85,8 @@ namespace CaeliImperium.Elites
         {
             //ArchNemesisWard.transform.GetChild(0).GetChild(0).GetComponent<MeshRenderer>().material = ArchNemesisMat;
             AddConfigs();
+            BlackListEntities();
+
             if (!ArchNemesisEnable.Value)
             {
                 return;
@@ -98,7 +106,47 @@ namespace CaeliImperium.Elites
             RoR2.Stage.onStageStartGlobal += SpawnArchNemesis;
             //On.RoR2.CharacterBody.Start += SetArchNemesis;
             On.RoR2.CharacterBody.OnDeathStart += RemoveArchNemesis;
-            Run.onRunStartGlobal += RespawnArchNemesis;
+            //Run.onRunStartGlobal += RespawnArchNemesis;
+        }
+
+        private static void BlackListEntities()
+        {
+            var bodyList = ArchNemesisBodyBlacklist.ToList();
+            if (!ArchNemesisMithrix.Value)
+            {
+                bodyList.Add(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Brother/BrotherMaster.prefab").WaitForCompletion());
+                bodyList.Add(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Brother/BrotherHurtMaster.prefab").WaitForCompletion());
+                bodyList.Add(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Brother/BrotherGlassMaster.prefab").WaitForCompletion());
+                bodyList.Add(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Brother/BrotherHauntMaster.prefab").WaitForCompletion());
+            }
+            if (!ArchNemesisVoidling.Value)
+            {
+                // I probably blacklisted Void Devastator too. I don't know where it is so i leave it for now
+                bodyList.Add(Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidRaidCrab/VoidRaidCrabMaster.prefab").WaitForCompletion());
+                bodyList.Add(Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidRaidCrab/VoidRaidCrabJointMaster.prefab").WaitForCompletion());
+                bodyList.Add(Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidRaidCrab/MiniVoidRaidCrabMasterBase.prefab").WaitForCompletion());
+                bodyList.Add(Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidRaidCrab/MiniVoidRaidCrabMasterPhase1.prefab").WaitForCompletion());
+                bodyList.Add(Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidRaidCrab/MiniVoidRaidCrabMasterPhase2.prefab").WaitForCompletion());
+                bodyList.Add(Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidRaidCrab/MiniVoidRaidCrabMasterPhase3.prefab").WaitForCompletion());
+            }
+            if (!ArchNemesisScavenger.Value)
+            {
+                bodyList.Add(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Scav/ScavMaster.prefab").WaitForCompletion());
+            }
+            if (!ArchNemesisLunarScavengers.Value)
+            {
+                bodyList.Add(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ScavLunar/ScavLunar1Master.prefab").WaitForCompletion());
+                bodyList.Add(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ScavLunar/ScavLunar2Master.prefab").WaitForCompletion());
+                bodyList.Add(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ScavLunar/ScavLunar3Master.prefab").WaitForCompletion());
+                bodyList.Add(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ScavLunar/ScavLunar4Master.prefab").WaitForCompletion());
+            }
+            if (!ArchNemesisFalseSon.Value)
+            {
+                bodyList.Add(Addressables.LoadAssetAsync<GameObject>("RoR2/DLC2/FalseSon/FalseSonMonsterMaster.prefab").WaitForCompletion());
+                bodyList.Add(Addressables.LoadAssetAsync<GameObject>("RoR2/DLC2/FalseSonBoss/FalseSonBossMaster.prefab").WaitForCompletion());
+            }
+
+            ArchNemesisBodyBlacklist = bodyList.ToArray();
         }
 
         private static void AddConfigs()
@@ -145,12 +193,24 @@ namespace CaeliImperium.Elites
                                          "Control the chance Arch Nemesis elite drops its item on Player team");
             ArchNemesisSpawnChance = Config.Bind<float>("Elite : Arch Nemesis",
                                          "Spawn chance",
-                                         100f,
+                                         25f,
                                          "Control Arch Nemesis spawn chance");
+            ArchNemesisSpawnAdditionalChance = Config.Bind<float>("Elite : Arch Nemesis",
+                                         "Extra spawn chance",
+                                         25f,
+                                         "Control Arch Nemesis spawn chance increase if the chance to spawn it failed");
+            ArchNemesisSpawnResetAdditionalChance = Config.Bind<bool>("Elite : Arch Nemesis",
+                             "Reset extra spawn chance",
+                             true,
+                             "Reset additional spawn chance when Arch Nemesis spawns?");
             ArchNemesisStageBegin = Config.Bind<int>("Elite : Arch Nemesis",
                                          "Stage",
                                          2,
-                                         "Control from which stage monsters can become an Arch Nemesis");
+                                         "Control from which stage count monsters can become an Arch Nemesis");
+            ArchNemesisLoopBegin = Config.Bind<int>("Elite : Arch Nemesis",
+                                         "Loop",
+                                         1,
+                                         "Control from which loop count an Arch Nemesis can spawn");
             ArchNemesisRemove = Config.Bind<bool>("Elite : Arch Nemesis",
                                          "Remove on kill",
                                          true,
@@ -194,7 +254,9 @@ namespace CaeliImperium.Elites
             ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisDropChance));
             ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisDropChancePlayer));
             ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisSpawnChance));
+            ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisSpawnAdditionalChance));
             ModSettingsManager.AddOption(new IntFieldOption(ArchNemesisStageBegin));
+            ModSettingsManager.AddOption(new IntFieldOption(ArchNemesisLoopBegin));
             ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisRemove));
             ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisAIBlacklistItems));
             ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisChampions));
@@ -256,6 +318,12 @@ namespace CaeliImperium.Elites
             ArchNemesisAppearSound = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
             ArchNemesisAppearSound.eventName = "Play_arch_nemesis_appear";
             R2API.ContentAddition.AddNetworkSoundEventDef(ArchNemesisAppearSound);
+            //ArchNemesisAppearMusic = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
+            //ArchNemesisAppearMusic.eventName = "Play_archnemesis1";
+            //R2API.ContentAddition.AddNetworkSoundEventDef(ArchNemesisAppearMusic);
+            //ArchNemesisAppearMusicStop = ScriptableObject.CreateInstance<NetworkSoundEventDef>();
+            //ArchNemesisAppearMusicStop.eventName = "Stop_archnemesis1";
+            //R2API.ContentAddition.AddNetworkSoundEventDef(ArchNemesisAppearMusicStop);
         }
         private static void RemoveArchNemesis(On.RoR2.CharacterBody.orig_OnDeathStart orig, CharacterBody self)
         {
@@ -284,7 +352,8 @@ namespace CaeliImperium.Elites
                 PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(CoolHat.CoolHatItemDef.itemIndex), self.transform.position, self.transform.up * 20f);
 
                 }
-
+                //EntitySoundManager.EmitSoundServer(ArchNemesisAppearSound.akId, self.gameObject);
+                //AkSoundEngine.SetRTPCValue("Volume_MSX", 100);
                 //archNemesisInventory = null;
                 //ArchNemesisDead = true;
                 //File.Delete(System.IO.Path.Combine(SavesDirectory, "IsDefeated.txt"));
@@ -319,19 +388,33 @@ namespace CaeliImperium.Elites
             {
                 int ArchNemesisStageCount = int.Parse(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Stage.txt")));
                 string isDefeated = File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "IsDefeated.txt"));
-                if (stage.sceneDef.stageOrder >= ArchNemesisStageCount && !forbiddenStages.Contains(stage.sceneDef.cachedName)  && isDefeated == "False")
+                if (isDefeated == "False" && Run.instance.stageClearCount >= ArchNemesisStageCount && !forbiddenStages.Contains(stage.sceneDef.cachedName) && Run.instance.loopClearCount >= ArchNemesisLoopBegin.Value)
                 {
-                    if (!Util.CheckRoll(ArchNemesisSpawnChance.Value))
+                    if (!Util.CheckRoll(ArchNemesisSpawnChance.Value + additionalChance))
                     {
                         return;
                     }
-
+                    else
+                    {
+                        additionalChance += ArchNemesisSpawnAdditionalChance.Value;
+                    }
+                    additionalChance = 0;
                 TeamIndex ArchNemesisTeam = (TeamIndex)int.Parse(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Team.txt")));
 
                     //Chat.AddMessage("There is an Arch Nemesis here");=
-                    GameObject archNemesisMasterPrefab = GetMasterPrefab(FindMasterIndex(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Prefab.txt"))));
+                    GameObject archNemesisMasterPrefab;
+                    try
+                    {
+                    archNemesisMasterPrefab = GetMasterPrefab(FindMasterIndex(File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Prefab.txt"))));
+
+                    }
+                    catch
+                    {
+                        Debug.LogError("Could not summon " + File.ReadAllText(System.IO.Path.Combine(SavesDirectory, "Prefab.txt")) + " as an Arch Nemesis");
+                        return;
+                    }
                     NodeGraph nodeGraph = SceneInfo.instance.GetNodeGraph(MapNodeGroup.GraphType.Ground);
-                    List<NodeGraph.NodeIndex> source = nodeGraph.FindNodesInRange(stage.transform.position, 50f, 200f, HullMask.Human);
+                    List<NodeGraph.NodeIndex> source = nodeGraph.FindNodesInRange(stage.transform.position, 50f, 400f, HullMask.Human);
                     Vector3 vector;
                     nodeGraph.GetNodePosition(source.First<NodeGraph.NodeIndex>(), out vector);
                     var summon = new MasterSummon
@@ -374,12 +457,13 @@ namespace CaeliImperium.Elites
                                 }
                                 catch
                                 {
-                                    Debug.LogError("Could not give " + archNemesisInventoryArray[i] + "to Arch Nemesis");
+                                    Debug.LogError("Could not give " + archNemesisInventoryArray[i] + " to Arch Nemesis");
                                 }
 
                             }
                         }
                         EntitySoundManager.EmitSoundServer(ArchNemesisAppearSound.akId, characterMaster.GetBodyObject());
+                        //AkSoundEngine.SetRTPCValue("Volume_MSX", 0);
                         //foreach (var playerCharacterMaster in PlayerCharacterMasterController.instances)
                         //{
                         //    if (playerCharacterMaster != null && playerCharacterMaster.master && playerCharacterMaster.master.GetBody())

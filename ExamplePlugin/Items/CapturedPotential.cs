@@ -542,9 +542,7 @@ private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, 
         [ConCommand(commandName = "EquipArrayIndexUp", flags = ConVarFlags.ExecuteOnServer)]
         private static void EquipArrayIndexUp(ConCommandArgs args)
         {
-            //Chat.AddMessage("up");
-
-            CharacterMaster networkIdentity = args.senderBody.masterObject.GetComponent<CapturedPotentialComponent>().master;
+            CharacterMaster networkIdentity = args.senderBody.masterObject.GetComponent<CapturedPotentialComponent>() ? args.senderBody.masterObject.GetComponent<CapturedPotentialComponent>().master : null;
 
             if (networkIdentity && args.senderMasterObject.GetComponent<CapturedPotentialComponent>())
             {
@@ -557,13 +555,18 @@ private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, 
                     Array.Copy(args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray, 1, args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray, 0, args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray.Length - 1);
                     args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray.SetValue(networkIdentity.inventory.GetEquipmentIndex(), args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray.Length - 1);
                     networkIdentity.inventory.SetEquipmentIndex(portal);
+                    if (CapturedPotentialSound.Value)
+                    {
+                        EntitySoundManager.EmitSoundServer(EquipArrayUpSound.akId, args.senderBody.gameObject);
+
+                    }
                 }
             }
         }
         [ConCommand(commandName = "EquipArrayIndexDown", flags = ConVarFlags.ExecuteOnServer)]
         private static void EquipArrayIndexDown(ConCommandArgs args)
         {
-            CharacterMaster networkIdentity = args.senderBody.masterObject.GetComponent<CapturedPotentialComponent>().master ;
+            CharacterMaster networkIdentity = args.senderBody.masterObject.GetComponent<CapturedPotentialComponent>() ? args.senderBody.masterObject.GetComponent<CapturedPotentialComponent>().master : null;
             if (networkIdentity && args.senderMasterObject.GetComponent<CapturedPotentialComponent>())
             {
                 int itemCount = args.senderBody.inventory ? args.senderBody.inventory.GetItemCount(CapturedPotentialItemDef) : 0;
@@ -576,7 +579,11 @@ private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, 
                     args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray.SetValue(networkIdentity.inventory.GetEquipmentIndex(), args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray.Length - 1);
                     networkIdentity.inventory.SetEquipmentIndex(portal);
                     Array.Reverse(args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray);
-                    
+                    if (CapturedPotentialSound.Value)
+                    {
+                        EntitySoundManager.EmitSoundServer(EquipArrayDownSound.akId, args.senderBody.gameObject);
+
+                    }
                 }
             }
         }

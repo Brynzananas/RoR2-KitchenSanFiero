@@ -100,7 +100,7 @@ namespace CaeliImperium.Items
                                          "1: Common/White\n2: Uncommon/Green\n3: Rare/Red");//\nDefault value: " + PackOfCiggaretesTier.DefaultValue);
             PackOfCiggaretesTime = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Interval",
-                                         2,
+                                         1,
                                          "Control the interval");//\nDefault value: " + PackOfCiggaretesTime.DefaultValue);
             PackOfCiggaretesCurse = Config.Bind<int>("Item : Pack of Siggaretes",
                                          "Permanent damage",
@@ -112,11 +112,11 @@ namespace CaeliImperium.Items
                                          "Control the amount of permanent damage per item stack");//\nDefault value: " + PackOfCiggaretesCurseStack.DefaultValue);
             PackOfCiggaretesCurseTime = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Permanent damage time",
-                                         10,
+                                         5,
                                          "Control the time of permanent damage in seconds\nSet it to 0 to make it permanent");//\nDefault value: " + PackOfCiggaretesCurseTime.DefaultValue);
             PackOfCiggaretesCurseTimeStack = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Permanent damage time stack",
-                                         10,
+                                         5,
                                          "Control the time addition of permanent damage per item stack in seconds");//\nDefault value: " + PackOfCiggaretesCurseTimeStack.DefaultValue);
             /*PackOfCiggaretesRework = Config.Bind<bool>("Item : Pack of Siggaretes",
                                          "Rework",

@@ -198,7 +198,7 @@ namespace CaeliImperium.Elites
             orig(self, damageInfo, victim);
             if (BrassModalityDoWound.Value)
             {
-                if (damageInfo.attacker && victim && victim.GetComponent<CharacterBody>() && !damageInfo.rejected && damageInfo.attacker.GetComponent<CharacterBody>().HasBuff(AffixBrassModalityBuff))
+                if (damageInfo.attacker && !damageInfo.rejected && victim && victim.GetComponent<CharacterBody>() && damageInfo.attacker.GetComponent<CharacterBody>() && damageInfo.attacker.GetComponent<CharacterBody>().HasBuff(AffixBrassModalityBuff))
                 {
                     float timer = 0;
                     if (BrassModalityDoWoundTime.Value)

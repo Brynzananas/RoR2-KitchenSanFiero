@@ -47,7 +47,7 @@ namespace CaeliImperiumPlugin
         public const string PluginGUID = PluginAuthor + PluginName;
         public const string PluginAuthor = "Brynzananas";
         public const string PluginName = "CaeliImperium";
-        public const string PluginVersion = "0.7.4";
+        public const string PluginVersion = "0.7.5";
         public static string SavesDirectory { get; } = System.IO.Path.Combine(Application.persistentDataPath, "ArchNemesis");
         public static ExpansionDef CaeliImperiumExpansionDef = ScriptableObject.CreateInstance<ExpansionDef>();
         public static AssetBundle MainAssets;
@@ -57,14 +57,15 @@ namespace CaeliImperiumPlugin
         public static Inventory[] deadInventoryArray = new Inventory[420];
         public static GameObject[] deadMasterPrefabArray = new GameObject[420];
         public static GameObject deadMasterprefab;
-        public static GameObject MithrixBody = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Brother/BrotherMaster.prefab").WaitForCompletion();
-        public static GameObject VoidlingBody = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidRaidCrab/VoidRaidCrabMaster.prefab").WaitForCompletion();
-        public static GameObject FalseSonBody = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC2/FalseSonBoss/FalseSonBossMaster.prefab").WaitForCompletion();
-        public static GameObject ScavengerBody = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Scav/ScavMaster.prefab").WaitForCompletion();
-        public static GameObject LunarScavenger1Body = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ScavLunar/ScavLunar1Master.prefab").WaitForCompletion();
-        public static GameObject LunarScavenger2Body = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ScavLunar/ScavLunar2Master.prefab").WaitForCompletion();
-        public static GameObject LunarScavenger3Body = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ScavLunar/ScavLunar3Master.prefab").WaitForCompletion();
-        public static GameObject LunarScavenger4Body = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ScavLunar/ScavLunar4Master.prefab").WaitForCompletion();
+        public static GameObject[] ArchNemesisBodyBlacklist = new GameObject[0];
+        //public static GameObject MithrixBody = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Brother/BrotherMaster.prefab").WaitForCompletion();
+        //public static GameObject VoidlingBody = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidRaidCrab/VoidRaidCrabMaster.prefab").WaitForCompletion();
+        //public static GameObject FalseSonBody = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC2/FalseSonBoss/FalseSonBossMaster.prefab").WaitForCompletion();
+        //public static GameObject ScavengerBody = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Scav/ScavMaster.prefab").WaitForCompletion();
+        //public static GameObject LunarScavenger1Body = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ScavLunar/ScavLunar1Master.prefab").WaitForCompletion();
+        //public static GameObject LunarScavenger2Body = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ScavLunar/ScavLunar2Master.prefab").WaitForCompletion();
+        //public static GameObject LunarScavenger3Body = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ScavLunar/ScavLunar3Master.prefab").WaitForCompletion();
+        //public static GameObject LunarScavenger4Body = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ScavLunar/ScavLunar4Master.prefab").WaitForCompletion();
         public static UnityEngine.Vector3 deadPosition;
         public static Inventory deadInventory; 
         
@@ -176,6 +177,8 @@ namespace CaeliImperiumPlugin
             RejectedDagger.Init();
             LikeADragon.Init();
             OpposingForce.Init();
+            
+            
             //CreateEliteTiers();
         }
         //public static void ShaderConversion(AssetBundle assets)
@@ -197,7 +200,7 @@ namespace CaeliImperiumPlugin
 
         private void Update()
         {
-            if (!PauseManager.isPaused && CapturedPotential.CapturedPotentialEnable.Value && NetworkUser.readOnlyLocalPlayersList.Count > 0 && NetworkUser.readOnlyLocalPlayersList[0].master?.inventory && NetworkUser.readOnlyLocalPlayersList[0].master?.inventory.GetItemCount(CapturedPotentialItemDef) > 0)
+            if (!PauseManager.isPaused && CapturedPotential.CapturedPotentialEnable.Value && Run.instance)
             {
 
                 //var equipArray = GetOrCreateComponent(body.master).equipArray;
@@ -215,21 +218,12 @@ namespace CaeliImperiumPlugin
                 if (key1 && ((Input.mouseScrollDelta == Vector2.up && mouseWheel) || (Input.GetKeyUp(CapturedPotentialKey2.Value.MainKey) || Input.GetKeyUp(CapturedPotentialKey4.Value.MainKey))))
                 {
                     RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList.FirstOrDefault(), "EquipArrayIndexUp");
-                    if (CapturedPotentialSound.Value)
-                    {
-                    EntitySoundManager.EmitSoundServer(EquipArrayUpSound.akId, NetworkUser.readOnlyLocalPlayersList[0].master?.GetBody().gameObject);
-
-                    }
+                    
                     
                 }
                 if (key1 && ((Input.mouseScrollDelta == Vector2.down && mouseWheel) || (Input.GetKeyUp(CapturedPotentialKey3.Value.MainKey) || Input.GetKeyUp(CapturedPotentialKey5.Value.MainKey))))
                 {
                     RoR2.Console.instance.SubmitCmd(NetworkUser.readOnlyLocalPlayersList.FirstOrDefault(), "EquipArrayIndexDown");
-                    if (CapturedPotentialSound.Value)
-                    {
-                    EntitySoundManager.EmitSoundServer(EquipArrayDownSound.akId, NetworkUser.readOnlyLocalPlayersList[0].master?.GetBody().gameObject);
-
-                    }
                 }
             }
         }
@@ -332,39 +326,15 @@ namespace CaeliImperiumPlugin
         private void ifItKillsPlayer(On.RoR2.CharacterBody.orig_HandleOnKillEffectsServer orig, CharacterBody self, DamageReport damageReport)
         {
             orig(self, damageReport);
-            if (self && damageReport.victimBody && damageReport.victimBody.isPlayerControlled && damageReport.victimBody.teamComponent.teamIndex == TeamIndex.Player && self.inventory.GetEquipmentIndex() != ArchNemesis.AffixArchNemesisEquipment.equipmentIndex && Stage.instance.sceneDef.stageOrder >= ArchNemesisStageBegin.Value)
+            if (self && damageReport.victimBody && damageReport.victimBody.isPlayerControlled && damageReport.victimBody.teamComponent.teamIndex == TeamIndex.Player && self.inventory.GetEquipmentIndex() != ArchNemesis.AffixArchNemesisEquipment.equipmentIndex && Run.instance.stageClearCount >= ArchNemesisStageBegin.Value)
             {
                 if (self.isChampion && !ArchNemesisChampions.Value)
                 {
                     //Debug.Log("Death by champion");
                     return;
                 }
-                if (self.master.masterIndex == MithrixBody.GetComponent<CharacterMaster>().masterIndex && !ArchNemesisMithrix.Value)
+                if (ArchNemesisBodyBlacklist.Contains(MasterCatalog.GetMasterPrefab(self.master.masterIndex)))
                 {
-                    //Debug.Log("Death by Mithrix");
-                    return;
-                }
-                if (self.master.masterIndex == VoidlingBody.GetComponent<CharacterMaster>().masterIndex && ArchNemesisVoidling.Value)
-                {
-                    //Debug.Log("Death by Voidling");
-                    return;
-                }
-                if (self.master.masterIndex == FalseSonBody.GetComponent<CharacterMaster>().masterIndex && ArchNemesisFalseSon.Value)
-                {
-                    //Debug.Log("Death by False Son");
-                    return;
-                }
-                if (self.master.masterIndex == ScavengerBody.GetComponent<CharacterMaster>().masterIndex && ArchNemesisScavenger.Value)
-                {
-                    //Debug.Log("Death by Scavenger");
-                    return;
-                }
-                if ((self.master.masterIndex == LunarScavenger1Body.GetComponent<CharacterMaster>().masterIndex ||
-                    self.master.masterIndex == LunarScavenger2Body.GetComponent<CharacterMaster>().masterIndex ||
-                    self.master.masterIndex == LunarScavenger3Body.GetComponent<CharacterMaster>().masterIndex ||
-                    self.master.masterIndex == LunarScavenger4Body.GetComponent<CharacterMaster>().masterIndex) && ArchNemesisLunarScavengers.Value)
-                {
-                    //Debug.Log("Death by Lunar Scavengers");
                     return;
                 }
                 //archNemesisMasterPrefab = MasterCatalog.GetMasterPrefab(self.master.masterIndex);

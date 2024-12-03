@@ -159,7 +159,7 @@ namespace CaeliImperium.Items
                 {
                 itemCount = victimBody.inventory ? victimBody.inventory.GetItemCount(OpposingForceItemDef) : 0;
                 }
-                if (itemCount > 0 && victimBody.armor > 0)
+                if (itemCount > 0 && victimBody && victimBody.armor > 0)
                 {                   
                     CharacterBody attackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
 

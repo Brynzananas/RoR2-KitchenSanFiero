@@ -98,7 +98,7 @@ namespace CaeliImperium.Equipment
                              "Control the equipment cooldown");
             EnforcerHandImmunity = Config.Bind<float>("Equipment : Enforcer Hand",
                              "Immunity",
-                             1f,
+                             0f,
                              "Control the immunity time after the parry in seconds");
             EnforcerHandViewAngle = Config.Bind<float>("Equipment : Enforcer Hand",
                              "View Angle",
@@ -406,8 +406,8 @@ localScale = new Vector3(0.40697F, 0.40697F, 0.40697F)
         public static void AddLanguageTokens()
         {
             LanguageAPI.Add("ENFORCERHAND_NAME", "Enforcer Hand");
-            LanguageAPI.Add("ENFORCERHAND_PICKUP", "<style=cIsDamage>Parry</style> an <style=cIsDamage>incoming attack</style> back to the attacker in a " + EnforcerHandTimeWindow.Value + "seconds time window on use");
-            LanguageAPI.Add("ENFORCERHAND_DESC", "<style=cIsDamage>Parry</style> an <style=cIsDamage>incoming attack</style> back to the attacker in a " + EnforcerHandTimeWindow.Value + "seconds time window on use");
+            LanguageAPI.Add("ENFORCERHAND_PICKUP", "<style=cIsDamage>Parry</style> an <style=cIsDamage>incoming attack</style> back to the attacker in a " + EnforcerHandTimeWindow.Value + "seconds time window on use. Deals <style=cIsDamage>" + EnforcerHandReflectDamageMultiplier.Value + "x reflected damage</style>, <style=cIsDamage>" + EnforcerHandTotalDamageMultiplier.Value + "% TOTAL damage</style> and <style=cIsHealth>" + EnforcerHandMaxHealthDamageMulyiplier.Value + "%</style> attackers <style=cIsHealth>max health</style>. Applies " + EnforcerHandWoundedCount.Value + " amount of Wound for " + EnforcerHandWoundedTime.Value + " seconds");
+            LanguageAPI.Add("ENFORCERHAND_DESC", "<style=cIsDamage>Parry</style> an <style=cIsDamage>incoming attack</style> back to the attacker in a " + EnforcerHandTimeWindow.Value + "seconds time window on use. Deals <style=cIsDamage>" + EnforcerHandReflectDamageMultiplier.Value + "x reflected damage</style>, <style=cIsDamage>" + EnforcerHandTotalDamageMultiplier.Value + "% TOTAL damage</style> and <style=cIsHealth>" + EnforcerHandMaxHealthDamageMulyiplier.Value + "%</style> attackers <style=cIsHealth>max health</style>. Applies " + EnforcerHandWoundedCount.Value + " amount of Wound for " + EnforcerHandWoundedTime.Value + " seconds");
             LanguageAPI.Add("ENFORCERHAND_LORE", "<style=cMono>//--SURVIVOR №17 STATUS--//</style>" +
                 "\n" +
                 "CLASS: Enforcer" +

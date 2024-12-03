@@ -47,7 +47,7 @@ namespace CaeliImperiumPlugin
         public const string PluginGUID = PluginAuthor + PluginName;
         public const string PluginAuthor = "Brynzananas";
         public const string PluginName = "CaeliImperium";
-        public const string PluginVersion = "0.7.3";
+        public const string PluginVersion = "0.7.4";
         public static string SavesDirectory { get; } = System.IO.Path.Combine(Application.persistentDataPath, "ArchNemesis");
         public static ExpansionDef CaeliImperiumExpansionDef = ScriptableObject.CreateInstance<ExpansionDef>();
         public static AssetBundle MainAssets;

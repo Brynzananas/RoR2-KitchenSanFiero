@@ -149,11 +149,11 @@ namespace CaeliImperium.Elites
                                          "Enable: Applies flat amount of Wound on hit\nDisable: Applies scaled from damage amount of Wound on Hit");
             BrassModalityDoWoundTime = Config.Bind<bool>("Elite : Brass Modality",
                                          "Wound time function",
-                                         false,
+                                         true,
                                          "Enable: Wound lasts flat amount of time\nDisable: Wound lasts based on damage");
             BrassModalityFlatWoundTime = Config.Bind<float>("Elite : Brass Modality",
                                          "Flat Wound time",
-                                         10f,
+                                         5f,
                                          "Control the duration of a Wounded debuff in seconds");
             BrassModalityDamageWoundTime = Config.Bind<float>("Elite : Brass Modality",
                                          "Damage to Wound time",
@@ -161,7 +161,7 @@ namespace CaeliImperium.Elites
                                          "Control the multiplier upon converting damage to Wound time");
             BrassModalityFlatWoundAmount = Config.Bind<int>("Elite : Brass Modality",
                                          "Flat Wound amount",
-                                         2,
+                                         5,
                                          "Control the amount of Wound per hit");
             BrassModalityDamageWoundAmount = Config.Bind<float>("Elite : Brass Modality",
                                          "Damage to Wound amount",
@@ -198,7 +198,7 @@ namespace CaeliImperium.Elites
             orig(self, damageInfo, victim);
             if (BrassModalityDoWound.Value)
             {
-                if (damageInfo.attacker && !damageInfo.rejected && damageInfo.attacker.GetComponent<CharacterBody>().HasBuff(AffixBrassModalityBuff) && BrassModalityDoWound.Value)
+                if (damageInfo.attacker && victim && victim.GetComponent<CharacterBody>() && !damageInfo.rejected && damageInfo.attacker.GetComponent<CharacterBody>().HasBuff(AffixBrassModalityBuff))
                 {
                     float timer = 0;
                     if (BrassModalityDoWoundTime.Value)

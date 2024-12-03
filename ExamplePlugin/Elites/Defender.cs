@@ -293,25 +293,31 @@ namespace CaeliImperium.Elites
                     if (roll)
                     {
                         SetStateOnHurt component = self.GetComponent<SetStateOnHurt>();
-                        if (component.hasEffectiveAuthority)
+                        if (component && !self.isChampion)
                         {
-                            if (!self.isChampion)
-                            {
-                                component.SetStunInternal(0.2f);
-                            }
-                            EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
-                        }
-                        else
-                        {
-                            if (!self.isChampion)
-                            {
-                                component.SetStunInternal(0.2f);
-                            }
-                            EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
+                            component.SetStunInternal(0.2f);
 
                         }
+                        EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
+                        //if (component.hasEffectiveAuthority)
+                        //{
+                        //    if (!self.isChampion)
+                        //    {
+                        //        component.SetStunInternal(0.2f);
+                        //    }
+                        //    EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
+                        //}
+                        //else
+                        //{
+                        //    if (!self.isChampion)
+                        //    {
+                        //        component.SetStunInternal(0.2f);
+                        //    }
+                        //    EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
+
+                        //}
                         self.AddTimedBuff(DazzledBuff.DazzledBuffDef, DefenderDazzledTime.Value);
-
+                        return;
                     }
                 }
                 

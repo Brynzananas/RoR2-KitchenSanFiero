@@ -485,8 +485,8 @@ localScale = new Vector3(0.29592F, 0.29592F, 0.29592F)
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add("NECRONOMICON_NAME", "Necronomicon");
-            LanguageAPI.Add("NECRONOMICON_PICKUP", "On use revive <style=cIsDamage>" + NecronomiconSpawnAmount.Value + "</style> last dead monsters to fight on <style=cIsDamagee>your side</style>");
-            LanguageAPI.Add("NECRONOMICON_DESC", "On use revive <style=cIsDamage>" + NecronomiconSpawnAmount.Value + "</style> last dead monsters to fight on <style=cIsDamage>your side</style>");
+            LanguageAPI.Add("NECRONOMICON_PICKUP", "On use revive " + NecronomiconSpawnAmount.Value + " last dead monsters to <style=cIsDamage>fight on your side</style>. Spawned monsters have <style=cIsHealth>" + NecronomiconHealthBoost.Value * 10 + "% more health</style> and <style=cIsDamage>" + NecronomiconDamageBoost.Value * 10 +  "% more damage</style>. They live for " + NecronomiconHealthDrain.Value + " seconds and cannot be revived again");
+            LanguageAPI.Add("NECRONOMICON_DESC", "On use revive " + NecronomiconSpawnAmount.Value + " last dead monsters to <style=cIsDamage>fight on your side</style>. Spawned monsters have <style=cIsHealth>" + NecronomiconHealthBoost.Value * 10 + "% more health</style> and <style=cIsDamage>" + NecronomiconDamageBoost.Value * 10 + "% more damage</style>. They live for " + NecronomiconHealthDrain.Value + " seconds and cannot be revived again");
             LanguageAPI.Add("NECRONOMICON_LORE", "");
         }
     }

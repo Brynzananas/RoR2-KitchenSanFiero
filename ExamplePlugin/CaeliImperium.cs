@@ -311,6 +311,61 @@ namespace CaeliImperiumPlugin
         {
             return (1f - maxChance / (maxChance + amplificationPercentage)) * maxChance;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Falloff(float amplificationPercentage, float maxChance, float maxDistance)
+        {
+            return (1f - maxDistance / (maxDistance + (maxDistance - amplificationPercentage))) * maxChance * 2;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float StackFLoat(float value, float stack, int itemCount)
+        {
+            return (value + ((itemCount - 1) * stack));
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int StackInt(int value, int stack, int itemCount)
+        {
+            return (value + ((itemCount - 1) * stack));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float ConfigFloat(ConfigEntry<float> value, ConfigEntry<bool> enable)
+        {
+            if (enable.Value)
+            {
+                return value.Value;
+            }
+            else
+            {
+            return (float)value.DefaultValue;
+
+            }
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int ConfigInt(ConfigEntry<int> value, ConfigEntry<bool> enable)
+        {
+            if (enable.Value)
+            {
+                return value.Value;
+            }
+            else
+            {
+                return (int)value.DefaultValue;
+
+            }
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ConfigBool(ConfigEntry<bool> value, ConfigEntry<bool> enable)
+        {
+            if (enable.Value)
+            {
+                return value.Value;
+            }
+            else
+            {
+                return (bool)value.DefaultValue;
+
+            }
+        }
         private void ResetArrays(Stage stage)
         {
             Array.Clear(deadPositionArray, 0, deadPositionArray.Length);

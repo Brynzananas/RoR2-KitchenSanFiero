@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using static CaeliImperiumPlugin.CaeliImperium;
+using static CaeliImperium.Items.BrassBell;
 using static R2API.RecalculateStatsAPI;
 
 namespace CaeliImperium.Buffs
@@ -56,17 +57,17 @@ namespace CaeliImperium.Buffs
             orig(self, buffDef);
             if (buffDef == BrassBoostedBuffDef)
             {
-                if (self.skillLocator.secondary.stock <= 0 && BrassBell.BrassBellIsReloadSecondary.Value)
+                if (self.skillLocator.secondary.stock <= 0 && ConfigBool(BrassBellIsReloadSecondary, BrassBellEnableConfig))
                 {
                 self.skillLocator.secondary.AddOneStock();
 
                 }
-                if (self.skillLocator.utility.stock <= 0 && BrassBell.BrassBellIsReloadutility.Value)
+                if (self.skillLocator.utility.stock <= 0 && ConfigBool(BrassBellIsReloadutility, BrassBellEnableConfig))
                 {
                     self.skillLocator.utility.AddOneStock();
 
                 }
-                if (self.skillLocator.special.stock <= 0 && BrassBell.BrassBellIsReloadSpecial.Value)
+                if (self.skillLocator.special.stock <= 0 && ConfigBool(BrassBellIsReloadSpecial, BrassBellEnableConfig))
                 {
                     self.skillLocator.special.AddOneStock();
 

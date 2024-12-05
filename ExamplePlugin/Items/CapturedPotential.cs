@@ -38,6 +38,7 @@ namespace CaeliImperium.Items
         internal static Sprite CapturedPotentialIcon;
         public static ItemDef CapturedPotentialItemDef;
         public static ConfigEntry<bool> CapturedPotentialEnable;
+        public static ConfigEntry<bool> CapturedPotentialEnableConfig;
         public static ConfigEntry<float> CapturedPotentialTier;
         public static ConfigEntry<int> CapturedPotentialEquipSlots;
         public static ConfigEntry<int> CapturedPotentialEquipSlotsStack;
@@ -74,7 +75,7 @@ public static bool hasAuroAffix = false;
             AddConfigs();
 
             string tier = "Assets/Icons/BrassBellIcon.png";
-            switch (CapturedPotentialTier.Value)
+            switch (ConfigFloat(CapturedPotentialTier, CapturedPotentialEnableConfig))
             {
                 case 1:
                     tier = "Assets/Icons/CapturedPotentialTier1.png";
@@ -105,6 +106,10 @@ public static bool hasAuroAffix = false;
                              "Activation",
                              true,
                              "Enable Captured Potential item?");
+            CapturedPotentialEnableConfig = Config.Bind<bool>("Item : Captured Potential",
+                             "Config Activation",
+                             false,
+                             "Enable config?");
             CapturedPotentialTier = Config.Bind<float>("Item : Captured Potential",
                                          "Item tier",
                                          2f,
@@ -116,7 +121,7 @@ public static bool hasAuroAffix = false;
             CapturedPotentialEquipSlotsStack = Config.Bind<int>("Item : Captured Potential",
                                          "Equipment slots stacking",
                                          1,
-                                         "Control how much this item gives equipment slots per next stacks");
+                                         "Control how much this item gives equipment slots per next stacks\nSet it to 0 to disable stacking");
             CapturedPotentialAffixes = Config.Bind<bool>("Item : Captured Potential",
                                          "Affixes compatibility",
                                          true,
@@ -126,34 +131,35 @@ public static bool hasAuroAffix = false;
                                          true,
                                          "Enable working Credit Card in inventory");
             CapturedPotentialSound = Config.Bind<bool>("Item : Captured Potential",
-                                         "Sound",
+                                         "|Sound|",
                                          true,
                                          "Enable switching equipments sound?");
             CapturedPotentialWheel = Config.Bind<bool>("Item : Captured Potential",
-                                         "Mouse wheel",
+                                         "|Mouse wheel|",
                                          true,
                                          "Enable Mouse Wheel as equipment switchng input?");
             CapturedPotentialKey1 = Config.Bind<KeyboardShortcut>("Item : Captured Potential",
-                                         "Key 1",
+                                         "|Key 1|",
                                          new KeyboardShortcut(KeyCode.E),
                                          "Key to start switching equipments\nUnbind it to always switch equipments on input");
             CapturedPotentialKey2 = Config.Bind<KeyboardShortcut>("Item : Captured Potential",
-                                         "Key 2",
+                                         "|Key 2|",
                                          new KeyboardShortcut(KeyCode.Alpha1),
                                          "Key to switch equipment up");
             CapturedPotentialKey3 = Config.Bind<KeyboardShortcut>("Item : Captured Potential",
-                                         "Key 3",
+                                         "|Key 3|",
                                          new KeyboardShortcut(KeyCode.Alpha3),
                                          "Key to switch equipment down");
             CapturedPotentialKey4 = Config.Bind<KeyboardShortcut>("Item : Captured Potential",
-                                         "Key 4",
+                                         "|Key 4|",
                                          new KeyboardShortcut(KeyCode.Joystick1Button4),
                                          "Key to switch equipment up for game controllers\nWIP: Does not work");
             CapturedPotentialKey5 = Config.Bind<KeyboardShortcut>("Item : Captured Potential",
-                                         "Key 5",
+                                         "|Key 5|",
                                          new KeyboardShortcut(KeyCode.Joystick1Button6),
                                          "Key to switch equipment down for game controllers\nWIP: Does not work");
             ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(CapturedPotentialTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new IntFieldOption(CapturedPotentialEquipSlots));
             ModSettingsManager.AddOption(new IntFieldOption(CapturedPotentialEquipSlotsStack));
@@ -184,7 +190,7 @@ public static bool hasAuroAffix = false;
             CapturedPotentialItemDef.pickupToken = "CAPTUREDPOTENTIAL_PICKUP";
             CapturedPotentialItemDef.descriptionToken = "CAPTUREDPOTENTIAL_DESC";
             CapturedPotentialItemDef.loreToken = "CAPTUREDPOTENTIAL_LORE";
-            switch (CapturedPotentialTier.Value)
+            switch (ConfigFloat(CapturedPotentialTier, CapturedPotentialEnableConfig))
             {
                 case 1:
                     CapturedPotentialItemDef.deprecatedTier = ItemTier.Tier1;
@@ -595,7 +601,7 @@ private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, 
             //Debug.Log("ActivatorMaster " + activatorMaster);
             int moneyCost = self.cost;
             //Debug.Log("MoneyCost " + moneyCost);
-            if (CapturedPotentialCard.Value && activatorMaster && activatorMaster.hasBody && activatorMaster.inventory && /*activatorMaster.inventory.currentEquipmentIndex != DLC1Content.Equipment.MultiShopCard.equipmentIndex &&*/ activatorMaster.GetBody().masterObject.GetComponent<CapturedPotentialComponent>() && activatorMaster.GetBody().masterObject.GetComponent<CapturedPotentialComponent>().equipArray.Contains(DLC1Content.Equipment.MultiShopCard.equipmentIndex))
+            if (ConfigBool(CapturedPotentialCard, CapturedPotentialEnableConfig) && activatorMaster && activatorMaster.hasBody && activatorMaster.inventory && /*activatorMaster.inventory.currentEquipmentIndex != DLC1Content.Equipment.MultiShopCard.equipmentIndex &&*/ activatorMaster.GetBody().masterObject.GetComponent<CapturedPotentialComponent>() && activatorMaster.GetBody().masterObject.GetComponent<CapturedPotentialComponent>().equipArray.Contains(DLC1Content.Equipment.MultiShopCard.equipmentIndex))
             {
                 //Debug.Log("true");
                 CharacterBody body = activatorMaster.GetBody();
@@ -800,7 +806,7 @@ private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, 
                         int itemCount = master.inventory ? master.inventory.GetItemCount(CapturedPotentialItemDef) : 0;
                         if (itemCount > 0)
                         {
-                            itemCount = CapturedPotentialEquipSlots.Value + ((master.inventory.GetItemCount(CapturedPotentialItemDef) - 1) * CapturedPotentialEquipSlotsStack.Value);
+                            itemCount = ConfigInt(CapturedPotentialEquipSlots, CapturedPotentialEnableConfig) + ((master.inventory.GetItemCount(CapturedPotentialItemDef) - 1) * ConfigInt(CapturedPotentialEquipSlotsStack, CapturedPotentialEnableConfig));
                         }
                         //var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray;
                         if (itemCount < equipArray.Length)
@@ -833,7 +839,7 @@ private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, 
                         }
                         var body = master.GetBody();
                         //timer += Time.fixedDeltaTime;
-                        if (CapturedPotentialAffixes.Value)
+                        if (ConfigBool(CapturedPotentialAffixes, CapturedPotentialEnableConfig))
                         {
                             {
                                 foreach (EquipmentIndex equipIndex in equipArray)
@@ -1207,9 +1213,14 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
         }
         private static void AddLanguageTokens()
         {
+            string slotStack = "";
+            if (ConfigInt(CapturedPotentialEquipSlotsStack, CapturedPotentialEnableConfig) != 0)
+            {
+                slotStack = " <style=cStack>(+" + CapturedPotentialEquipSlotsStack.Value + " per item stack)</style>";
+            }
             LanguageAPI.Add("CAPTUREDPOTENTIAL_NAME", "Captured Potential");
-            LanguageAPI.Add("CAPTUREDPOTENTIAL_PICKUP", "Gain <style=cIsUtility>+" + CapturedPotentialEquipSlots.Value + "</style> <style=cStack>(+" + CapturedPotentialEquipSlotsStack.Value + " per item stack)</style> <style=cIsUtility>equipment slots</style>");
-            LanguageAPI.Add("CAPTUREDPOTENTIAL_DESC", "Gain <style=cIsUtility>+" + CapturedPotentialEquipSlots.Value + "</style> <style=cStack>(+" + CapturedPotentialEquipSlotsStack.Value + " per item stack)</style> <style=cIsUtility>equipment slots</style>");
+            LanguageAPI.Add("CAPTUREDPOTENTIAL_PICKUP", "Gain <style=cIsUtility>+" + CapturedPotentialEquipSlots.Value + "</style>" + slotStack + " <style=cIsUtility>equipment slots</style>");
+            LanguageAPI.Add("CAPTUREDPOTENTIAL_DESC", "Gain <style=cIsUtility>+" + CapturedPotentialEquipSlots.Value + "</style>" + slotStack + " <style=cIsUtility>equipment slots</style>");
             LanguageAPI.Add("CAPTUREDPOTENTIAL_LORE", "<style=cMono>//--ATTEMPT № 45122--//</style>" +
                 "\n" +
                 "Void: 67.23%" +

@@ -7,6 +7,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using static CaeliImperiumPlugin.CaeliImperium;
+using static CaeliImperium.Items.BrassBell;
 using CaeliImperium;
 using UnityEngine.Networking;
 using RoR2.Audio;
@@ -46,7 +47,7 @@ namespace CaeliImperium.Buffs
             orig(self, buffDef);
             if (buffDef == BrassTimerBuffDef)
             {
-                self.AddTimedBuff(BrassBoostedBuff.BrassBoostedBuffDef, BrassBell.BrassBellEffectTime.Value + BrassBell.BrassBellEffectTimeStack.Value);
+                self.AddTimedBuff(BrassBoostedBuff.BrassBoostedBuffDef, ConfigFloat(BrassBellEffectTime, BrassBellEnableConfig) + ConfigFloat(BrassBellEffectTimeStack, BrassBellEnableConfig));
                 
             }
         }/*

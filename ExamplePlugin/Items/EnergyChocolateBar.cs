@@ -19,6 +19,7 @@ namespace CaeliImperium.Items
         internal static Sprite EnergyChocolateBarIcon;
         public static ItemDef EnergyChocolateBarItemDef;
         public static ConfigEntry<bool> EnergyChocolateBarsEnable;
+        public static ConfigEntry<bool> EnergyChocolateBarsEnableConfig;
         public static ConfigEntry<bool> EnergyChocolateBarsAIBlacklist;
         public static ConfigEntry<float> EnergyChocolateBarTier;
         public static ConfigEntry<float> EnergyChocolateBuffStats;
@@ -31,7 +32,7 @@ namespace CaeliImperium.Items
         {
             AddConfigs();
             string tier = "Assets/Icons/EnergisedChocolateBarIcon.png";
-            switch (EnergyChocolateBarTier.Value)
+            switch (ConfigFloat(EnergyChocolateBarTier, EnergyChocolateBarsEnableConfig))
             {
                 case 1:
                     tier = "Assets/Icons/EnergisedChocolateBarIcon.png";
@@ -62,6 +63,10 @@ namespace CaeliImperium.Items
                              "Activation",
                              true,
                              "Enable Energised Chocolate Bar item?");
+            EnergyChocolateBarsEnableConfig = Config.Bind<bool>("Item : Energised Chocolate Bar",
+                             "Config Activation",
+                             false,
+                             "Enable config?");
             EnergyChocolateBarsAIBlacklist = Config.Bind<bool>("Item : Energised Chocolate Bar",
                                          "AI Blacklist",
                                          false,
@@ -108,7 +113,7 @@ namespace CaeliImperium.Items
             EnergyChocolateBarItemDef.pickupToken = "ENERGYCHOCOLATEBAR_PICKUP";
             EnergyChocolateBarItemDef.descriptionToken = "ENERGYCHOCOLATEBAR_DESC";
             EnergyChocolateBarItemDef.loreToken = "ENERGYCHOCOLATEBAR_LORE";
-            switch (EnergyChocolateBarTier.Value)
+            switch (ConfigFloat(EnergyChocolateBarTier, EnergyChocolateBarsEnableConfig))
             {
                 case 1:
                     EnergyChocolateBarItemDef.deprecatedTier = ItemTier.Tier1;
@@ -127,7 +132,7 @@ namespace CaeliImperium.Items
             EnergyChocolateBarItemDef.hidden = false;
             EnergyChocolateBarItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Damage, ItemTag.Healing};
-            if (EnergyChocolateBarsAIBlacklist.Value)
+            if (ConfigBool(EnergyChocolateBarsAIBlacklist, EnergyChocolateBarsEnableConfig))
             {
                 tags.Add(ItemTag.AIBlacklist);
             }
@@ -341,7 +346,7 @@ localScale = new Vector3(1F, 1F, 1F)
         {
             orig(self, stage);
             int itemCount = self.inventory ? self.inventory.GetItemCount(EnergyChocolateBarItemDef) : 0;
-            if (itemCount > 0 && EnergyChocolateNextStage.Value != 0)
+            if (itemCount > 0 && ConfigFloat(EnergyChocolateNextStage, EnergyChocolateBarsEnableConfig) != 0)
                 
             {
                 int itemsToConsume = 0;
@@ -353,7 +358,7 @@ localScale = new Vector3(1F, 1F, 1F)
                 for (int i = 0; i < itemCount; i++)
                 {
                     //Debug.Log(Util.CheckRoll(EnergyChocolateStageConsumeChance.Value, -luckDown));
-                    if (Util.CheckRoll(EnergyChocolateStageConsumeChance.Value, -luckDown))
+                    if (Util.CheckRoll(ConfigFloat(EnergyChocolateStageConsumeChance, EnergyChocolateBarsEnableConfig), -luckDown))
                     {
                         itemsToConsume++;
                     }
@@ -361,7 +366,7 @@ localScale = new Vector3(1F, 1F, 1F)
                 //Debug.Log(itemsToConsume);
                 if (itemsToConsume > 0)
                 {
-                    switch (EnergyChocolateNextStage.Value)
+                    switch (ConfigFloat(EnergyChocolateNextStage, EnergyChocolateBarsEnableConfig))
                     {
                         case 0:
                             break;
@@ -387,13 +392,14 @@ localScale = new Vector3(1F, 1F, 1F)
             int statIncrease = sender.inventory ? sender.inventory.GetItemCount(EnergyChocolateBarItemDef) : 0;// * (EnergyChocolateBuffStats.Value / 100f) + 1;
             if (statIncrease > 0)
             {
-            args.healthMultAdd += (EnergyChocolateBuffStats.Value / 100f) + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 100f));
-            args.baseAttackSpeedAdd += (EnergyChocolateBuffStats.Value / 100f) + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 100f));
-                args.damageMultAdd += (EnergyChocolateBuffStats.Value / 100f) + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 100f));
-                args.moveSpeedMultAdd += (EnergyChocolateBuffStats.Value / 100f) + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 100f));
-                args.armorAdd += EnergyChocolateBuffStats.Value + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value));
-                args.regenMultAdd += (EnergyChocolateBuffStats.Value / 10f) + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value / 10f));
-                args.critAdd += EnergyChocolateBuffStats.Value + ((statIncrease - 1) * (EnergyChocolateBuffStatsStack.Value));
+                float statIncrease2 = ConfigFloat(EnergyChocolateBuffStats, EnergyChocolateBarsEnableConfig) + ((statIncrease - 1) * ConfigFloat(EnergyChocolateBuffStatsStack, EnergyChocolateBarsEnableConfig));
+            args.healthMultAdd += statIncrease2 / 100;
+            args.baseAttackSpeedAdd += statIncrease2 / 100;
+                args.damageMultAdd += statIncrease2 / 100;
+                args.moveSpeedMultAdd += statIncrease2 / 100;
+                args.armorAdd += statIncrease2;
+                args.regenMultAdd += statIncrease2 / 10;
+                args.critAdd += statIncrease2;
             }
             
         }
@@ -401,24 +407,24 @@ localScale = new Vector3(1F, 1F, 1F)
         private static void AddLanguageTokens()
         {
             string nextStageBehaviour = "";
-            if (EnergyChocolateNextStage.Value != 0)
+            if (ConfigFloat(EnergyChocolateNextStage, EnergyChocolateBarsEnableConfig) != 0)
             {
-                if (EnergyChocolateNextStage.Value == 1)
+                if (ConfigFloat(EnergyChocolateNextStage, EnergyChocolateBarsEnableConfig) == 1)
                 {
-                    nextStageBehaviour = " Consume on next stage with " + EnergyChocolateStageConsumeChance.Value + "% chance";
+                    nextStageBehaviour = " Consume on next stage with " + ConfigFloat(EnergyChocolateStageConsumeChance, EnergyChocolateBarsEnableConfig) + "% chance";
                 }
-                if (EnergyChocolateNextStage.Value == 2)
+                if (ConfigFloat(EnergyChocolateNextStage, EnergyChocolateBarsEnableConfig) == 2)
                 {
-                    nextStageBehaviour = " Scrap on next stage with " + EnergyChocolateStageConsumeChance.Value + "% chance";
+                    nextStageBehaviour = " Scrap on next stage with " + ConfigFloat(EnergyChocolateStageConsumeChance, EnergyChocolateBarsEnableConfig) + "% chance";
                 }
             }
             else
             {
                 nextStageBehaviour = "";
             }
-            LanguageAPI.Add("ENERGYCHOCOLATEBAR_NAME", "Energised Chocolate Bar");
-            LanguageAPI.Add("ENERGYCHOCOLATEBAR_PICKUP", "Increase <style=cIsDamage>all statistics</style> by <style=cIsDamage>" + EnergyChocolateBuffStats.Value + "%</style> <style=cStack>(+" + EnergyChocolateBuffStatsStack.Value + "% per item stack)." + nextStageBehaviour);
-            LanguageAPI.Add("ENERGYCHOCOLATEBAR_DESC", "Increase <style=cIsDamage>all statistics</style> by <style=cIsDamage>" + EnergyChocolateBuffStats.Value + "%</style> <style=cStack>(+" + EnergyChocolateBuffStatsStack.Value + "% per item stack)." + nextStageBehaviour);
+            LanguageAPI.Add("ENERGYCHOCOLATEBAR_NAME", "Energised Chocolate Bar");  
+            LanguageAPI.Add("ENERGYCHOCOLATEBAR_PICKUP", "Increase <style=cIsDamage>all statistics</style> by <style=cIsDamage>" + ConfigFloat(EnergyChocolateBuffStats, EnergyChocolateBarsEnableConfig) + "%</style> <style=cStack>(+" + ConfigFloat(EnergyChocolateBuffStatsStack, EnergyChocolateBarsEnableConfig) + "% per item stack)." + nextStageBehaviour);
+            LanguageAPI.Add("ENERGYCHOCOLATEBAR_DESC", "Increase <style=cIsDamage>all statistics</style> by <style=cIsDamage>" + ConfigFloat(EnergyChocolateBuffStats, EnergyChocolateBarsEnableConfig) + "%</style> <style=cStack>(+" + ConfigFloat(EnergyChocolateBuffStatsStack, EnergyChocolateBarsEnableConfig) + "% per item stack)." + nextStageBehaviour);
             LanguageAPI.Add("ENERGYCHOCOLATEBAR_LORE", "");
         }
     }

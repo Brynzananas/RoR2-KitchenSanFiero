@@ -27,22 +27,27 @@ namespace CaeliImperium.Items
         internal static Sprite GuardianCrownIcon;
         public static ItemDef GuardianCrownItemDef;
         public static ConfigEntry<bool> GuardianCrownEnable;
+        public static ConfigEntry<bool> GuardianCrownEnableConfig;
         public static ConfigEntry<bool> GuardianCrownAIBlacklist;
         public static ConfigEntry<float> GuardianCrownTier;
         public static ConfigEntry<bool> GuardianCrownLuckAffected;
         public static ConfigEntry<float> GuardianCrownChance;
         public static ConfigEntry<float> GuardianCrownEnemyChance;
         public static ConfigEntry<float> GuardianCrownDistance;
+        public static ConfigEntry<float> GuardianCrownDistanceStack;
         public static ConfigEntry<float> GuardianCrownDistanceMaxChance;
+        public static ConfigEntry<float> GuardianCrownDistanceMaxChanceStack;
         public static ConfigEntry<float> GuardianCrownMaxChance;
         public static ConfigEntry<float> GuardianCrownBuffTime;
         public static ConfigEntry<float> GuardianCrownBuffTimeStack;
+        public static ConfigEntry<int> GuardianCrownBuff;
+        public static ConfigEntry<int> GuardianCrownBuffStack;
         public static string name = "Guardian Crown";
         internal static void Init()
         {
             AddConfigs();
             string tier = "Assets/Icons/GuardianAngelCrown.png";
-            switch (GuardianCrownTier.Value)
+            switch (ConfigFloat(GuardianCrownTier, GuardianCrownEnableConfig))
             {
                 case 1:
                     tier = "Assets/Icons/GuardianAngelCrownTier1.png";
@@ -72,13 +77,17 @@ namespace CaeliImperium.Items
                              "Activation",
                              true,
                              "Enable " + name + " item?");
+            GuardianCrownEnableConfig = Config.Bind<bool>("Item : " + name,
+                             "Config Activation",
+                             false,
+                             "Enable config?");
             GuardianCrownAIBlacklist = Config.Bind<bool>("Item : " + name,
                              "AI Blacklist",
                              true,
                              "Blacklist this item from enemies?");
             GuardianCrownTier = Config.Bind<float>("Item : " + name,
                                          "Item tier",
-                                         2f,
+                                         3f,
                                          "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
             GuardianCrownLuckAffected = Config.Bind<bool>("Item : " + name,
                                          "Luck",
@@ -86,7 +95,7 @@ namespace CaeliImperium.Items
                                          "Is luck affected?");
             GuardianCrownChance = Config.Bind<float>("Item : " + name,
                                          "Chance for players",
-                                         15,
+                                         20,
                                          "Change the chance of enemies being stunned on their attack");
             GuardianCrownEnemyChance = Config.Bind<float>("Item : " + name,
                                          "Chance for enemies",
@@ -95,11 +104,19 @@ namespace CaeliImperium.Items
             GuardianCrownDistance = Config.Bind<float>("Item : " + name,
                                          "Distance",
                                          30,
-                                         "Change the distance for chance increase");
+                                         "Change the max distance for chance increase");
+            GuardianCrownDistanceStack = Config.Bind<float>("Item : " + name,
+                                         "Distance stack",
+                                         0,
+                                         "Change the distance increase per item stack");
             GuardianCrownDistanceMaxChance = Config.Bind<float>("Item : " + name,
                                          "Distance chance",
                                          50,
                                          "Change the distance maximum chance increase");
+            GuardianCrownDistanceMaxChanceStack = Config.Bind<float>("Item : " + name,
+                                         "Distance chance stack",
+                                         0,
+                                         "Change the distance maximum chance increase cap increase per item stack");
             GuardianCrownMaxChance = Config.Bind<float>("Item : " + name,
                                          "Max chance",
                                          70,
@@ -112,6 +129,14 @@ namespace CaeliImperium.Items
                                          "Dazzled time stack",
                                          0,
                                          "Change the time increase of the Dazzled debuff per item stack in seconds");
+            GuardianCrownBuff = Config.Bind<int>("Item : " + name,
+                                         "Dazzled amount",
+                                         1,
+                                         "Change the amount of applied Dazzled debuff");
+            GuardianCrownBuffStack = Config.Bind<int>("Item : " + name,
+                                         "Dazzled amount stack",
+                                         1,
+                                         "Change the amount increase of applied Dazzled debuff per item stack");
 
             ModSettingsManager.AddOption(new CheckBoxOption(GuardianCrownEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(GuardianCrownAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
@@ -120,10 +145,14 @@ namespace CaeliImperium.Items
             ModSettingsManager.AddOption(new FloatFieldOption(GuardianCrownChance));
             ModSettingsManager.AddOption(new FloatFieldOption(GuardianCrownEnemyChance));
             ModSettingsManager.AddOption(new FloatFieldOption(GuardianCrownDistance));
+            ModSettingsManager.AddOption(new FloatFieldOption(GuardianCrownDistanceStack));
             ModSettingsManager.AddOption(new FloatFieldOption(GuardianCrownDistanceMaxChance));
+            ModSettingsManager.AddOption(new FloatFieldOption(GuardianCrownDistanceMaxChanceStack));
             ModSettingsManager.AddOption(new FloatFieldOption(GuardianCrownMaxChance));
             ModSettingsManager.AddOption(new FloatFieldOption(GuardianCrownBuffTime));
             ModSettingsManager.AddOption(new FloatFieldOption(GuardianCrownBuffTimeStack));
+            ModSettingsManager.AddOption(new IntFieldOption(GuardianCrownBuff));
+            ModSettingsManager.AddOption(new IntFieldOption(GuardianCrownBuffStack));
         }
 
         private static void Item()
@@ -135,7 +164,7 @@ namespace CaeliImperium.Items
             GuardianCrownItemDef.pickupToken = name.Replace(" ", "").ToUpper() + "_PICKUP";
             GuardianCrownItemDef.descriptionToken = name.Replace(" ", "").ToUpper() + "_DESC";
             GuardianCrownItemDef.loreToken = name.Replace(" ", "").ToUpper() + "_LORE";
-            switch (GuardianCrownTier.Value)
+            switch (ConfigFloat(GuardianCrownTier, GuardianCrownEnableConfig))
             {
                 case 1:
                     GuardianCrownItemDef.deprecatedTier = ItemTier.Tier1;
@@ -154,7 +183,7 @@ namespace CaeliImperium.Items
             GuardianCrownItemDef.hidden = false;
             GuardianCrownItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Utility, ItemTag.Damage };
-            if (GuardianCrownAIBlacklist.Value)
+            if (ConfigBool(GuardianCrownAIBlacklist, GuardianCrownEnableConfig))
             {
                 tags.Add(ItemTag.AIBlacklist);
             }
@@ -378,50 +407,54 @@ localScale = new Vector3(0.23871F, 0.23871F, 0.23871F)
             {
                 if (self.teamComponent.teamIndex != TeamIndex.Player)
                 {*/
-            float stunChance = 0;
-            float allLuck = 0;
-            foreach (var characterBody in CharacterBody.readOnlyInstancesList)
+            
+            bool ifItem = Util.GetItemCountGlobal(GuardianCrownItemDef.itemIndex, false) > 0;
+            if (ifItem)
             {
-                if (characterBody && characterBody.teamComponent.teamIndex != self.teamComponent.teamIndex && characterBody.inventory)
+                float stunChance = 0;
+                float allLuck = 0;
+                foreach (var characterBody in CharacterBody.readOnlyInstancesList)
                 {
-                    int itemCount = characterBody.inventory ? characterBody.inventory.GetItemCount(GuardianCrownItemDef) : 0;
-                    if (itemCount > 0)
+                    if (characterBody && characterBody.teamComponent.teamIndex != self.teamComponent.teamIndex && characterBody.inventory)
                     {
-                        float dist = Vector3.Distance(characterBody.corePosition, self.corePosition);
-                        if (characterBody.teamComponent.teamIndex == TeamIndex.Player)
+                        int itemCount = characterBody.inventory ? characterBody.inventory.GetItemCount(GuardianCrownItemDef) : 0;
+                        if (itemCount > 0)
                         {
-                            stunChance += GuardianCrownChance.Value;
-                        }
-                        else
-                        {
-                            stunChance += GuardianCrownEnemyChance.Value;
-                        }
-                        if (dist < GuardianCrownDistance.Value)
-                        {
-                            stunChance += GuardianCrownDistanceMaxChance.Value - (dist * (GuardianCrownDistanceMaxChance.Value/dist));
-                        }
-                        if (GuardianCrownLuckAffected.Value)
-                        {
-                        allLuck += Math.Max(characterBody.master.luck, -1);
-                        }
-                        stunChance *= itemCount;
+                            float dist = Vector3.Distance(characterBody.corePosition, self.corePosition);
+                            if (characterBody.teamComponent.teamIndex == TeamIndex.Player)
+                            {
+                                stunChance += ConfigFloat(GuardianCrownChance, GuardianCrownEnableConfig);
+                            }
+                            else
+                            {
+                                stunChance += ConfigFloat(GuardianCrownEnemyChance, GuardianCrownEnableConfig);
+                            }
+                            if (dist < StackFLoat(ConfigFloat(GuardianCrownDistance, GuardianCrownEnableConfig), ConfigFloat(GuardianCrownDistanceStack, GuardianCrownEnableConfig), itemCount))
+                            {
+                                stunChance += Falloff(dist, ConfigFloat(GuardianCrownDistanceMaxChance, GuardianCrownEnableConfig) + (itemCount - 1) * ConfigFloat(GuardianCrownDistanceMaxChanceStack, GuardianCrownEnableConfig), ConfigFloat(GuardianCrownDistance, GuardianCrownEnableConfig) + (itemCount - 1) * ConfigFloat(GuardianCrownDistanceStack, GuardianCrownEnableConfig));//  ConfigFloat(GuardianCrownDistanceMaxChance, GuardianCrownEnableConfig) - (dist * (ConfigFloat(GuardianCrownDistanceMaxChance, GuardianCrownEnableConfig) / dist));
+                            }
+                            if (ConfigBool(GuardianCrownLuckAffected, GuardianCrownEnableConfig))
+                            {
+                                allLuck += Math.Max(characterBody.master.luck, -1);
+                            }
+                            stunChance *= itemCount;
 
+                        }
                     }
+                    // }
+
+                    //}
+
+
                 }
-                // }
-
-                //}
-                
-
-            }
-            if (stunChance > 0)
-            {
-bool roll = false;
-                int buffCount = self.GetBuffCount(Buffs.DazzledBuff.DazzledBuffDef) + 1;
-                roll = Util.CheckRoll(ConvertAmplificationPercentageIntoReductionPercentage(stunChance / buffCount, GuardianCrownMaxChance.Value), allLuck);
-            if (roll)
-            {
-                    SetStateOnHurt component = self.GetComponent<SetStateOnHurt>() ;
+                if (stunChance > 0)
+                {
+                    bool roll = false;
+                    int buffCount = self.GetBuffCount(Buffs.DazzledBuff.DazzledBuffDef) + 1;
+                    roll = Util.CheckRoll(ConvertAmplificationPercentageIntoReductionPercentage(stunChance / buffCount, ConfigFloat(GuardianCrownMaxChance, GuardianCrownEnableConfig)), allLuck);
+                    if (roll)
+                    {
+                        SetStateOnHurt component = self.GetComponent<SetStateOnHurt>();
                         if (component && !self.isChampion)
                         {
                             component.SetStunInternal(0.2f);
@@ -447,55 +480,62 @@ bool roll = false;
                             EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
 
                     }*/
-                    float timerCount = (Util.GetItemCountGlobal(GuardianCrownItemDef.itemIndex, true) - (Util.GetItemCountForTeam(self.teamComponent.teamIndex, GuardianCrownItemDef.itemIndex, true) - 1) * GuardianCrownBuffTimeStack.Value);
-                        self.AddTimedBuff(Buffs.DazzledBuff.DazzledBuffDef, GuardianCrownBuffTime.Value + timerCount);
-                    return;
-            }
+                        float timerCount = (Util.GetItemCountGlobal(GuardianCrownItemDef.itemIndex, true) - (Util.GetItemCountForTeam(self.teamComponent.teamIndex, GuardianCrownItemDef.itemIndex, true) - 1) * ConfigFloat(GuardianCrownBuffTimeStack, GuardianCrownEnableConfig));
+                        for (int i = 0; i < StackInt(ConfigInt(GuardianCrownBuff, GuardianCrownEnableConfig), ConfigInt(GuardianCrownBuffStack, GuardianCrownEnableConfig), buffCount); i++)
+                        {
+                        self.AddTimedBuff(Buffs.DazzledBuff.DazzledBuffDef, ConfigFloat(GuardianCrownBuffTime, GuardianCrownEnableConfig) + timerCount);
+
+                        }
+                        return;
+                    }
+                }
+                
+
+                /*
+                if (itemCountMonsters > 0)
+                {
+                    if (self.teamComponent.teamIndex == TeamIndex.Player)
+                    {
+                        bool roll = false;
+                        if (ForbiddenTomeLuckAffected.Value)
+                        {
+                            roll = Util.CheckRoll(Util.ConvertAmplificationPercentageIntoReductionPercentage(itemCountMonsters * ForbiddenTomeEnemyChance.Value), self.master);
+                        }
+                        else
+                        {
+                            roll = Util.CheckRoll(Util.ConvertAmplificationPercentageIntoReductionPercentage(itemCountMonsters * ForbiddenTomeEnemyChance.Value));
+                        }
+                            ;
+                        //Chat.AddMessage(roll.ToString());
+                        //Chat.AddMessage((Util.ConvertAmplificationPercentageIntoReductionPercentage(itemCount * ForbiddenTomeChance.Value), playerCharacterMasterController.master).ToString());
+                        if (roll)
+                        {
+                            if (!self.isChampion)
+                            {
+                                if (component.hasEffectiveAuthority)
+                                {
+                                    //self.AddTimedBuff(DLC2Content.Buffs.DisableAllSkills, 0.2f);
+                                    component.SetStunInternal(0.2f);
+                                    //SetStateOnHurt.SetStunOnObject(self.gameObject, 0.2f);
+                                    EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
+                                }
+                                else
+                                {
+                                    //self.AddTimedBuff(DLC2Content.Buffs.DisableAllSkills, 0.2f);
+                                    component.CallRpcSetStun(0.2f);
+                                    //SetStateOnHurt.SetStunOnObject(self.gameObject, 0.2f);
+                                    EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
+
+                                }
+                            }
+
+
+                        }
+                    }
+                }*/
             }
             orig(self, skill);
 
-            /*
-            if (itemCountMonsters > 0)
-            {
-                if (self.teamComponent.teamIndex == TeamIndex.Player)
-                {
-                    bool roll = false;
-                    if (ForbiddenTomeLuckAffected.Value)
-                    {
-                        roll = Util.CheckRoll(Util.ConvertAmplificationPercentageIntoReductionPercentage(itemCountMonsters * ForbiddenTomeEnemyChance.Value), self.master);
-                    }
-                    else
-                    {
-                        roll = Util.CheckRoll(Util.ConvertAmplificationPercentageIntoReductionPercentage(itemCountMonsters * ForbiddenTomeEnemyChance.Value));
-                    }
-                        ;
-                    //Chat.AddMessage(roll.ToString());
-                    //Chat.AddMessage((Util.ConvertAmplificationPercentageIntoReductionPercentage(itemCount * ForbiddenTomeChance.Value), playerCharacterMasterController.master).ToString());
-                    if (roll)
-                    {
-                        if (!self.isChampion)
-                        {
-                            if (component.hasEffectiveAuthority)
-                            {
-                                //self.AddTimedBuff(DLC2Content.Buffs.DisableAllSkills, 0.2f);
-                                component.SetStunInternal(0.2f);
-                                //SetStateOnHurt.SetStunOnObject(self.gameObject, 0.2f);
-                                EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
-                            }
-                            else
-                            {
-                                //self.AddTimedBuff(DLC2Content.Buffs.DisableAllSkills, 0.2f);
-                                component.CallRpcSetStun(0.2f);
-                                //SetStateOnHurt.SetStunOnObject(self.gameObject, 0.2f);
-                                EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
-
-                            }
-                        }
-
-
-                    }
-                }
-            }*/
         }
 
 
@@ -523,8 +563,8 @@ bool roll = false;
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_NAME", name);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "On enemy attack, stun them with " + GuardianCrownChance.Value + "% <style=cStack>(+" + GuardianCrownChance.Value + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value +"%</style>.");
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "On enemy attack, stun them with " + GuardianCrownChance.Value + "% <style=cStack>(+" + GuardianCrownChance.Value + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value + "%</style>.");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "On enemy attack, stun them with " + ConfigFloat(GuardianCrownChance, GuardianCrownEnableConfig) + "% <style=cStack>(+" + ConfigFloat(GuardianCrownChance, GuardianCrownEnableConfig) + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value +"%</style>.");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "On enemy attack, stun them with " + ConfigFloat(GuardianCrownChance, GuardianCrownEnableConfig) + "% <style=cStack>(+" + ConfigFloat(GuardianCrownChance, GuardianCrownEnableConfig) + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value + "%</style>.");
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_LORE", "To protect, to support, to relief, this crown will help. Let it be your honor to protect the weak. Let it be your duty to protect this world");
         }
 

@@ -26,6 +26,7 @@ namespace CaeliImperium.Items
         public static ItemDef BrassBellItemDef;
 
         public static ConfigEntry<bool> BrassBellEnable;
+        public static ConfigEntry<bool> BrassBellEnableConfig;
         public static ConfigEntry<bool> BrassBellAIBlacklist;
         public static ConfigEntry<float> BrassBellTier;
         public static ConfigEntry<float> BrassBellCooldown;
@@ -43,9 +44,9 @@ namespace CaeliImperium.Items
         internal static void Init()
         {
             AddConfigs();
-
+            Debug.Log(BrassBellTier.DefaultValue);
             string tier = "Assets/Icons/BrassBellIcon.png";
-            switch (BrassBellTier.Value)
+            switch (ConfigFloat(BrassBellTier, BrassBellEnableConfig))
             {
                 case 1:
                     tier = "Assets/Icons/BrassBellIconTier1.png";
@@ -77,6 +78,10 @@ namespace CaeliImperium.Items
                  "Activation",
                  true,
                  "Enable this item?");//\nDefault value: " + BrassBellEnable.DefaultValue);
+            BrassBellEnableConfig = Config.Bind<bool>("Item : " + name,
+                 "Config activation",
+                 false,
+                 "Enable config?");
 
             BrassBellAIBlacklist = Config.Bind<bool>("Item : " + name,
                                          "AI Blacklist",
@@ -101,15 +106,15 @@ namespace CaeliImperium.Items
             BrassBellEffectTimeStack = Config.Bind<float>("Item : " + name,
                                          "Effect time stack",
                                          0f,
-                                         "Control addition effect duration in seconds");//\nDefault value: " + BrassBellEffectTimeStack.DefaultValue);
+                                         "Control addition effect duration in seconds\nSet it to 0 to disable stacking");//\nDefault value: " + BrassBellEffectTimeStack.DefaultValue);
             BrassBellDamageIncrease = Config.Bind<float>("Item : " + name,
                                          "Damage increase",
-                                         42f,
+                                         80f,
                                          "Control the damage increase in percentage");//\nDefault value: " + BrassBellDamageIncrease.DefaultValue);
             BrassBellDamageIncreaseStack = Config.Bind<float>("Item : " + name,
                                          "Damage increase stack",
-                                         42f,
-                                         "Control the damage increase stack in percentage");//\nDefault value: " + BrassBellDamageIncreaseStack.DefaultValue);
+                                         80f,
+                                         "Control the damage increase stack in percentage\nSet it to 0 to disable stacking");//\nDefault value: " + BrassBellDamageIncreaseStack.DefaultValue);
             BrassBellIsReloadSecondary = Config.Bind<bool>("Item : " + name,
                                          "Secondary skill reload",
                                          true,
@@ -120,14 +125,15 @@ namespace CaeliImperium.Items
                                          "Will this item reload utility skill on activation?");//\nDefault value: " + BrassBellIsReloadutility.DefaultValue);
             BrassBellIsReloadSpecial = Config.Bind<bool>("Item : " + name,
                                          "Special skill reload",
-            false,
+                                          false,
                                          "Will this item reload special skill on activation?");//\nDefault value: " + BrassBellIsReloadSpecial.DefaultValue);
             BrassBellIsReloadSound = Config.Bind<bool>("Item : " + name,
-                                         "Sound",
+                                         "|Sound|",
                                          false,
                                          "Play sound on activation?");//\nDefault value: " + BrassBellIsReloadSound.DefaultValue);
 
             ModSettingsManager.AddOption(new CheckBoxOption(BrassBellEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(BrassBellEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(BrassBellAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(BrassBellTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassBellCooldown));
@@ -150,7 +156,7 @@ namespace CaeliImperium.Items
             BrassBellItemDef.pickupToken = name.Replace(" ", "").ToUpper() + "_PICKUP";
             BrassBellItemDef.descriptionToken = name.Replace(" ", "").ToUpper() + "_DESC";
             BrassBellItemDef.loreToken = name.Replace(" ", "").ToUpper() + "_LORE";
-            switch (BrassBellTier.Value)
+            switch (ConfigFloat(BrassBellTier, BrassBellEnableConfig))
             {
                 case 1:
                     BrassBellItemDef.deprecatedTier = ItemTier.Tier1;
@@ -170,7 +176,7 @@ namespace CaeliImperium.Items
             BrassBellItemDef.hidden = false;
             BrassBellItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Damage };
-            if (BrassBellAIBlacklist.Value)
+            if (ConfigBool(BrassBellAIBlacklist, BrassBellEnableConfig))
             {
                 tags.Add(ItemTag.AIBlacklist);
             }
@@ -410,12 +416,12 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
                             body.skillLocator.secondary.AddOneStock();
 
                         }*/
-                        float cooldown = BrassBellCooldown.Value;
-                        if (BrassBellCooldownStack.Value != 0)
+                        float cooldown = ConfigFloat(BrassBellCooldown, BrassBellEnableConfig);
+                        if (ConfigFloat(BrassBellCooldownStack, BrassBellEnableConfig) != 0)
                         {
                             for (int i = 0; i < count - 1; i++)
                             {
-                                cooldown -= cooldown * (BrassBellCooldownStack.Value / 100);
+                                cooldown -= cooldown * (ConfigFloat(BrassBellCooldownStack, BrassBellEnableConfig) / 100);
                             }
                         }
                         
@@ -470,37 +476,52 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
         public static void AddLanguageTokens()
         {
             string configSkills = ".";
-            if (BrassBellIsReloadSecondary.Value || BrassBellIsReloadutility.Value || BrassBellIsReloadSpecial.Value)
+            if (ConfigBool(BrassBellIsReloadSecondary, BrassBellEnableConfig) || ConfigBool(BrassBellIsReloadutility, BrassBellEnableConfig) || ConfigBool(BrassBellIsReloadSpecial, BrassBellEnableConfig))
             {
                 configSkills += " Reload ";
 
-                if (BrassBellIsReloadSecondary.Value)
+                if (ConfigBool(BrassBellIsReloadSecondary, BrassBellEnableConfig))
                 {
                     configSkills += "<style=cIsUtility>secondary</style>";
                 }
-                if (BrassBellIsReloadutility.Value || BrassBellIsReloadSpecial.Value)
+                if (ConfigBool(BrassBellIsReloadutility, BrassBellEnableConfig) || ConfigBool(BrassBellIsReloadSpecial, BrassBellEnableConfig))
                 {
                     configSkills += ",";
                 }
-                if (BrassBellIsReloadutility.Value)
+                if (ConfigBool(BrassBellIsReloadutility, BrassBellEnableConfig))
                 {
                     configSkills += " <style=cIsUtility>utility</style>";
                     
                 }
-                if (BrassBellIsReloadSpecial.Value)
+                if (ConfigBool(BrassBellIsReloadSpecial, BrassBellEnableConfig))
                 {
                     configSkills += ",";
                 }
-                if (BrassBellIsReloadSpecial.Value)
+                if (ConfigBool(BrassBellIsReloadSpecial, BrassBellEnableConfig))
                 {
-                    configSkills += " <style=cIsUtility>special</style>";
+                    configSkills += "<style=cIsUtility>special</style> ";
                 }
                 configSkills += " <style=cIsUtility>skills</style> on effect activation.";
 
             }
+            string cooldownStack = "";
+            if (ConfigFloat(BrassBellCooldownStack, BrassBellEnableConfig) != 0)
+            {
+                cooldownStack = " <style=cStack>(-" + ConfigFloat(BrassBellCooldownStack, BrassBellEnableConfig) + "% per item stack)</style>";
+            }
+            string damageStack = "";
+            if (ConfigFloat(BrassBellDamageIncreaseStack, BrassBellEnableConfig) != 0)
+            {
+                damageStack = " <style=cStack>(+" + ConfigFloat(BrassBellDamageIncreaseStack, BrassBellEnableConfig) + "% per item stack)</style>";
+            }
+            string timeStack = "";
+            if (ConfigFloat(BrassBellEffectTimeStack, BrassBellEnableConfig) != 0)
+            {
+                timeStack = " <style=cStack>(+" + ConfigFloat(BrassBellEffectTimeStack, BrassBellEnableConfig) + " per item stack)</style>";
+            }
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_NAME", name);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "Every " + BrassBellCooldown.Value + " <style=cStack>(-" + BrassBellCooldownStack.Value + "% per item stack)</style> seconds increase your damage by <style=cIsDamage>" + BrassBellDamageIncrease.Value + "%</style> <style=cStack>(+" + BrassBellDamageIncrease.Value + "% per item stack)</style> for " + BrassBellEffectTime.Value + " <style=cStack>(+" + BrassBellEffectTimeStack.Value + " per item stack)</style> seconds" + configSkills);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "Every " + BrassBellCooldown.Value + " <style=cStack>(-" + BrassBellCooldownStack.Value + "% per item stack)</style> seconds increase your damage by <style=cIsDamage>" + BrassBellDamageIncrease.Value + "%</style> <style=cStack>(+" + BrassBellDamageIncrease.Value + "% per item stack)</style> for " + BrassBellEffectTime.Value + " <style=cStack>(+" + BrassBellEffectTimeStack.Value + " per item stack)</style> seconds" + configSkills);
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "Every " + ConfigFloat(BrassBellCooldown, BrassBellEnableConfig) + "" + cooldownStack + " seconds increase your damage by <style=cIsDamage>" + ConfigFloat(BrassBellDamageIncrease, BrassBellEnableConfig) + "%</style>" + damageStack + " for " + ConfigFloat(BrassBellEffectTime, BrassBellEnableConfig) + "" + timeStack + " seconds" + configSkills);
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "Every " + ConfigFloat(BrassBellCooldown, BrassBellEnableConfig) + "" + cooldownStack + " seconds increase your damage by <style=cIsDamage>" + ConfigFloat(BrassBellDamageIncrease, BrassBellEnableConfig) + "%</style>" + damageStack + " for " + ConfigFloat(BrassBellEffectTime, BrassBellEnableConfig) + "" + timeStack + " seconds" + configSkills);
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_LORE", "");
         }
     }

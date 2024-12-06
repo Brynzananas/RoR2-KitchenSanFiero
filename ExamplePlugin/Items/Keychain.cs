@@ -24,14 +24,15 @@ namespace CaeliImperium.Items
         internal static Sprite KeychainIcon;
         public static ItemDef KeychainItemDef;
         public static ConfigEntry<bool> KeychainEnable;
+        public static ConfigEntry<bool> KeychainEnableConfig;
         public static ConfigEntry<bool> KeychainAIBlacklist;
         public static ConfigEntry<float> keychainTier;
         public static ConfigEntry<float> keychainInitialCritIncrease;
         public static ConfigEntry<float> keychainInitialCritIncreaseStack;
         public static ConfigEntry<float> keychainChancePerItemStack;
         public static ConfigEntry<float> keychainChance;
-        public static ConfigEntry<int> KeychainDoElite;
-        public static ConfigEntry<int> KeychainDoChampion;
+        public static ConfigEntry<float> KeychainDoElite;
+        public static ConfigEntry<float> KeychainDoChampion;
         public static ConfigEntry<float> keychainCritChancePerBuff;
         public static ConfigEntry<float> keychainCritDamagePerBuff;
         public static string name = "Keychain";
@@ -41,7 +42,7 @@ namespace CaeliImperium.Items
         {
             AddConfigs();
             string tier = "Assets/Icons/KeyChainTier1.png";
-            switch (keychainTier.Value)
+            switch (ConfigFloat(keychainTier, KeychainEnableConfig))
             {
                 case 1:
                     tier = "Assets/Icons/KeyChainTier1.png";
@@ -72,6 +73,10 @@ namespace CaeliImperium.Items
                              "Activation",
                              true,
                              "Enable this item?");
+            KeychainEnableConfig = Config.Bind<bool>("Item : " + name,
+                             "Config Activation",
+                             false,
+                             "Enable config?");
             KeychainAIBlacklist = Config.Bind<bool>("Item : " + name,
                              "AI Blacklist",
                              false,
@@ -96,14 +101,14 @@ namespace CaeliImperium.Items
                                          "On kill buff chance stack",
                                          5f,
                                          "Control the chance of getting a buff on enemy kill per item stack in percentage");
-            KeychainDoElite = Config.Bind<int>("Item : " + name,
+            KeychainDoElite = Config.Bind<float>("Item : " + name,
                              "Elite kill",
-                             0,
-                             "Control how many buffs you get per for an elite kill");
-            KeychainDoChampion = Config.Bind<int>("Item : " + name,
+                             20,
+                             "Control the chance increase an elite kill");
+            KeychainDoChampion = Config.Bind<float>("Item : " + name,
                              "Champion kill",
-                             1,
-                             "Control how many buffs you get per for a champion kill");
+                             80,
+                             "Control the chance increase a champion kill");
             keychainCritChancePerBuff = Config.Bind<float>("Item : " + name,
                                          "Buff crit chance increase",
                                          2.5f,
@@ -113,8 +118,17 @@ namespace CaeliImperium.Items
                                          5f,
                                          "Control the crit damage percentage increase per every buff stack");
             ModSettingsManager.AddOption(new CheckBoxOption(KeychainEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(KeychainEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(KeychainAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(keychainTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
+            ModSettingsManager.AddOption(new FloatFieldOption(keychainInitialCritIncrease));
+            ModSettingsManager.AddOption(new FloatFieldOption(keychainInitialCritIncreaseStack));
+            ModSettingsManager.AddOption(new FloatFieldOption(keychainChance));
+            ModSettingsManager.AddOption(new FloatFieldOption(keychainChancePerItemStack));
+            ModSettingsManager.AddOption(new FloatFieldOption(KeychainDoElite));
+            ModSettingsManager.AddOption(new FloatFieldOption(KeychainDoChampion));
+            ModSettingsManager.AddOption(new FloatFieldOption(keychainCritChancePerBuff));
+            ModSettingsManager.AddOption(new FloatFieldOption(keychainCritDamagePerBuff));
         }
 
         private static void Item()
@@ -125,7 +139,7 @@ namespace CaeliImperium.Items
             KeychainItemDef.pickupToken = name.ToUpper().Replace(" ", "") + "_PICKUP";
             KeychainItemDef.descriptionToken = name.ToUpper().Replace(" ", "") + "_DESC";
             KeychainItemDef.loreToken = name.ToUpper().Replace(" ", "") + "_LORE";
-            switch (keychainTier.Value)
+            switch (ConfigFloat(keychainTier, KeychainEnableConfig))
             {
                 case 1:
                     KeychainItemDef.deprecatedTier = ItemTier.Tier1;
@@ -143,7 +157,7 @@ namespace CaeliImperium.Items
             KeychainItemDef.canRemove = true;
             KeychainItemDef.hidden = false;
             var tags = new List<ItemTag>() { ItemTag.Damage };
-            if (KeychainAIBlacklist.Value)
+            if (ConfigBool(KeychainAIBlacklist, KeychainEnableConfig))
             {
                 tags.Add(ItemTag.AIBlacklist);
             }
@@ -160,7 +174,7 @@ namespace CaeliImperium.Items
             int itemCount = sender.inventory ? sender.inventory.GetItemCount(KeychainItemDef) : 0;
             if (itemCount > 0)
             {
-                args.critAdd += keychainInitialCritIncrease.Value + ((itemCount - 1) * keychainInitialCritIncreaseStack.Value);
+                args.critAdd += ConfigFloat(keychainInitialCritIncrease, KeychainEnableConfig) + ((itemCount - 1) * ConfigFloat(keychainInitialCritIncreaseStack, KeychainEnableConfig));
             }
         }
         private static void CreateSound()
@@ -181,16 +195,18 @@ namespace CaeliImperium.Items
                 {
 
                     bool sound = false;
-                    float rollChance = keychainChance.Value + ((itemCount - 1) * keychainChancePerItemStack.Value);
-                    int superRoll = (int)Math.Floor((float)(rollChance / 100));
+
+                    float rollChance = ConfigFloat(keychainChance, KeychainEnableConfig) + ((itemCount - 1) * ConfigFloat(keychainChancePerItemStack, KeychainEnableConfig));
                     if (damageReport.victim.body.isElite)
                     {
-                        superRoll += KeychainDoElite.Value;
+                        rollChance += ConfigFloat(KeychainDoElite, KeychainEnableConfig);
                     }
                     if (damageReport.victim.body.isChampion)
                     {
-                        superRoll += KeychainDoChampion.Value;
+                        rollChance += ConfigFloat(KeychainDoChampion, KeychainEnableConfig);
                     }
+                    int superRoll = (int)Math.Floor((float)(rollChance / 100));
+                    
                     if (superRoll > 0)
                     {
                         sound = true;
@@ -216,9 +232,14 @@ namespace CaeliImperium.Items
 
         private static void AddLanguageTokens()
         {
+            string chanceStack = "";
+            if (ConfigFloat(keychainChancePerItemStack, KeychainEnableConfig) != 0)
+            {
+                chanceStack = " <style=cStack>(+" + ConfigFloat(keychainChancePerItemStack, KeychainEnableConfig) + "% per item stack)</style>";
+            }
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name.Replace(" ", ""));
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", keychainChance.Value + "% <style=cStack>(+" + keychainChancePerItemStack.Value + "% per item stack)</style> to receive a <style=cIsDamage>buff</style> on enemy kill, that increases <style=cIsDamage>crit chance</style> by <style=cIsDamage>" + keychainCritChancePerBuff.Value + "%</style> <style=cStack>(+" + keychainCritChancePerBuff.Value + "% per buff stack)</style> and <style=cIsDamage>crit damage</style> by <style=cIsDamage>" + keychainCritDamagePerBuff.Value + "%</style> <style=cStack>(+" + keychainCritDamagePerBuff.Value + "% per buff stack)</style>");
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", keychainChance.Value + "% <style=cStack>(+" + keychainChancePerItemStack.Value + "% per item stack)</style> to receive a <style=cIsDamage>buff</style> on enemy kill, that increases <style=cIsDamage>crit chance</style> by <style=cIsDamage>" + keychainCritChancePerBuff.Value + "%</style> <style=cStack>(+" + keychainCritChancePerBuff.Value + "% per buff stack)</style> and <style=cIsDamage>crit damage</style> by <style=cIsDamage>" + keychainCritDamagePerBuff.Value + "%</style> <style=cStack>(+" + keychainCritDamagePerBuff.Value + "% per buff stack)</style>");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", ConfigFloat(keychainChance, KeychainEnableConfig) + "%" + chanceStack + " to receive a <style=cIsDamage>buff</style> on enemy kill, that increases <style=cIsDamage>crit chance</style> by <style=cIsDamage>" + ConfigFloat(keychainCritChancePerBuff, KeychainEnableConfig) + "%</style> <style=cStack>(+" + ConfigFloat(keychainCritChancePerBuff, KeychainEnableConfig) + "% per buff stack)</style> and <style=cIsDamage>crit damage</style> by <style=cIsDamage>" + ConfigFloat(keychainCritDamagePerBuff, KeychainEnableConfig) + "%</style> <style=cStack>(+" + ConfigFloat(keychainCritDamagePerBuff, KeychainEnableConfig) + "% per buff stack)</style>");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", ConfigFloat(keychainChance, KeychainEnableConfig) + "%" + chanceStack + " to receive a <style=cIsDamage>buff</style> on enemy kill, that increases <style=cIsDamage>crit chance</style> by <style=cIsDamage>" + ConfigFloat(keychainCritChancePerBuff, KeychainEnableConfig) + "%</style> <style=cStack>(+" + ConfigFloat(keychainCritChancePerBuff, KeychainEnableConfig) + "% per buff stack)</style> and <style=cIsDamage>crit damage</style> by <style=cIsDamage>" + ConfigFloat(keychainCritDamagePerBuff, KeychainEnableConfig) + "%</style> <style=cStack>(+" + ConfigFloat(keychainCritDamagePerBuff, KeychainEnableConfig) + "% per buff stack)</style>");
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "\"What the hell this keychain is for?\"");
         }
     }

@@ -74,7 +74,7 @@ namespace CaeliImperium.Elites
         public static ConfigEntry<bool> ArchNemesisLunarScavengers;
         public static ConfigEntry<float> ArchNemesisDropChance;
         public static ConfigEntry<float> ArchNemesisDropChancePlayer;
-        public static string[] forbiddenStages = { "arena,moon2,voidstage,voidraid,artifactworld,artifactworld01,artifactworld02,artifactworld03,bazaar,goldshores,limbo,mysteryspace" };
+        public static string[] forbiddenStages = { "arena","moon2","voidstage","voidraid","artifactworld","artifactworld01","artifactworld02","artifactworld03","bazaar","goldshores","limbo","mysteryspace"};
         private static NetworkSoundEventDef ArchNemesisAppearSound;
         //private static NetworkSoundEventDef ArchNemesisAppearMusic;
         //private static NetworkSoundEventDef ArchNemesisAppearMusicStop;

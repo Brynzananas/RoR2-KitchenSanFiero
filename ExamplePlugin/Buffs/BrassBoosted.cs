@@ -57,17 +57,17 @@ namespace CaeliImperium.Buffs
             orig(self, buffDef);
             if (buffDef == BrassBoostedBuffDef)
             {
-                if (self.skillLocator.secondary.stock <= 0 && ConfigBool(BrassBellIsReloadSecondary, BrassBellEnableConfig))
+                if (ConfigBool(BrassBellIsReloadSecondary, BrassBellEnableConfig) && self.skillLocator.secondary && self.skillLocator.secondary.stock <= 0)
                 {
                 self.skillLocator.secondary.AddOneStock();
 
                 }
-                if (self.skillLocator.utility.stock <= 0 && ConfigBool(BrassBellIsReloadutility, BrassBellEnableConfig))
+                if (ConfigBool(BrassBellIsReloadutility, BrassBellEnableConfig) && self.skillLocator.utility && self.skillLocator.utility.stock <= 0)
                 {
                     self.skillLocator.utility.AddOneStock();
 
                 }
-                if (self.skillLocator.special.stock <= 0 && ConfigBool(BrassBellIsReloadSpecial, BrassBellEnableConfig))
+                if (ConfigBool(BrassBellIsReloadSpecial, BrassBellEnableConfig) && self.skillLocator.special && self.skillLocator.special.stock <= 0)
                 {
                     self.skillLocator.special.AddOneStock();
 

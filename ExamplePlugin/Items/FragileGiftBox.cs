@@ -48,7 +48,7 @@ namespace CaeliImperium.Items
                 return;
             }
             Item();
-
+            DeepWound.Init();
             AddLanguageTokens();
         }
 
@@ -218,9 +218,24 @@ namespace CaeliImperium.Items
 
         private static void AddLanguageTokens()
         {
+            string rewardStack = "";
+            if (ConfigInt(FragileGiftBoxRewardPerStack, FragileGiftBoxEnableConfig) != 0)
+            {
+                rewardStack = " <style=cStack>(+" + ConfigInt(FragileGiftBoxRewardPerStack, FragileGiftBoxEnableConfig) + " per item stack)</style>";
+            }
+            string rewardChance = "";
+            if (ConfigFloat(FragileGiftBoxRewardChance, FragileGiftBoxEnableConfig) != 0)
+            {
+                rewardChance = ConfigFloat(FragileGiftBoxRewardChance, FragileGiftBoxEnableConfig) + "% chance to receive all or nothing. ";
+            }
+            string woundStack = "";
+            if (ConfigInt(FragileGiftBoxWoundStack, FragileGiftBoxEnableConfig) != 0)
+            {
+                woundStack = " <style=cStack(+" + ConfigInt(FragileGiftBoxWoundStack, FragileGiftBoxEnableConfig) + " per item stack)</style>";
+            }
             LanguageAPI.Add("FRAGILEGIFTBOX_NAME", "Fragile Gift Box");
-            LanguageAPI.Add("FRAGILEGIFTBOX_PICKUP", "Get +" + ConfigInt(FragileGiftBoxReward, FragileGiftBoxEnableConfig) + " <style=cStack>(+" + ConfigInt(FragileGiftBoxRewardPerStack, FragileGiftBoxEnableConfig) + " per item stack)</style> more items from chests. " + FragileGiftBoxRewardChance.Value + "& chance to receive all or nothing. Get Deep Wound on chest opening");
-            LanguageAPI.Add("FRAGILEGIFTBOX_DESC", "Get +" + ConfigInt(FragileGiftBoxReward, FragileGiftBoxEnableConfig) + " <style=cStack>(+" + ConfigInt(FragileGiftBoxRewardPerStack, FragileGiftBoxEnableConfig) + " per item stack)</style> more items from chests. " + FragileGiftBoxRewardChance.Value + "& chance to receive all or nothing. Get Deep Wound on chest opening");
+            LanguageAPI.Add("FRAGILEGIFTBOX_PICKUP", "Get +" + ConfigInt(FragileGiftBoxReward, FragileGiftBoxEnableConfig) + rewardStack + " more items from chests. " + rewardChance + "Get " + ConfigInt(FragileGiftBoxWound, FragileGiftBoxEnableConfig) + woundStack + " <style=cIsDamage>Deep Wound</style> on chest opening");
+            LanguageAPI.Add("FRAGILEGIFTBOX_DESC", "Get +" + ConfigInt(FragileGiftBoxReward, FragileGiftBoxEnableConfig) + rewardStack + " more items from chests. " + rewardChance + "Get " + ConfigInt(FragileGiftBoxWound, FragileGiftBoxEnableConfig) + woundStack + " <style=cIsDamage>Deep Wound</style> on chest opening");
             LanguageAPI.Add("FRAGILEGIFTBOX_LORE", "I never though you are also a cook brother"/*"\"Pick\"" +
                 "\n" +
                 "He picks the left one. The other one gives him what appears to be a gift box, made out of glass. The receiver looks at him badly, takes the box, takes the breath and crushes it, covering his arms in blood. Inside it there was a blue cupcake, he takes it, examines it and proceeds to consume it. His eyes fills with joy and pleasure." +

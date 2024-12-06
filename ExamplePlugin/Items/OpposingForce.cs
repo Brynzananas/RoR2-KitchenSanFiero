@@ -22,6 +22,7 @@ namespace CaeliImperium.Items
         internal static Sprite OpposingForceIcon;
         public static ItemDef OpposingForceItemDef;
         public static ConfigEntry<bool> OpposingForceEnable;
+        public static ConfigEntry<bool> OpposingForceEnableConfig;
         public static ConfigEntry<bool> OpposingForceAIBlacklist;
         public static ConfigEntry<float> OpposingForceTier;
         public static ConfigEntry<float> OpposingForceArmorGain;
@@ -36,7 +37,7 @@ namespace CaeliImperium.Items
         {
             AddConfigs();
             string tier = "Assets/Icons/OpposingForceTier1.png";
-            switch (OpposingForceTier.Value)
+            switch (ConfigFloat(OpposingForceTier, OpposingForceEnableConfig))
             {
                 case 1:
                     tier = "Assets/Icons/OpposingForceTier1.png";
@@ -66,6 +67,10 @@ namespace CaeliImperium.Items
                              "Activation",
                              true,
                              "Enable this item?");
+            OpposingForceEnableConfig = Config.Bind<bool>("Item : " + name,
+                             "Config Activation",
+                             false,
+                             "Enable config?");
             OpposingForceAIBlacklist = Config.Bind<bool>("Item : " + name,
                              "AI Blacklist",
                              true,
@@ -76,29 +81,30 @@ namespace CaeliImperium.Items
                                          "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
             OpposingForceArmorGain = Config.Bind<float>("Item : " + name,
                                          "Armor",
-                                         5f,
+                                         2f,
                                          "Control the armor gain");
             OpposingForceArmorGainStack = Config.Bind<float>("Item : " + name,
                                          "Armor stack",
-                                         5f,
+                                         2f,
                                          "Control the armor gain per item stack");
             OpposingForceDamage = Config.Bind<float>("Item : " + name,
                                          "Damage",
-                                         400f,
+                                         500f,
                                          "Control the damage in percentage");
             OpposingForceDamageStack = Config.Bind<float>("Item : " + name,
                                          "Damage stack",
-                                         400f,
+                                         500f,
                                          "Control the damage increase per item stack in percentage");
             OpposingForcePower = Config.Bind<float>("Item : " + name,
                                          "Power",
-                                         1.5f,
+                                         1.6f,
                                          "Control the power of reflected damage");
             OpposingForceProc = Config.Bind<float>("Item : " + name,
                                          "Proc",
                                          0.5f,
                                          "Control the proc of reflected damage");
             ModSettingsManager.AddOption(new CheckBoxOption(OpposingForceEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(OpposingForceEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(OpposingForceAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(OpposingForceTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(OpposingForceArmorGain));
@@ -117,7 +123,7 @@ namespace CaeliImperium.Items
             OpposingForceItemDef.pickupToken = name.ToUpper().Replace(" ", "") + "_PICKUP";
             OpposingForceItemDef.descriptionToken = name.ToUpper().Replace(" ", "") + "_DESC";
             OpposingForceItemDef.loreToken = name.ToUpper().Replace(" ", "") + "_LORE";
-            switch (OpposingForceTier.Value)
+            switch (ConfigFloat(OpposingForceTier, OpposingForceEnableConfig))
             {
                 case 1:
                     OpposingForceItemDef.deprecatedTier = ItemTier.Tier1;
@@ -136,7 +142,7 @@ namespace CaeliImperium.Items
             OpposingForceItemDef.hidden = false;
             OpposingForceItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Damage, ItemTag.BrotherBlacklist };
-            if (OpposingForceAIBlacklist.Value)
+            if (ConfigBool(OpposingForceAIBlacklist, OpposingForceEnableConfig))
             {
                 tags.Add(ItemTag.AIBlacklist);
             }
@@ -162,10 +168,11 @@ namespace CaeliImperium.Items
                 if (itemCount > 0 && victimBody && victimBody.armor > 0)
                 {                   
                     CharacterBody attackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
-
+                    ProcChainMask procChainMask2 = damageInfo.procChainMask;
+                    procChainMask2.AddProc(ProcType.Rings);
                     DamageInfo damageInfo2 = new DamageInfo
                     {
-                        damage = (float)Math.Pow(damageInfo.damage, OpposingForcePower.Value) * (1 - (100 / (100 + victimBody.armor))) * (OpposingForceDamage.Value / 100) + ((itemCount - 1) * OpposingForceDamageStack.Value / 100),
+                        damage = (float)Math.Pow(damageInfo.damage, ConfigFloat(OpposingForcePower, OpposingForceEnableConfig)) * (1 - (100 / (100 + victimBody.armor))) * (ConfigFloat(OpposingForceDamage, OpposingForceEnableConfig) / 100) + ((itemCount - 1) * ConfigFloat(OpposingForceDamageStack, OpposingForceEnableConfig) / 100),
                         damageColorIndex = DamageColorIndex.Item,
                         damageType = DamageType.Silent,
                         attacker = victim,
@@ -173,8 +180,8 @@ namespace CaeliImperium.Items
                         force = Vector3.zero,
                         inflictor = null,
                         position = attackerBody.transform.position,
-                        procChainMask = damageInfo.procChainMask,
-                        procCoefficient = OpposingForceProc.Value
+                        procChainMask = procChainMask2,
+                        procCoefficient = ConfigFloat(OpposingForceProc, OpposingForceEnableConfig)
                     };
                     attackerBody.healthComponent.TakeDamage(damageInfo2);
                 }
@@ -186,15 +193,25 @@ namespace CaeliImperium.Items
             int itemCount = sender.inventory ? sender.inventory.GetItemCount(OpposingForceItemDef) : 0;
             if (itemCount > 0)
             {
-                args.armorAdd += OpposingForceArmorGain.Value + ((itemCount - 1) * OpposingForceArmorGainStack.Value);
+                args.armorAdd += ConfigFloat(OpposingForceArmorGain, OpposingForceEnableConfig) + ((itemCount - 1) * ConfigFloat(OpposingForceArmorGainStack, OpposingForceEnableConfig));
             }
         }
 
         private static void AddLanguageTokens()
         {
+            string reflectStack = "";
+            if (ConfigFloat(OpposingForceDamageStack, OpposingForceEnableConfig) != 0)
+            {
+                reflectStack = " <style=cStack>(+" + ConfigFloat(OpposingForceDamageStack, OpposingForceEnableConfig) +"% per item stack)</style>";
+            }
+            string armorStack = "";
+            if (ConfigFloat(OpposingForceArmorGainStack, OpposingForceEnableConfig) != 0)
+            {
+                armorStack = " <style=cStack>(+" + ConfigFloat(OpposingForceArmorGainStack, OpposingForceEnableConfig) + " per item stack)</style>";
+            }
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name);
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", "Reflect <style=cIsDamage>" + OpposingForceDamage.Value + "%</style> <style=cStack>(+" + OpposingForceDamageStack.Value +"% per item stack)</style> <style=cIsDamage>incoming damage</style> multiplied to the <style=cIsHealing>armor</style> percentage. Gain <style=cIsHealing>+" + OpposingForceArmorGain.Value + "</style> <style=cStack>(+" + OpposingForceArmorGainStack.Value + " per item stack)</style> <style=cIsHealing>armor</style>");
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", "Reflect <style=cIsDamage>" + OpposingForceDamage.Value + "%</style> <style=cStack>(+" + OpposingForceDamageStack.Value + "% per item stack)</style> <style=cIsDamage>incoming damage</style> multiplied to the <style=cIsHealing>armor</style> percentage. Gain <style=cIsHealing>+" + OpposingForceArmorGain.Value + "</style> <style=cStack>(+" + OpposingForceArmorGainStack.Value + " per item stack)</style> <style=cIsHealing>armor</style>");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", "Reflect <style=cIsDamage>" + ConfigFloat(OpposingForceDamage, OpposingForceEnableConfig) + "%</style>" + reflectStack + " <style=cIsDamage>incoming damage</style> multiplied to the <style=cIsHealing>armor</style> percentage. Gain <style=cIsHealing>+" + ConfigFloat(OpposingForceArmorGain, OpposingForceEnableConfig) + "</style>" + armorStack + " <style=cIsHealing>armor</style>");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", "Reflect <style=cIsDamage>" + ConfigFloat(OpposingForceDamage, OpposingForceEnableConfig) + "%</style>" + reflectStack + " <style=cIsDamage>incoming damage</style> multiplied to the <style=cIsHealing>armor</style> percentage. Gain <style=cIsHealing>+" + ConfigFloat(OpposingForceArmorGain, OpposingForceEnableConfig) + "</style>" + armorStack + " <style=cIsHealing>armor</style>");
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "");
         }
     }

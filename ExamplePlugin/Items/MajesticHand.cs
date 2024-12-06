@@ -23,6 +23,7 @@ namespace CaeliImperium.Items
         internal static Sprite MajesticHandIcon;
         public static ItemDef MajesticHandItemDef;
         public static ConfigEntry<bool> MajesticHandEnable;
+        public static ConfigEntry<bool> MajesticHandEnableConfig;
         public static ConfigEntry<bool> MajesticHandAIBlacklist;
         public static ConfigEntry<float> MajesticHandTier;
         public static ConfigEntry<float> MajesticHandChance;
@@ -36,7 +37,7 @@ namespace CaeliImperium.Items
         {
             AddConfigs();
             string tier = "Assets/Icons/MajesticHandTier3.png";
-            switch (MajesticHandTier.Value)
+            switch (ConfigFloat(MajesticHandTier, MajesticHandEnableConfig))
             {
                 case 1:
                     tier = "Assets/Icons/MajesticHandTier1.png";
@@ -67,6 +68,10 @@ namespace CaeliImperium.Items
                              "Activation",
                              true,
                              "Enable this item?");
+            MajesticHandEnableConfig = Config.Bind<bool>("Item : " + name,
+                             "Config Activation",
+                             false,
+                             "Enable this item?");
             MajesticHandAIBlacklist = Config.Bind<bool>("Item : " + name,
                              "AI Blacklist",
                              true,
@@ -96,6 +101,7 @@ namespace CaeliImperium.Items
             //                             false,
             //                             "No timer. Kill initializes on Killswitch buff count cap");
             ModSettingsManager.AddOption(new CheckBoxOption(MajesticHandEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(MajesticHandEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(MajesticHandAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(MajesticHandTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(MajesticHandChance));
@@ -113,7 +119,7 @@ namespace CaeliImperium.Items
             MajesticHandItemDef.pickupToken = name.Replace(" ", "").ToUpper() + "_PICKUP";
             MajesticHandItemDef.descriptionToken = name.Replace(" ", "").ToUpper() + "_DESC";
             MajesticHandItemDef.loreToken = name.Replace(" ", "").ToUpper() + "_LORE";
-            switch (MajesticHandTier.Value)
+            switch (ConfigFloat(MajesticHandTier, MajesticHandEnableConfig))
             {
                 case 1:
                     MajesticHandItemDef.deprecatedTier = ItemTier.Tier1;
@@ -130,8 +136,8 @@ namespace CaeliImperium.Items
             MajesticHandItemDef.pickupModelPrefab = MajesticHandPrefab;
             MajesticHandItemDef.canRemove = true;
             MajesticHandItemDef.hidden = false;
-            var tags = new List<ItemTag>() { ItemTag.Damage };
-            if (MajesticHandAIBlacklist.Value)
+            var tags = new List<ItemTag>() { ItemTag.Damage, ItemTag.Utility };
+            if (ConfigBool(MajesticHandAIBlacklist, MajesticHandEnableConfig))
             {
                 tags.Add(ItemTag.AIBlacklist);
             }
@@ -146,7 +152,7 @@ namespace CaeliImperium.Items
 
         private static void IncreaseDamage(On.RoR2.HealthComponent.orig_TakeDamageProcess orig, HealthComponent self, DamageInfo damageInfo)
         {
-            if (MajesticHandDoDamage.Value > 0 && damageInfo != null && self != null && damageInfo.attacker && !damageInfo.rejected)
+            if (ConfigFloat(MajesticHandDoDamage, MajesticHandEnableConfig) > 0 && damageInfo != null && self != null && damageInfo.attacker && !damageInfo.rejected)
             {
                 var attackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
                 int itemCount = 0;
@@ -161,7 +167,7 @@ namespace CaeliImperium.Items
                 }
                 if (itemCount > 0)
                 {
-                    damageInfo.damage *= 1 + ((1 - self.combinedHealthFraction) * ((MajesticHandDoDamage.Value / 100) + ((itemCount - 1) * (MajesticHandDoDamageStack.Value / 100))));
+                    damageInfo.damage *= 1 + ((1 - self.combinedHealthFraction) * ((ConfigFloat(MajesticHandDoDamage, MajesticHandEnableConfig) / 100) + ((itemCount - 1) * (ConfigFloat(MajesticHandDoDamageStack, MajesticHandEnableConfig) / 100))));
                 }
             }
             orig(self, damageInfo);
@@ -238,7 +244,7 @@ public class KillswitchComponent : MonoBehaviour
         private static void Die(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
         {
             orig(self);
-            if (MajesticHandChance.Value > 0 && self)
+            if (ConfigFloat(MajesticHandChance, MajesticHandEnableConfig) > 0 && self)
             {
                 //if (!self.GetComponent<KillswitchComponent>())
                 //{
@@ -252,7 +258,7 @@ public class KillswitchComponent : MonoBehaviour
                 int teamItemCount = Util.GetItemCountGlobal(MajesticHandItemDef.itemIndex, true) - Util.GetItemCountForTeam(self.teamComponent.teamIndex, MajesticHandItemDef.itemIndex, true);
                 if (teamItemCount > 0)
                 {
-                    if (Util.CheckRoll(ConvertAmplificationPercentageIntoReductionPercentage(teamItemCount * MajesticHandChance.Value, MajesticHandMaxChance.Value)))
+                    if (Util.CheckRoll(ConvertAmplificationPercentageIntoReductionPercentage(teamItemCount * ConfigFloat(MajesticHandChance, MajesticHandEnableConfig), ConfigFloat(MajesticHandMaxChance, MajesticHandEnableConfig))))
                     {
                         EffectManager.SpawnEffect(OrbStorageUtility.Get("Prefabs/Effects/ImpactEffects/LightningStrikeImpact"), new EffectData
                         {
@@ -374,13 +380,13 @@ public class KillswitchComponent : MonoBehaviour
         private static void AddLanguageTokens()
         {
             string death = "";
-            if (MajesticHandChance.Value > 0)
+            if (ConfigFloat(MajesticHandChance, MajesticHandEnableConfig) > 0)
             {
-                death += "Monsters have <style=cDeath>" + MajesticHandChance.Value + "%</style> <style=cStack>(+" + MajesticHandChance.Value + "% per item stack hyperbollicaly)</style> to <style=cDeath>die</style> on spawn up to " + MajesticHandMaxChance.Value + "%. ";
+                death += "Monsters have <style=cDeath>" + ConfigFloat(MajesticHandChance, MajesticHandEnableConfig) + "%</style> <style=cStack>(+" + ConfigFloat(MajesticHandChance, MajesticHandEnableConfig) + "% per item stack hyperbollicaly)</style> to <style=cDeath>die</style> on spawn up to " + ConfigFloat(MajesticHandMaxChance, MajesticHandEnableConfig) + "%. ";
             }
-            if (MajesticHandDoDamage.Value > 0)
+            if (ConfigFloat(MajesticHandDoDamage, MajesticHandEnableConfig) > 0)
             {
-                death += "Deal <style=cIsDamage>more damage</style> the <style=cIsHealth>weaker</style> the enemy is up to <style=cIsDamage>" + MajesticHandDoDamage.Value +"%</style> <style=cStack>(+" + MajesticHandDoDamageStack.Value + "% per item stack)</style>";
+                death += "Deal <style=cIsDamage>more damage</style> the <style=cIsHealth>weaker</style> the enemy is up to <style=cIsDamage>" + ConfigFloat(MajesticHandDoDamage, MajesticHandEnableConfig) +"%</style> <style=cStack>(+" + ConfigFloat(MajesticHandDoDamageStack, MajesticHandEnableConfig) + "% per item stack)</style>";
             }
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_NAME", name);
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", death);

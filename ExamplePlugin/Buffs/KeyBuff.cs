@@ -42,8 +42,7 @@ namespace CaeliImperium.Buffs
 
         private static void Stats(CharacterBody sender, StatHookEventArgs args)
         {
-            float buffCount = sender.GetBuffCount(KeyBuffDef);
-                int itemCount = sender.inventory ? sender.inventory.GetItemCount(Keychain.KeychainItemDef) : 0;
+            int buffCount = sender.GetBuffCount(KeyBuffDef);
 
             if (buffCount > 0)
             {

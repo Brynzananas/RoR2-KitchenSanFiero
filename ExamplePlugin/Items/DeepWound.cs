@@ -22,14 +22,12 @@ namespace CaeliImperium.Items
 
         internal static void Init()
         {
-            AddConfigs();
             string tier = "Assets/Icons/EnergisedChocolateBarIcon.png";
             DeepWoundPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/Energychocolatebar.prefab");
             DeepWoundBarIcon = MainAssets.LoadAsset<Sprite>(tier);
             Item();
 
             AddLanguageTokens();
-            UsedEnergyChocolateBar.Init();
         }
 
         private static void Item()

@@ -562,9 +562,14 @@ localScale = new Vector3(0.23871F, 0.23871F, 0.23871F)
 
         private static void AddLanguageTokens()
         {
+            string chanceStack = "";
+            if (ConfigFloat(GuardianCrownChance, GuardianCrownEnableConfig) != 0)
+            {
+                chanceStack = " <style=cStack>(+" + ConfigFloat(GuardianCrownChance, GuardianCrownEnableConfig) + "% per item stack hyperbollicaly)</style>";
+            }
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_NAME", name);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "On enemy attack, stun them with " + ConfigFloat(GuardianCrownChance, GuardianCrownEnableConfig) + "% <style=cStack>(+" + ConfigFloat(GuardianCrownChance, GuardianCrownEnableConfig) + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value +"%</style>.");
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "On enemy attack, stun them with " + ConfigFloat(GuardianCrownChance, GuardianCrownEnableConfig) + "% <style=cStack>(+" + ConfigFloat(GuardianCrownChance, GuardianCrownEnableConfig) + "% per item stack hyperbollicaly)</style> chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value + "%</style>.");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "On enemy attack, stun them with " + ConfigFloat(GuardianCrownChance, GuardianCrownEnableConfig) + "%" + chanceStack + " chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value +"%</style>.");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "On enemy attack, stun them with " + ConfigFloat(GuardianCrownChance, GuardianCrownEnableConfig) + "%" + chanceStack + " chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value + "%</style>.");
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_LORE", "To protect, to support, to relief, this crown will help. Let it be your honor to protect the weak. Let it be your duty to protect this world");
         }
 

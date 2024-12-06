@@ -36,7 +36,9 @@ namespace CaeliImperiumPlugin
     [BepInDependency(RecalculateStatsAPI.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency(SoundAPI.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency(DotAPI.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency(ProperSavePlugin.GUID, BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency(ProperSavePlugin.GUID, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("com.brynzananas.brynzaemotes", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("com.weliveinasociety.badassemotes", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(CommandHelper.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
@@ -177,7 +179,7 @@ namespace CaeliImperiumPlugin
             RejectedDagger.Init();
             LikeADragon.Init();
             OpposingForce.Init();
-            
+            DiscoBall.Init();
             
             //CreateEliteTiers();
         }
@@ -299,7 +301,43 @@ namespace CaeliImperiumPlugin
             {
                 // stuff that require the dependency to be loaded
             }
-        }/*
+        }
+        public static class EmotesCompatibility
+        {
+            private static bool? _brynzaEmotesEnabled;
+
+            public static bool brynzaEmotesEnabled
+            {
+                get
+                {
+                    if (_brynzaEmotesEnabled == null)
+                    {
+                        _brynzaEmotesEnabled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.brynzananas.brynzaemotes");
+                    }
+                    return (bool)_brynzaEmotesEnabled;
+                }
+            }
+            private static bool? _badassEmotesEnabled;
+
+            public static bool badassEmotesEnabled
+            {
+                get
+                {
+                    if (_badassEmotesEnabled == null)
+                    {
+                        _badassEmotesEnabled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.weliveinasociety.badassemotes");
+                    }
+                    return (bool)_badassEmotesEnabled;
+                }
+            }
+
+            [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+            public static void SomeMethodThatRequireTheDependencyToBeHere()
+            {
+                // stuff that require the dependency to be loaded
+            }
+        }
+        /*
         public static event Action FinishedLoadingCompatability;
 
         public static void FinishedLoading()

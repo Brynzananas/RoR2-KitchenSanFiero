@@ -29,6 +29,7 @@ using System.Runtime.Serialization;
 using Rewired;
 using static RoR2.MasterSpawnSlotController;
 using RoR2.Audio;
+using System.Runtime.CompilerServices;
 
 namespace CaeliImperium.Items
 {
@@ -416,24 +417,25 @@ localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
             On.RoR2.CharacterBody.OnInventoryChanged += ChangeArraySize;
             //On.RoR2.EquipmentDef.AttemptGrant += FillEmptySlots;
             On.RoR2.PurchaseInteraction.OnInteractionBegin += CardCompatibility;
-                ProperSave.SaveFile.OnGatherSaveData += SaveFile_OnGatherSaveData;
-                ProperSave.Loading.OnLoadingEnded += Loading_OnLoadingStarted;
-            //On.RoR2.CharacterBody.Start += TemporalFix;
+            ProperSaveCompat();
+            //if (ProperSaveCompatibility.enabled)
+            //{
+            //    Debug.Log("megaballs");
+            //    ProperSave.SaveFile.OnGatherSaveData += SaveFile_OnGatherSaveData;
+            //    ProperSave.Loading.OnLoadingEnded += Loading_OnLoadingStarted;
+            //}
+                
         }
-
-        //Inject component immediatly to stop ProperSave issues when svaning the game without the component
-        //No it does not fixes the problem
-        //private static void TemporalFix(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
-        //{
-        //    orig(self);
-        //    if (self.isPlayerControlled && !self.masterObject.GetComponent<CapturedPotentialComponent>())
-        //    {
-        //        CapturedPotentialComponent component = self.masterObject.AddComponent<CapturedPotentialComponent>();
-        //        component.equipArray = new EquipmentIndex[0];
-        //        component.master = self.master;
-        //    }
-        //}
-
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        private static void ProperSaveCompat()
+        {
+                if(ProperSaveCompatibility.enabled)
+            {
+                Debug.Log("megaballs");
+            ProperSave.SaveFile.OnGatherSaveData += SaveFile_OnGatherSaveData;
+                ProperSave.Loading.OnLoadingEnded += Loading_OnLoadingStarted;
+            }
+        }
         private static void Loading_OnLoadingStarted(SaveFile file)
         {
             string ComponentDictKey = "KitchenSanFiero_CapturedPotentialInventory";

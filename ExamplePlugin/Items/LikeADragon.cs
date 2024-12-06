@@ -22,6 +22,7 @@ namespace CaeliImperium.Items
         internal static Sprite LikeADragonIcon;
         public static ItemDef LikeADragonItemDef;
         public static ConfigEntry<bool> LikeADragonEnable;
+        public static ConfigEntry<bool> LikeADragonEnableConfig;
         public static ConfigEntry<bool> LikeADragonAIBlacklist;
         public static ConfigEntry<float> LikeADragonTier;
         public static ConfigEntry<int> LikeADragonRoll;
@@ -38,7 +39,7 @@ namespace CaeliImperium.Items
         {
             AddConfigs();
             string tier = "Assets/Icons/LikeADragonTier1.png";
-            switch (LikeADragonTier.Value)
+            switch (ConfigFloat(LikeADragonTier, LikeADragonEnableConfig))
             {
                 case 1:
                     tier = "Assets/Icons/LikeADragonTier1.png";
@@ -68,6 +69,10 @@ namespace CaeliImperium.Items
                              "Activation",
                              true,
                              "Enable this item?");
+            LikeADragonEnableConfig = Config.Bind<bool>("Item : " + name,
+                             "Config Activation",
+                             false,
+                             "Enable config?");
             LikeADragonAIBlacklist = Config.Bind<bool>("Item : " + name,
                              "AI Blacklist",
                              false,
@@ -109,6 +114,7 @@ namespace CaeliImperium.Items
                                          0,
                                          "Control the damage increase per item stack in percentage");
             ModSettingsManager.AddOption(new CheckBoxOption(LikeADragonEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(LikeADragonEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(LikeADragonAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(LikeADragonTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new IntFieldOption(LikeADragonRoll));
@@ -128,7 +134,7 @@ namespace CaeliImperium.Items
             LikeADragonItemDef.pickupToken = name.ToUpper().Replace(" ", "") + "_PICKUP";
             LikeADragonItemDef.descriptionToken = name.ToUpper().Replace(" ", "") + "_DESC";
             LikeADragonItemDef.loreToken = name.ToUpper().Replace(" ", "") + "_LORE";
-            switch (LikeADragonTier.Value)
+            switch (ConfigFloat(LikeADragonTier, LikeADragonEnableConfig))
             {
                 case 1:
                     LikeADragonItemDef.deprecatedTier = ItemTier.Tier1;
@@ -147,7 +153,7 @@ namespace CaeliImperium.Items
             LikeADragonItemDef.hidden = false;
             LikeADragonItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Damage };
-            if (LikeADragonAIBlacklist.Value)
+            if (ConfigBool(LikeADragonAIBlacklist, LikeADragonEnableConfig))
             {
                 tags.Add(ItemTag.AIBlacklist);
             }
@@ -177,13 +183,13 @@ namespace CaeliImperium.Items
                 
                 if (itemCount > 0)
                 {
-                    for (int i = 0; i < LikeADragonRoll.Value + ((itemCount - 1) * LikeADragonRollStack.Value); i++)
+                    for (int i = 0; i < ConfigInt(LikeADragonRoll, LikeADragonEnableConfig) + ((itemCount - 1) * ConfigInt(LikeADragonRollStack, LikeADragonEnableConfig)); i++)
                     {
-                        float rollChance = LikeADragonRollChance.Value + ((itemCount - 1) * LikeADragonRollChanceStack.Value);
+                        float rollChance = ConfigFloat(LikeADragonRollChance, LikeADragonEnableConfig) + ((itemCount - 1) * ConfigFloat(LikeADragonRollChanceStack, LikeADragonEnableConfig));
                         int superRoll = (int)Math.Floor((float)(rollChance / 100));
                         for (int j = 0; j < superRoll; j++)
                         {
-                            damageInfo.damage += damageInfo.damage * (LikeADragonDamage.Value / 100) + ((itemCount - 1) * (LikeADragonDamageStack.Value / 100));
+                            damageInfo.damage += damageInfo.damage * (ConfigFloat(LikeADragonDamage, LikeADragonEnableConfig) / 100) + ((itemCount - 1) * (ConfigFloat(LikeADragonDamageStack, LikeADragonEnableConfig) / 100));
                         }
                         float luck = attackerBody.master.luck;
                         if (!LikeADragonLuck.Value)
@@ -192,7 +198,7 @@ namespace CaeliImperium.Items
                         }
                         if (Util.CheckRoll(rollChance - (superRoll * 100), luck, damageInfo.attacker.GetComponent<CharacterMaster>()))
                         {
-                            damageInfo.damage += damageInfo.damage * (LikeADragonDamage.Value / 100) + ((itemCount - 1) * (LikeADragonDamageStack.Value / 100));
+                            damageInfo.damage += damageInfo.damage * (ConfigFloat(LikeADragonDamage, LikeADragonEnableConfig) / 100) + ((itemCount - 1) * (ConfigFloat(LikeADragonDamageStack, LikeADragonEnableConfig) / 100));
                         }
                         //float luck = attackerBody.master.luck;
                         
@@ -222,9 +228,24 @@ namespace CaeliImperium.Items
 
         private static void AddLanguageTokens()
         {
+            string chanceStack = "";
+            if (ConfigFloat(LikeADragonRollChanceStack, LikeADragonEnableConfig) != 0)
+            {
+                chanceStack = " <style=cStack>(+" + ConfigFloat(LikeADragonRollChanceStack, LikeADragonEnableConfig) + "% per item stack)</style>";
+            }
+            string damageStack = "";
+            if (ConfigFloat(LikeADragonDamageStack, LikeADragonEnableConfig) != 0)
+            {
+                damageStack = " <style=cStack>(+" + ConfigFloat(LikeADragonDamageStack, LikeADragonEnableConfig) + "% per item stack)</style>";
+            }
+            string rollStack = "";
+            if (ConfigInt(LikeADragonRollStack, LikeADragonEnableConfig) != 0)
+            {
+                rollStack = " <style=cStack>(+" + ConfigInt(LikeADragonRollStack, LikeADragonEnableConfig) + " per item stack)</style>";
+            }
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name);
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", LikeADragonRollChance.Value +"% <style=cStack>(+" + LikeADragonRollChanceStack.Value + "% per item stack)</style> chance to increase <style=cIsDamage>outcoming damage</style> by <style=cIsDamage>" + LikeADragonDamage.Value + "%</style> <style=cStack>(+" + LikeADragonDamageStack.Value + "% per item stack)</style>. Rolls " + LikeADragonRoll.Value + " <style=cStack>(+" + LikeADragonRollStack.Value + " per item stack)</style> times");
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", LikeADragonRollChance.Value + "% <style=cStack>(+" + LikeADragonRollChanceStack.Value + "% per item stack)</style> chance to increase <style=cIsDamage>outcoming damage</style> by <style=cIsDamage>" + LikeADragonDamage.Value + "%</style> <style=cStack>(+" + LikeADragonDamageStack.Value + "% per item stack)</style>. Rolls " + LikeADragonRoll.Value + " <style=cStack>(+" + LikeADragonRollStack.Value + " per item stack)</style> times");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", ConfigFloat(LikeADragonRollChance, LikeADragonEnableConfig) +"%" + chanceStack + " chance to increase <style=cIsDamage>outcoming damage</style> by <style=cIsDamage>" + ConfigFloat(LikeADragonDamage, LikeADragonEnableConfig) + "%</style>" + damageStack + ". Rolls " + ConfigInt(LikeADragonRoll, LikeADragonEnableConfig) + rollStack + " times");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", ConfigFloat(LikeADragonRollChance, LikeADragonEnableConfig) + "%" + chanceStack + " chance to increase <style=cIsDamage>outcoming damage</style> by <style=cIsDamage>" + ConfigFloat(LikeADragonDamage, LikeADragonEnableConfig) + "%</style>" + damageStack + ". Rolls " + ConfigInt(LikeADragonRoll, LikeADragonEnableConfig) + rollStack + " times");
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "");
         }
     }

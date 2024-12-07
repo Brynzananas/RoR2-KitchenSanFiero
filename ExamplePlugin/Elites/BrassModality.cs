@@ -41,6 +41,7 @@ namespace CaeliImperium.Elites
         private static Sprite eliteIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/brass_modality_icon.png");
         // RoR2/Base/Common/ColorRamps/texRampWarbanner.png 
         public static ConfigEntry<bool> BrassModalityEnable;
+        public static ConfigEntry<bool> BrassModalityEnableConfig;
         public static ConfigEntry<float> BrassModalityHealthMult;
         public static ConfigEntry<float> BrassModalityDamageMult;
         public static ConfigEntry<float> BrassModalityTier;
@@ -87,6 +88,10 @@ namespace CaeliImperium.Elites
         }
         private static void AddConfigs()
         {
+            BrassModalityEnableConfig = Config.Bind<bool>("Elite : Brass Modality",
+                             "Config Activation",
+                             false,
+                             "Enable config?");
             BrassModalityHealthMult = Config.Bind<float>("Elite : Brass Modality",
                                          "Health Multiplier",
                                          6f,
@@ -172,6 +177,7 @@ namespace CaeliImperium.Elites
                              true,
                              "Enable this elite?");
             ModSettingsManager.AddOption(new CheckBoxOption(BrassModalityEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(BrassModalityEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityHealthMult));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityDamageMult));
             ModSettingsManager.AddOption(new StepSliderOption(BrassModalityTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
@@ -201,17 +207,17 @@ namespace CaeliImperium.Elites
                 if (damageInfo.attacker && !damageInfo.rejected && victim && victim.GetComponent<CharacterBody>() && damageInfo.attacker.GetComponent<CharacterBody>() && damageInfo.attacker.GetComponent<CharacterBody>().HasBuff(AffixBrassModalityBuff))
                 {
                     float timer = 0;
-                    if (BrassModalityDoWoundTime.Value)
+                    if (ConfigBool(BrassModalityDoWoundTime, BrassModalityEnableConfig))
                     {
-                        timer = BrassModalityFlatWoundTime.Value * damageInfo.procCoefficient;
+                        timer = ConfigFloat(BrassModalityFlatWoundTime, BrassModalityEnableConfig) * damageInfo.procCoefficient;
                     }
                     else
                     {
-                        timer = damageInfo.damage * BrassModalityDamageWoundTime.Value * damageInfo.procCoefficient;
+                        timer = damageInfo.damage * ConfigFloat(BrassModalityDamageWoundTime, BrassModalityEnableConfig) * damageInfo.procCoefficient;
                     }
-                    if (BrassModalityDoWoundAmount.Value)
+                    if (ConfigBool(BrassModalityDoWoundAmount, BrassModalityEnableConfig))
                     {
-                        for (int i = 0; i < BrassModalityFlatWoundAmount.Value; i++)
+                        for (int i = 0; i < ConfigInt(BrassModalityFlatWoundAmount, BrassModalityEnableConfig); i++)
                         {
                             victim.GetComponent<CharacterBody>().AddTimedBuff(WoundedBuff.WoundedBuffDef, timer);
 
@@ -219,7 +225,7 @@ namespace CaeliImperium.Elites
                     }
                     else
                     {
-                        for (int i = 0; i < Math.Ceiling(damageInfo.damage * BrassModalityDamageWoundAmount.Value); i++)
+                        for (int i = 0; i < Math.Ceiling(damageInfo.damage * ConfigFloat(BrassModalityDamageWoundAmount, BrassModalityEnableConfig)); i++)
                         {
                             victim.GetComponent<CharacterBody>().AddTimedBuff(WoundedBuff.WoundedBuffDef, timer);
 
@@ -240,15 +246,15 @@ namespace CaeliImperium.Elites
             {
                 if (sender.teamComponent.teamIndex == TeamIndex.Player && sender.isPlayerControlled)
                 {
-                    args.damageMultAdd += BrassModalityDamageMultAdditionPlayer.Value - 1;
-                    args.attackSpeedReductionMultAdd += BrassModalityAttackSpeedReductionPlayer.Value - 1;
-                    args.armorAdd += BrassModalityArmorPlayer.Value;
+                    args.damageMultAdd += ConfigFloat(BrassModalityDamageMultAdditionPlayer, BrassModalityEnableConfig) - 1;
+                    args.attackSpeedReductionMultAdd += ConfigFloat(BrassModalityAttackSpeedReductionPlayer, BrassModalityEnableConfig) - 1;
+                    args.armorAdd += ConfigFloat(BrassModalityArmorPlayer, BrassModalityEnableConfig);
                 }
                 else
                 {
-                    args.damageMultAdd += BrassModalityDamageMultAddition.Value - 1;
-                    args.attackSpeedReductionMultAdd += BrassModalityAttackSpeedReduction.Value - 1;
-                    args.armorAdd += BrassModalityArmor.Value;
+                    args.damageMultAdd += ConfigFloat(BrassModalityDamageMultAddition, BrassModalityEnableConfig) - 1;
+                    args.attackSpeedReductionMultAdd += ConfigFloat(BrassModalityAttackSpeedReduction, BrassModalityEnableConfig) - 1;
+                    args.armorAdd += ConfigFloat(BrassModalityArmor, BrassModalityEnableConfig);
                 }
 
 
@@ -280,8 +286,8 @@ namespace CaeliImperium.Elites
             {
                 CombatDirector.EliteTierDef targetTier2 = EliteAPI.VanillaEliteTiers[2];
                 List<EliteDef> elites2 = targetTier2.eliteTypes.ToList();
-                AffixBrassModalityElite.healthBoostCoefficient = BrassModalityHealthMult.Value / 1.6f;
-                AffixBrassModalityElite.damageBoostCoefficient = BrassModalityDamageMult.Value / 1.3f;
+                AffixBrassModalityElite.healthBoostCoefficient = ConfigFloat(BrassModalityHealthMult, BrassModalityEnableConfig) / 1.6f;
+                AffixBrassModalityElite.damageBoostCoefficient = ConfigFloat(BrassModalityDamageMult, BrassModalityEnableConfig) / 1.3f;
                 elites2.Add(AffixBrassModalityElite);
                 targetTier2.eliteTypes = elites2.ToArray();
             }
@@ -300,21 +306,29 @@ namespace CaeliImperium.Elites
             //targetTiers.ToList().Add(eliteTier);
             //targetTiers.ToArray();
             //CombatDirector.eliteTiers = targetTiers;
-            int index = 1;
-            switch (BrassModalityTier.Value)
+            EliteDef index = RoR2Content.Elites.Ice;
+            switch (ConfigFloat(BrassModalityTier, BrassModalityEnableConfig))
             {
-                case 1: index = 1; break;
-                case 2: index = 3; break;
-                case 3: index = 4; break;
+                case 1: index = RoR2Content.Elites.Ice; break;
+                case 2: index = DLC2Content.Elites.Aurelionite; break;
+                case 3: index = RoR2Content.Elites.Poison; break;
 
             }
-            CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[index];
-            List<EliteDef> elites = targetTier.eliteTypes.ToList();
+            
+            foreach (EliteTierDef eliteIndex in EliteAPI.VanillaEliteTiers)
+            {
+                if (eliteIndex.eliteTypes.Contains(index))
+                {
+                    CombatDirector.EliteTierDef targetTier = eliteIndex;
+                    List<EliteDef> elites = targetTier.eliteTypes.ToList();
 
-            AffixBrassModalityElite.healthBoostCoefficient = BrassModalityHealthMult.Value;
-            AffixBrassModalityElite.damageBoostCoefficient = BrassModalityDamageMult.Value;
-            elites.Add(AffixBrassModalityElite);
-            targetTier.eliteTypes = elites.ToArray();
+                    AffixBrassModalityElite.healthBoostCoefficient = ConfigFloat(BrassModalityHealthMult, BrassModalityEnableConfig);
+                    AffixBrassModalityElite.damageBoostCoefficient = ConfigFloat(BrassModalityDamageMult, BrassModalityEnableConfig);
+                    elites.Add(AffixBrassModalityElite);
+                    targetTier.eliteTypes = elites.ToArray();
+                }
+            }
+            
             //}
         }
         private static void CharacterBody_OnBuffFirstStackGained(
@@ -401,8 +415,8 @@ namespace CaeliImperium.Elites
             AffixBrassModalityElite.eliteEquipmentDef = AffixBrassModalityEquipment;
             AffixBrassModalityElite.modifierToken = "ELITE_MODIFIER_BRASSMODALITY";
             AffixBrassModalityElite.name = "EliteBrassModality";
-            AffixBrassModalityElite.healthBoostCoefficient = BrassModalityHealthMult.Value;
-            AffixBrassModalityElite.damageBoostCoefficient = BrassModalityDamageMult.Value;
+            AffixBrassModalityElite.healthBoostCoefficient = ConfigFloat(BrassModalityHealthMult, BrassModalityEnableConfig);
+            AffixBrassModalityElite.damageBoostCoefficient = ConfigFloat(BrassModalityDamageMult, BrassModalityEnableConfig);
             AffixBrassModalityBuff.eliteDef = AffixBrassModalityElite;
         }
 

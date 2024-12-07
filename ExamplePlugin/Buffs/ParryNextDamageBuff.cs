@@ -56,7 +56,7 @@ namespace CaeliImperium.Buffs
                     Vector3 targetDir = attackerToStun.corePosition - self.body.corePosition;
                     float angle = Vector3.Angle(targetDir, self.body.inputBank.aimDirection);
                     //float dist = Vector3.Distance(attackerToStun.corePosition, self.body.corePosition);
-                    if (angle < EnforcerHandViewAngle.Value / 2)
+                    if (angle < ConfigFloat(EnforcerHandViewAngle, EnforcerHandEnableConfig) / 2)
                     {
                     SetStateOnHurt component = attackerToStun.GetComponent<SetStateOnHurt>();
                         /*
@@ -86,12 +86,12 @@ namespace CaeliImperium.Buffs
                         if (self.body != attackerToStun && attackerToStun)
                         {
                             var newDamage = damageInfo;
-                            newDamage.damage *= EnforcerHandReflectDamageMultiplier.Value;
-                            newDamage.damage += (attackerToStun.maxHealth * EnforcerHandMaxHealthDamageMulyiplier.Value / 100) + (self.body.damageFromRecalculateStats * EnforcerHandTotalDamageMultiplier.Value / 100);
+                            newDamage.damage *= ConfigFloat(EnforcerHandReflectDamageMultiplier, EnforcerHandEnableConfig);
+                            newDamage.damage += (attackerToStun.maxHealth * ConfigFloat(EnforcerHandMaxHealthDamageMulyiplier, EnforcerHandEnableConfig) / 100) + (self.body.damageFromRecalculateStats * ConfigFloat(EnforcerHandTotalDamageMultiplier, EnforcerHandEnableConfig) / 100);
                             attackerToStun.healthComponent.TakeDamage(newDamage);
-                            float buffTime = EnforcerHandWoundedTime.Value;
+                            float buffTime = ConfigFloat(EnforcerHandWoundedTime, EnforcerHandEnableConfig);
                             var setBuff = attackerToStun;
-                            for (int i = 0; i < EnforcerHandWoundedCount.Value; i++)
+                            for (int i = 0; i < ConfigInt(EnforcerHandWoundedCount, EnforcerHandEnableConfig); i++)
                             {
                                 if (buffTime > 0)
                                 {
@@ -103,7 +103,7 @@ namespace CaeliImperium.Buffs
                                 }
 
                             }
-                            if (!attackerToStun.isChampion && EnforcerHandDoStun.Value)
+                            if (!attackerToStun.isChampion && ConfigBool(EnforcerHandDoStun, EnforcerHandEnableConfig))
                             {
                                 if (component.hasEffectiveAuthority)
                                 {
@@ -121,9 +121,9 @@ namespace CaeliImperium.Buffs
                         damageInfo.rejected = true;
                         EntitySoundManager.EmitSoundServer(ShieldBlockSound.akId, self.gameObject);
                         //Util.PlaySound("Play_item_proc_negateAttack", self.gameObject);
-                        self.body.inventory.DeductActiveEquipmentCooldown(EnforcerHandCooldownDeduction.Value);
+                        self.body.inventory.DeductActiveEquipmentCooldown(ConfigFloat(EnforcerHandCooldownDeduction, EnforcerHandEnableConfig));
                         self.body.SetBuffCount(ParryNextDamageBuffDef.buffIndex, 0);
-                        self.body.AddTimedBuff(RoR2Content.Buffs.Immune, EnforcerHandImmunity.Value);
+                        self.body.AddTimedBuff(RoR2Content.Buffs.Immune, ConfigFloat(EnforcerHandImmunity, EnforcerHandEnableConfig));
                     //Debug.Log(damageInfo);
                     //Debug.Log(damageInfo.attacker);
                     }

@@ -18,6 +18,7 @@ namespace CaeliImperium.Buffs
     {
         public static BuffDef WoundedBuffDef;
         internal static Sprite WoundedIcon;
+        public static ConfigEntry<bool> WoundedEnableConfig;
         public static ConfigEntry<float> WoundedCurse;
         //public static ConfigEntry<int> WoundedCleanse;
 
@@ -32,6 +33,10 @@ namespace CaeliImperium.Buffs
         }
         private static void AddConfigs()
         {
+            WoundedEnableConfig = Config.Bind<bool>("Buff : Wounded",
+                             "Config Activation",
+                             false,
+                             "Enable config?");
             WoundedCurse = Config.Bind<float>("Buff : Wounded",
                              "Damage increase",
                              10f,
@@ -49,7 +54,7 @@ namespace CaeliImperium.Buffs
             WoundedBuffDef.name = "ciWounded";
             WoundedBuffDef.buffColor = Color.white;
             WoundedBuffDef.canStack = true;
-            WoundedBuffDef.isDebuff = false;
+            WoundedBuffDef.isDebuff = true;
             WoundedBuffDef.ignoreGrowthNectar = true;
             WoundedBuffDef.iconSprite = WoundedIcon;
             WoundedBuffDef.isHidden = false;
@@ -64,7 +69,7 @@ namespace CaeliImperium.Buffs
             int buffCount = self.body ? self.body.GetBuffCount(WoundedBuffDef) : 0;
             if (self.body && damageInfo.attacker && !damageInfo.rejected && buffCount > 0)
             {
-                damageInfo.damage *= 1 + (buffCount * WoundedCurse.Value / 100);
+                damageInfo.damage *= 1 + (buffCount * ConfigFloat(WoundedCurse, WoundedEnableConfig) / 100);
             }
             orig(self, damageInfo);
         }

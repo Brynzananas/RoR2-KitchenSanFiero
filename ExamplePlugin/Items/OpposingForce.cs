@@ -158,16 +158,15 @@ namespace CaeliImperium.Items
             orig(self, damageInfo, victim);
             if (damageInfo.attacker && victim)
             {
-                
+                CharacterBody attackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
                 CharacterBody victimBody = victim.GetComponent<CharacterBody>() ? victim.GetComponent<CharacterBody>() : null;
                 int itemCount = 0;
                 if (victimBody != null)
                 {
                 itemCount = victimBody.inventory ? victimBody.inventory.GetItemCount(OpposingForceItemDef) : 0;
                 }
-                if (itemCount > 0 && victimBody && victimBody.armor > 0)
+                if (attackerBody && itemCount > 0 && victimBody && victimBody.armor > 0)
                 {                   
-                    CharacterBody attackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
                     ProcChainMask procChainMask2 = damageInfo.procChainMask;
                     procChainMask2.AddProc(ProcType.Rings);
                     DamageInfo damageInfo2 = new DamageInfo

@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 1058279142
+CRC: 3031343281
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: c6801f9cc23495aa0c384ff2f662728c
+    Hash: 4be42ab4657965d861ea7a6448e3efe1
   TypeTreeHash:
     serializedVersion: 2
     Hash: 29940bcbe38863e439e9f645fb28329e
@@ -62,6 +62,7 @@ Assets:
 - Assets/Materials/matTalismanExplosion.mat
 - Assets/Models/Prefabs/EnforcerHand.prefab
 - Assets/Materials/matCigs_palette.mat
+- Assets/Models/Prefabs/Documentation.prefab
 - Assets/Models/Prefabs/OpposingForceItem.prefab
 - Assets/Icons/DiscoBallTier1.png
 - Assets/Materials/thaolisman.mat
@@ -73,6 +74,7 @@ Assets:
 - Assets/Textures/CapturedPotentialColoredEmission.png
 - Assets/Textures/GuardianCrownColoredEmossion.png
 - Assets/Icons/BattleArtifactActivated.png
+- Assets/Materials/documentationtex.mat
 - Assets/Icons/healshield.png
 - Assets/Materials/matLemurian_skull_normal.mat
 - Assets/Textures/ForbiddenTome_Emission.png
@@ -105,6 +107,7 @@ Assets:
 - Assets/Models/Prefabs/EmergencyMedicalTreatment.prefab
 - Assets/Icons/BrassBellIconTier1.png
 - Assets/Textures/MajesticHand.png
+- Assets/Icons/DeepWound.png
 - Assets/Models/Prefabs/SkullGammaGun.prefab
 - Assets/Materials/matPainkillers_palette.mat
 - Assets/Textures/ForbiddenTome_palette.png
@@ -196,6 +199,7 @@ Assets:
 - Assets/Icons/ArchNemesisAffix.png
 - Assets/Icons/KeyChainTier3.png
 - Assets/Icons/EmergencyMedicalTreatmentIconTier1.png
+- Assets/Icons/Documentation.png
 - Assets/Icons/PackOfCiggaretsIconTier3.png
 - Assets/Icons/EnforcerHand.png
 - Assets/Icons/ReflectDamage.png
@@ -209,6 +213,7 @@ Assets:
 - Assets/Icons/KeyChainTier2.png
 - Assets/Textures/MajesticHandEmission.png
 - Assets/Icons/OtherworldlyManuscript.png
+- Assets/Models/Prefabs/Affix.anim
 - Assets/Textures/heychain_palette.png
 - Assets/Models/Prefabs/CritBuffOnEliteKill.prefab
 - Assets/Materials/matIDK.mat

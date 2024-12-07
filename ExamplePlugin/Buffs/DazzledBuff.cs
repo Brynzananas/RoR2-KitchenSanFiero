@@ -10,6 +10,7 @@ using static CaeliImperiumPlugin.CaeliImperium;
 using RiskOfOptions.Options;
 using RiskOfOptions;
 using BepInEx.Configuration;
+using RiskOfOptions.OptionConfigs;
 
 namespace CaeliImperium.Buffs
 {
@@ -17,15 +18,21 @@ namespace CaeliImperium.Buffs
     {
         public static BuffDef DazzledBuffDef;
         internal static Sprite DazzledIcon;
+        public static ConfigEntry<bool> DazzledEnableConfig;
         public static ConfigEntry<float> DazzledDamageIncrease;
 
         internal static void Init()
         {
 
+            DazzledEnableConfig = Config.Bind<bool>("Buff : Dazzled",
+                             "Config Activation",
+                             false,
+                             "EnableConfig?");
             DazzledDamageIncrease = Config.Bind<float>("Buff : Dazzled",
                              "Damage increase",
                              50f,
                              "Control how much Dazzled increases incoming damage in percentage");
+            ModSettingsManager.AddOption(new CheckBoxOption(DazzledEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(DazzledDamageIncrease));
             DazzledIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/Dazzled.png");
 
@@ -54,7 +61,7 @@ namespace CaeliImperium.Buffs
             int buffCount = self.body ? self.body.GetBuffCount(DazzledBuffDef) : 0;
             if (self.body && damageInfo.attacker && !damageInfo.rejected && buffCount > 0)
             {
-                damageInfo.damage *= 1 + (buffCount * DazzledDamageIncrease.Value / 100);
+                damageInfo.damage *= 1 + (buffCount * ConfigFloat(DazzledDamageIncrease, DazzledEnableConfig) / 100);
             }
             orig(self, damageInfo);
         }

@@ -24,6 +24,7 @@ using RoR2.ExpansionManagement;
 using RoR2.Audio;
 using static RoR2.CombatDirector;
 using ProperSave;
+using UnityEditor.VersionControl;
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 [assembly: HG.Reflection.SearchableAttribute.OptIn]
 [assembly: HG.Reflection.SearchableAttribute.OptInAttribute]
@@ -120,8 +121,6 @@ namespace CaeliImperiumPlugin
             Config = new ConfigFile(Paths.ConfigPath + "\\BrynzananasCaeliImperium.cfg", true);
 
             ModLogger = Logger;
-            
-
 
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CaeliImperium.assets"))
             {
@@ -156,9 +155,9 @@ namespace CaeliImperiumPlugin
             WoundedBuff.Init();
             IrradiatedBuff.Init();
             DazzledBuff.Init();
-            PackOfCiggaretes.Init();
+            //PackOfCiggaretes.Init();
             GuardianCrown.Init();
-            Painkillers.Init();
+            Medicine.Init();
             EnergyChocolateBar.Init();
             FragileGiftBox.Init();
             Necronomicon.Init();
@@ -350,12 +349,17 @@ namespace CaeliImperiumPlugin
             return (1f - maxChance / (maxChance + amplificationPercentage)) * maxChance;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Falloff(float amplificationPercentage, float maxChance, float maxDistance)
+        public static float ChanceFalloff(float amplificationPercentage, float maxChance, float maxDistance)
         {
             return (1f - maxDistance / (maxDistance + (maxDistance - amplificationPercentage))) * maxChance * 2;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float StackFLoat(float value, float stack, int itemCount)
+        public static float Falloff(float amplificationPercentage, float maxDistance)
+        {
+            return (1f - maxDistance / (maxDistance + (maxDistance - amplificationPercentage))) * maxDistance * 2;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float StackFloat(float value, float stack, int itemCount)
         {
             return (value + ((itemCount - 1) * stack));
         }
@@ -419,7 +423,7 @@ namespace CaeliImperiumPlugin
         private void ifItKillsPlayer(On.RoR2.CharacterBody.orig_HandleOnKillEffectsServer orig, CharacterBody self, DamageReport damageReport)
         {
             orig(self, damageReport);
-            if (self && damageReport.victimBody && damageReport.victimBody.isPlayerControlled && damageReport.victimBody.teamComponent.teamIndex == TeamIndex.Player && self.inventory.GetEquipmentIndex() != ArchNemesis.AffixArchNemesisEquipment.equipmentIndex && Run.instance.stageClearCount >= ArchNemesisStageBegin.Value)
+            if (self && damageReport.victimBody && damageReport.victimBody.isPlayerControlled && damageReport.victimBody.teamComponent.teamIndex == TeamIndex.Player && self.inventory.GetEquipmentIndex() != ArchNemesis.AffixArchNemesisEquipment.equipmentIndex && Run.instance.stageClearCount >= ConfigInt(ArchNemesisStageBegin, ArchNemesisEnableConfig))
             {
                 if (self.isChampion && !ArchNemesisChampions.Value)
                 {

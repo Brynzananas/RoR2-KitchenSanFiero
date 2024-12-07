@@ -84,11 +84,12 @@ namespace CaeliImperium.Items
                 var emoteList = emoteArray.ToList();
                 emoteList.Add("FeastDance");
                 emoteList.Add("CaramellDansen");
+                emoteList.Add("BigShoeLmfao");
                 emoteList.Add("Bailan las Rochas y las Chetas");
                 emoteList.Add("DrLiveSeyWalk");
                 emoteList.Add("KahootBonetrousle");
-                emoteList.Add("KiryuPose");
-                emoteList.Add("MajimaPose");
+                //emoteList.Add("KiryuPose");
+                //emoteList.Add("MajimaPose");
                 emoteList.Add("MajimaDance");
                 emoteList.Add("TomSpeen");
                 emoteList.Add("YouSpeenMeRound");
@@ -112,13 +113,30 @@ namespace CaeliImperium.Items
                 emoteList.Add("Distraction");
                 emoteList.Add("GangnamStyle");
                 emoteList.Add("FlamencoIntro");
+                emoteList.Add("Security");
+                emoteList.Add("PPMusic");
+                emoteList.Add("Crossbounce");
                 emoteList.Add("Popular Vibe");
+                emoteList.Add("NinjaStyle");
                 emoteList.Add("VSWORLD");
-                emoteList.Add("PPmusic");
+                emoteList.Add("Griddy");
+                emoteList.Add("Floss");
+                emoteList.Add("Penguin");
+                emoteList.Add("ChugJug");
+                emoteList.Add("IsDynamite");
+                emoteList.Add("GangTorture");
+                emoteList.Add("OldSchool");
+                emoteList.Add("OrangeJustice");
+                emoteList.Add("BlindingLightsIntro");
                 emoteList.Add("SquatKickIntro");
                 emoteList.Add("Breakneck");
                 emoteList.Add("Dougie");
                 emoteList.Add("MyWorld");
+                emoteList.Add("Stuck");
+                emoteList.Add("Summertime");
+                emoteList.Add("FancyFeet");
+                emoteList.Add("Shufflin");
+                emoteList.Add("Toosie");
                 emoteList.Add("BimBamBom");
                 emoteList.Add("GetDown");
                 emoteList.Add("ArkDance");
@@ -170,7 +188,7 @@ namespace CaeliImperium.Items
                              "Replaces dances with Pizza Tower taunts");
             DiscoBallInterval = Config.Bind<float>("Item : Disco Ball",
                                          "Interval",
-                                         15f,
+                                         20f,
                                          "Control the interval of rolling the effect");
             DiscoBallChance = Config.Bind<float>("Item : Disco Ball",
                                          "Chance",
@@ -190,11 +208,11 @@ namespace CaeliImperium.Items
                                          "Control the maximum chance of making enemies dance in percentage");
             DiscoBallTime = Config.Bind<float>("Item : Disco Ball",
                                          "Time",
-                                         10f,
+                                         12f,
                                          "Control the time of enemy dancing in seconds");
             DiscoBallTimePlayer = Config.Bind<float>("Item : Disco Ball",
                                          "Time for players",
-                                         4f,
+                                         7f,
                                          "Control the time of player dancing in seconds");
             //DiscoBallTimeStack = Config.Bind<bool>("Item : Disco Ball",
             //                             "Time stack",

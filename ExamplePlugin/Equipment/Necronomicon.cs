@@ -12,6 +12,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.Assertions.Must;
 using static CaeliImperiumPlugin.CaeliImperium;
 using BepInEx.Configuration;
+using RiskOfOptions.OptionConfigs;
 
 namespace CaeliImperium.Equipment
 {
@@ -23,8 +24,8 @@ namespace CaeliImperium.Equipment
         public static GameObject NecronomiconMasterprefab;
         public static Inventory NecronomiconInventory;
         public static Vector3 NecronomiconPosition;
-        static bool isRespawning = false;
         public static ConfigEntry<bool> NecronomiconEnable;
+        public static ConfigEntry<bool> NecronomiconEnableConfig;
         public static ConfigEntry<float> NecronomiconCooldown;
         public static ConfigEntry<int> NecronomiconSpawnAmount;
         public static ConfigEntry<int> NecronomiconHealthBoost;
@@ -57,6 +58,10 @@ namespace CaeliImperium.Equipment
             NecronomiconEnable = Config.Bind<bool>("Equipment : Necronomicon",
                                          "Activation",
                                          true,
+                                         "Enable this equipment?");
+            NecronomiconEnableConfig = Config.Bind<bool>("Equipment : Necronomicon",
+                                         "Config Activation",
+                                         false,
                                          "Enable this equipment?");
             NecronomiconCooldown = Config.Bind<float>("Equipment : Necronomicon",
                                          "Cooldown",
@@ -102,7 +107,8 @@ namespace CaeliImperium.Equipment
                                          "Inventory copy for non players users",
                                          true,
                                          "Do spawned monsters retain their items for non player users?");
-            ModSettingsManager.AddOption(new CheckBoxOption(NecronomiconEnable));
+            ModSettingsManager.AddOption(new CheckBoxOption(NecronomiconEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(NecronomiconEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(NecronomiconCooldown));
             ModSettingsManager.AddOption(new IntFieldOption(NecronomiconSpawnAmount));
             ModSettingsManager.AddOption(new IntFieldOption(NecronomiconHealthBoost));
@@ -128,7 +134,7 @@ namespace CaeliImperium.Equipment
             NecronomiconEquipDef.pickupModelPrefab = NecronomiconPrefab;
             NecronomiconEquipDef.appearsInMultiPlayer = true;
             NecronomiconEquipDef.appearsInSinglePlayer = true;
-            NecronomiconEquipDef.cooldown = NecronomiconCooldown.Value;
+            NecronomiconEquipDef.cooldown = ConfigFloat(NecronomiconCooldown, NecronomiconEnableConfig);
             NecronomiconEquipDef.requiredExpansion = CaeliImperiumExpansionDef;
             NecronomiconEquipDef.canDrop = true;
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
@@ -331,7 +337,7 @@ localScale = new Vector3(0.29592F, 0.29592F, 0.29592F)
                 }
             });*/
             var displayRules = new ItemDisplayRuleDict(null);
-            ItemAPI.Add(new CustomEquipment(NecronomiconEquipDef, displayRules));
+            ItemAPI.Add(new CustomEquipment(NecronomiconEquipDef, rules));
             On.RoR2.EquipmentSlot.PerformEquipmentAction += PerformAction;
         }
         private static bool PerformAction(On.RoR2.EquipmentSlot.orig_PerformEquipmentAction orig, EquipmentSlot self, EquipmentDef equipmentDef)
@@ -352,7 +358,7 @@ localScale = new Vector3(0.29592F, 0.29592F, 0.29592F)
             bool isNull = false;
             if (slot.characterBody.isPlayerControlled)
             {
-                for (int i = 0; i < NecronomiconSpawnAmount.Value && !isNull; i++)
+                for (int i = 0; i < ConfigInt(NecronomiconSpawnAmount, NecronomiconEnableConfig) && !isNull; i++)
                 {
 
                     try
@@ -395,9 +401,9 @@ localScale = new Vector3(0.29592F, 0.29592F, 0.29592F)
 
                                 }
                                 characterMaster.inventory.GiveItem(RoR2Content.Items.Ghost, 1);
-                                characterMaster.inventory.GiveItem(RoR2Content.Items.HealthDecay, NecronomiconHealthDrain.Value);
-                                characterMaster.inventory.GiveItem(RoR2Content.Items.BoostHp, NecronomiconHealthBoost.Value);
-                                characterMaster.inventory.GiveItem(RoR2Content.Items.BoostDamage, NecronomiconDamageBoost.Value);
+                                characterMaster.inventory.GiveItem(RoR2Content.Items.HealthDecay, ConfigInt(NecronomiconHealthDrain, NecronomiconEnableConfig));
+                                characterMaster.inventory.GiveItem(RoR2Content.Items.BoostHp, ConfigInt(NecronomiconHealthBoost, NecronomiconEnableConfig));
+                                characterMaster.inventory.GiveItem(RoR2Content.Items.BoostDamage, ConfigInt(NecronomiconDamageBoost, NecronomiconEnableConfig));
                             }
 
 
@@ -414,7 +420,7 @@ localScale = new Vector3(0.29592F, 0.29592F, 0.29592F)
             }
             else
             {
-                for (int i = 0; i < NecronomiconSpawnAmountNoPlayer.Value; i++)
+                for (int i = 0; i < ConfigInt(NecronomiconSpawnAmountNoPlayer, NecronomiconEnableConfig); i++)
                 {
 
                     try
@@ -457,9 +463,9 @@ localScale = new Vector3(0.29592F, 0.29592F, 0.29592F)
 
                                 }
                                 characterMaster.inventory.GiveItem(RoR2Content.Items.Ghost, 1);
-                                characterMaster.inventory.GiveItem(RoR2Content.Items.HealthDecay, NecronomiconHealthDrainNoPlayer.Value);
-                                characterMaster.inventory.GiveItem(RoR2Content.Items.BoostHp, NecronomiconHealthBoostNoPlayer.Value);
-                                characterMaster.inventory.GiveItem(RoR2Content.Items.BoostDamage, NecronomiconDamageBoostNoPlayer.Value);
+                                characterMaster.inventory.GiveItem(RoR2Content.Items.HealthDecay, ConfigInt(NecronomiconHealthDrainNoPlayer, NecronomiconEnableConfig));
+                                characterMaster.inventory.GiveItem(RoR2Content.Items.BoostHp, ConfigInt(NecronomiconHealthBoostNoPlayer, NecronomiconEnableConfig));
+                                characterMaster.inventory.GiveItem(RoR2Content.Items.BoostDamage, ConfigInt(NecronomiconDamageBoostNoPlayer, NecronomiconEnableConfig));
                             }
 
 
@@ -485,8 +491,8 @@ localScale = new Vector3(0.29592F, 0.29592F, 0.29592F)
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add("NECRONOMICON_NAME", "Necronomicon");
-            LanguageAPI.Add("NECRONOMICON_PICKUP", "On use revive " + NecronomiconSpawnAmount.Value + " last dead monsters to <style=cIsDamage>fight on your side</style>. Spawned monsters have <style=cIsHealth>" + NecronomiconHealthBoost.Value * 10 + "% more health</style> and <style=cIsDamage>" + NecronomiconDamageBoost.Value * 10 +  "% more damage</style>. They live for " + NecronomiconHealthDrain.Value + " seconds and cannot be revived again");
-            LanguageAPI.Add("NECRONOMICON_DESC", "On use revive " + NecronomiconSpawnAmount.Value + " last dead monsters to <style=cIsDamage>fight on your side</style>. Spawned monsters have <style=cIsHealth>" + NecronomiconHealthBoost.Value * 10 + "% more health</style> and <style=cIsDamage>" + NecronomiconDamageBoost.Value * 10 + "% more damage</style>. They live for " + NecronomiconHealthDrain.Value + " seconds and cannot be revived again");
+            LanguageAPI.Add("NECRONOMICON_PICKUP", "On use revive " + ConfigInt(NecronomiconSpawnAmount, NecronomiconEnableConfig) + " last dead monsters to <style=cIsDamage>fight on your side</style>. Spawned monsters have <style=cIsHealth>" + ConfigInt(NecronomiconHealthBoost, NecronomiconEnableConfig) * 10 + "% more health</style> and <style=cIsDamage>" + ConfigInt(NecronomiconDamageBoost, NecronomiconEnableConfig) * 10 +  "% more damage</style>. They live for " + ConfigInt(NecronomiconHealthDrain, NecronomiconEnableConfig) + " seconds and cannot be revived again");
+            LanguageAPI.Add("NECRONOMICON_DESC", "On use revive " + ConfigInt(NecronomiconSpawnAmount, NecronomiconEnableConfig) + " last dead monsters to <style=cIsDamage>fight on your side</style>. Spawned monsters have <style=cIsHealth>" + ConfigInt(NecronomiconHealthBoost, NecronomiconEnableConfig) * 10 + "% more health</style> and <style=cIsDamage>" + ConfigInt(NecronomiconDamageBoost, NecronomiconEnableConfig) * 10 + "% more damage</style>. They live for " + ConfigInt(NecronomiconHealthDrain, NecronomiconEnableConfig) + " seconds and cannot be revived again");
             LanguageAPI.Add("NECRONOMICON_LORE", "");
         }
     }

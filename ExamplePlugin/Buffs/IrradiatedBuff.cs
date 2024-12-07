@@ -10,6 +10,7 @@ using UnityEngine;
 using static CaeliImperiumPlugin.CaeliImperium;
 using static R2API.DotAPI;
 using JetBrains.Annotations;
+using RiskOfOptions.OptionConfigs;
 
 namespace CaeliImperium.Buffs
 {
@@ -21,6 +22,8 @@ namespace CaeliImperium.Buffs
         public static Color newColor = new Color(0f, 0.98f, 0.41f, 1f);
         internal static Sprite IrradiatedIcon;
         public static float timer2;
+        public static ConfigEntry<bool> IrradiatedEnableConfig;
+        public static ConfigEntry<bool> IrradiatedEnable;
         public static ConfigEntry<bool> IrradiatedDoDamage;
         public static ConfigEntry<bool> IrradiatedDoDebuff;
         public static ConfigEntry<bool> IrradiatedCanStack;
@@ -29,7 +32,7 @@ namespace CaeliImperium.Buffs
         public static ConfigEntry<float> IrradiatedDamage;
         public static ConfigEntry<float> IrradiatedTimer;
         public static ConfigEntry<float> IrradiatedDuration;
-        public static ConfigEntry<int> IrradiatedMaxStack;
+        //public static ConfigEntry<int> IrradiatedMaxStack;
         internal static void Init()
         {
 
@@ -44,6 +47,14 @@ namespace CaeliImperium.Buffs
 
         private static void AddConfigs()
         {
+            IrradiatedEnableConfig = Config.Bind<bool>("Buff : Irradiated",
+                             "Config Activation",
+                             false,
+                             "Enable config?");
+            IrradiatedEnable = Config.Bind<bool>("Buff : Irradiated",
+                             "Function Activation",
+                             false,
+                             "Enable damage and irradiate nearby allies function?");
             IrradiatedDoDamage = Config.Bind<bool>("Buff : Irradiated",
                              "Do damage",
                              true,
@@ -76,16 +87,17 @@ namespace CaeliImperium.Buffs
                  "Duration",
                  5f,
                  "Control the DOT duration value");
-            IrradiatedMaxStack = Config.Bind<int>("Buff : Irradiated",
-                 "Max stack",
-                 5,
-                 "Control the DOT max stack value");
+            //IrradiatedMaxStack = Config.Bind<int>("Buff : Irradiated",
+            //     "Max stack",
+            //     5,
+            //     "Control the DOT max stack value");
+            ModSettingsManager.AddOption(new CheckBoxOption(IrradiatedEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(IrradiatedRange));
             ModSettingsManager.AddOption(new FloatFieldOption(IrradiatedUsualDamage));
             ModSettingsManager.AddOption(new FloatFieldOption(IrradiatedDamage));
             ModSettingsManager.AddOption(new FloatFieldOption(IrradiatedTimer));
             ModSettingsManager.AddOption(new FloatFieldOption(IrradiatedDuration));
-            ModSettingsManager.AddOption(new IntFieldOption(IrradiatedMaxStack));
+            //ModSettingsManager.AddOption(new IntFieldOption(IrradiatedMaxStack));
         }
 
         private static void DOTBehaviour(DotController self, DotController.DotStack dotStack)
@@ -134,26 +146,26 @@ namespace CaeliImperium.Buffs
             public void FixedUpdate()
             {
                 timer += Time.fixedDeltaTime;
-                if (timer > IrradiatedTimer.Value)
+                if (timer > ConfigFloat(IrradiatedTimer, IrradiatedEnableConfig))
                 {
                     if (body && body.HasBuff(IrradiatedBuffDef))
                     {
                         foreach (var characterBody in CharacterBody.readOnlyInstancesList)
                         {
                             float dist = Vector3.Distance(characterBody.corePosition, body.corePosition);
-
-                            if (dist < IrradiatedRange.Value && body.teamComponent.teamIndex == characterBody.teamComponent.teamIndex && body != characterBody)
+                            //Debug.Log(characterBody.mainHurtBox.volume);
+                            if (dist < ConfigFloat(IrradiatedRange, IrradiatedEnableConfig) && body.teamComponent.teamIndex == characterBody.teamComponent.teamIndex && body != characterBody)
                             {
                                 float buffCount = 1;
-                                if (IrradiatedCanStack.Value)
+                                if (ConfigBool(IrradiatedCanStack, IrradiatedEnableConfig))
                                 {
                                     buffCount = body.GetBuffCount(IrradiatedBuff.IrradiatedBuffDef);
                                 }
-                                if (IrradiatedDoDamage.Value)
+                                if (ConfigBool(IrradiatedDoDamage, IrradiatedEnableConfig))
                                 {
                                     DamageInfo damageInfo2 = new DamageInfo
                                     {
-                                        damage = characterBody.maxHealth * (IrradiatedUsualDamage.Value / 100) * buffCount,
+                                        damage = characterBody.maxHealth * (ConfigFloat(IrradiatedUsualDamage, IrradiatedEnableConfig) / 100) * buffCount,
                                         damageColorIndex = DamageColorIndex.Item,
                                         damageType = DamageType.BypassArmor,
                                         attacker = null,
@@ -167,17 +179,17 @@ namespace CaeliImperium.Buffs
                                     characterBody.healthComponent.TakeDamage(damageInfo2);
                                 }
 
-                                if (IrradiatedDoDebuff.Value)
+                                if (ConfigBool(IrradiatedDoDebuff, IrradiatedEnableConfig))
                                 {
                                     InflictDotInfo dotInfo = new InflictDotInfo()
                                     {
                                         attackerObject = null,
                                         victimObject = characterBody.gameObject,
-                                        totalDamage = body.maxHealth * (IrradiatedDamage.Value / 100),
+                                        totalDamage = body.maxHealth * (ConfigFloat(IrradiatedDamage, IrradiatedEnableConfig) / 100),
                                         damageMultiplier = buffCount,
-                                        duration = IrradiatedDuration.Value,
+                                        duration = ConfigFloat(IrradiatedDuration, IrradiatedEnableConfig),
                                         dotIndex = Buffs.IrradiatedBuff.IrradiatedDOTDef,
-                                        maxStacksFromAttacker = (uint?)IrradiatedMaxStack.Value
+                                        //maxStacksFromAttacker = (uint?)IrradiatedMaxStack.Value
 
                                     };
                                     DotController.InflictDot(ref dotInfo);
@@ -200,7 +212,7 @@ namespace CaeliImperium.Buffs
             orig(self, buffDef);
             if (buffDef == IrradiatedBuffDef)
             {
-                if (!self.gameObject.GetComponent<IrradiatedBuff.IrradiateComponent>())
+                if (ConfigBool(IrradiatedEnable, IrradiatedEnableConfig) && !self.gameObject.GetComponent<IrradiatedBuff.IrradiateComponent>())
                 {
                     IrradiatedBuff.IrradiateComponent component = self.gameObject.AddComponent<IrradiatedBuff.IrradiateComponent>();
                     component.body = self;

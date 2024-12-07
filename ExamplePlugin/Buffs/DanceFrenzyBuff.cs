@@ -64,19 +64,19 @@ namespace CaeliImperium.Buffs
             orig(self, buffDef);
             if (buffDef == DanceFrenzyBuffDef)
             {
-                if (self.skillLocator.primary && self.skillLocator.primary.skillName != skillDef.skillName)
+                if (self.skillLocator.primary)// && self.skillLocator.primary.skillName != skillDef.skillName)
                 {
                     self.skillLocator.primary.SetSkillOverride(self, skillDef, GenericSkill.SkillOverridePriority.Contextual);
                 }
-                if (self.skillLocator.secondary && self.skillLocator.secondary.skillName != skillDef.skillName)
+                if (self.skillLocator.secondary)// && self.skillLocator.secondary.skillName != skillDef.skillName)
                 {
                     self.skillLocator.secondary.SetSkillOverride(self, skillDef, GenericSkill.SkillOverridePriority.Contextual);
                 }
-                if (self.skillLocator.utility && self.skillLocator.utility.skillName != skillDef.skillName)
+                if (self.skillLocator.utility)// && self.skillLocator.utility.skillName != skillDef.skillName)
                 {
                     self.skillLocator.utility.SetSkillOverride(self, skillDef, GenericSkill.SkillOverridePriority.Contextual);
                 }
-                if (self.skillLocator.special && self.skillLocator.special.skillName != skillDef.skillName)
+                if (self.skillLocator.special)// && self.skillLocator.special.skillName != skillDef.skillName)
                 {
                     self.skillLocator.special.SetSkillOverride(self, skillDef, GenericSkill.SkillOverridePriority.Contextual);
                 }
@@ -148,7 +148,7 @@ namespace CaeliImperium.Buffs
                     }
                     var emoteIndex = UnityEngine.Random.Range(0, emoteArray2.Length);
                     CustomEmotesAPI.PlayAnimation(emoteArray2[emoteIndex], BoneMapper.characterBodiesToBoneMappers[self]);
-                }
+                }/*
                 if (self.skillLocator.primary)// && self.skillLocator.primary.skillName != skillDef.skillName)
                 {
                     self.skillLocator.primary.SetSkillOverride(self, skillDef, GenericSkill.SkillOverridePriority.Contextual);
@@ -164,7 +164,7 @@ namespace CaeliImperium.Buffs
                 if (self.skillLocator.special)//l && self.skillLocator.special.skillName != skillDef.skillName)
                 {
                     self.skillLocator.special.SetSkillOverride(self, skillDef, GenericSkill.SkillOverridePriority.Contextual);
-                }
+                }*/
                 //if (!self.allSkillsDisabled)
                 //{
                 //    self.allSkillsDisabled = true;

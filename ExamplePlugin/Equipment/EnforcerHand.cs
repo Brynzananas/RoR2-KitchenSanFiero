@@ -26,6 +26,7 @@ namespace CaeliImperium.Equipment
         static Vector3 NecronomiconPosition;
         static bool isRespawning = false;
         public static NetworkSoundEventDef ShielRaiseSound;
+        public static ConfigEntry<bool> EnforcerHandEnableConfig;
         public static ConfigEntry<float> EnforcerHandTimeWindow;
         public static ConfigEntry<float> EnforcerHandReflectDamageMultiplier;
         public static ConfigEntry<float> EnforcerHandTotalDamageMultiplier;
@@ -56,6 +57,10 @@ namespace CaeliImperium.Equipment
         }
         public static void AddConfigs()
         {
+            EnforcerHandEnableConfig = Config.Bind<bool>("Equipment : Enforcer Hand",
+                                         "Config Activation",
+                                         false,
+                                         "Enable config?");
             EnforcerHandTimeWindow = Config.Bind<float>("Equipment : Enforcer Hand",
                                          "Time window",
                                          1f,
@@ -105,6 +110,7 @@ namespace CaeliImperium.Equipment
                              70f,
                              "Control the view angle parry");
             ModSettingsManager.AddOption(new CheckBoxOption(EnforcerHandEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(EnforcerHandEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(EnforcerHandCooldown, new FloatFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(EnforcerHandViewAngle));
             ModSettingsManager.AddOption(new FloatFieldOption(EnforcerHandTimeWindow));
@@ -132,7 +138,7 @@ namespace CaeliImperium.Equipment
             EnforcerHandEquipDef.canBeRandomlyTriggered = false;
             EnforcerHandEquipDef.canDrop = true;
             EnforcerHandEquipDef.requiredExpansion = CaeliImperiumExpansionDef;
-            EnforcerHandEquipDef.cooldown = EnforcerHandCooldown.Value;
+            EnforcerHandEquipDef.cooldown = ConfigFloat(EnforcerHandCooldown, EnforcerHandEnableConfig);
             ItemDisplayRuleDict rules = new ItemDisplayRuleDict();
             rules.Add("mdlCommandoDualies", new RoR2.ItemDisplayRule[]{
                 new RoR2.ItemDisplayRule
@@ -355,7 +361,7 @@ localScale = new Vector3(0.40697F, 0.40697F, 0.40697F)
         public static bool OnUse(EquipmentSlot slot)
         {
             EntitySoundManager.EmitSoundServer(ShielRaiseSound.akId, slot.characterBody.gameObject);
-            slot.characterBody.AddTimedBuff(Buffs.ParryNextDamageBuff.ParryNextDamageBuffDef, EnforcerHandTimeWindow.Value);
+            slot.characterBody.AddTimedBuff(Buffs.ParryNextDamageBuff.ParryNextDamageBuffDef, ConfigFloat(EnforcerHandTimeWindow, EnforcerHandEnableConfig));
             return true;
         }
         private static void CreateSound()
@@ -406,17 +412,17 @@ localScale = new Vector3(0.40697F, 0.40697F, 0.40697F)
         public static void AddLanguageTokens()
         {
             LanguageAPI.Add("ENFORCERHAND_NAME", "Enforcer Hand");
-            LanguageAPI.Add("ENFORCERHAND_PICKUP", "<style=cIsDamage>Parry</style> an <style=cIsDamage>incoming attack</style> back to the attacker in a " + EnforcerHandTimeWindow.Value + "seconds time window on use. Deals <style=cIsDamage>" + EnforcerHandReflectDamageMultiplier.Value + "x reflected damage</style>, <style=cIsDamage>" + EnforcerHandTotalDamageMultiplier.Value + "% TOTAL damage</style> and <style=cIsHealth>" + EnforcerHandMaxHealthDamageMulyiplier.Value + "%</style> attackers <style=cIsHealth>max health</style>. Applies " + EnforcerHandWoundedCount.Value + " amount of Wound for " + EnforcerHandWoundedTime.Value + " seconds");
-            LanguageAPI.Add("ENFORCERHAND_DESC", "<style=cIsDamage>Parry</style> an <style=cIsDamage>incoming attack</style> back to the attacker in a " + EnforcerHandTimeWindow.Value + "seconds time window on use. Deals <style=cIsDamage>" + EnforcerHandReflectDamageMultiplier.Value + "x reflected damage</style>, <style=cIsDamage>" + EnforcerHandTotalDamageMultiplier.Value + "% TOTAL damage</style> and <style=cIsHealth>" + EnforcerHandMaxHealthDamageMulyiplier.Value + "%</style> attackers <style=cIsHealth>max health</style>. Applies " + EnforcerHandWoundedCount.Value + " amount of Wound for " + EnforcerHandWoundedTime.Value + " seconds");
+            LanguageAPI.Add("ENFORCERHAND_PICKUP", "<style=cIsDamage>Parry</style> an <style=cIsDamage>incoming attack</style> back to the attacker in a " + ConfigFloat(EnforcerHandTimeWindow, EnforcerHandEnableConfig) + "seconds time window on use. Deals <style=cIsDamage>" + ConfigFloat(EnforcerHandReflectDamageMultiplier, EnforcerHandEnableConfig) + "x reflected damage</style>, <style=cIsDamage>" + ConfigFloat(EnforcerHandTotalDamageMultiplier, EnforcerHandEnableConfig) + "% TOTAL damage</style> and <style=cIsHealth>" + ConfigFloat(EnforcerHandMaxHealthDamageMulyiplier, EnforcerHandEnableConfig) + "%</style> attackers <style=cIsHealth>max health</style>. Applies " + EnforcerHandWoundedCount.Value + " amount of Wound for " + ConfigFloat(EnforcerHandWoundedTime, EnforcerHandEnableConfig) + " seconds");
+            LanguageAPI.Add("ENFORCERHAND_DESC", "<style=cIsDamage>Parry</style> an <style=cIsDamage>incoming attack</style> back to the attacker in a " + ConfigFloat(EnforcerHandTimeWindow, EnforcerHandEnableConfig) + "seconds time window on use. Deals <style=cIsDamage>" + ConfigFloat(EnforcerHandReflectDamageMultiplier, EnforcerHandEnableConfig) + "x reflected damage</style>, <style=cIsDamage>" + ConfigFloat(EnforcerHandTotalDamageMultiplier, EnforcerHandEnableConfig) + "% TOTAL damage</style> and <style=cIsHealth>" + ConfigFloat(EnforcerHandMaxHealthDamageMulyiplier, EnforcerHandEnableConfig) + "%</style> attackers <style=cIsHealth>max health</style>. Applies " + EnforcerHandWoundedCount.Value + " amount of Wound for " + ConfigFloat(EnforcerHandWoundedTime, EnforcerHandEnableConfig) + " seconds");
             LanguageAPI.Add("ENFORCERHAND_LORE", "<style=cMono>//--SURVIVOR №17 STATUS--//</style>" +
                 "\n" +
                 "CLASS: Enforcer" +
                 "\n" +
                 "SURVIVOR ID: 12A s8 17" +
                 "\n" +
-                "SURVIVOR NAME: <style=cDeath>MISSING INFORMATION.</style> USER INPUT: \"Please save me\". LATEST DATA: JOHN DOE" +
+                "SURVIVOR NAME: JOHN DOE" +
                 "\n" +
-                "SURVIVOR LOCATION: <style=cDeath>ERROR.</style> USER INPUT: \"place that makes no sense\". LATEST DATA: o63,283 i45,818 SKY MEADOWS" +
+                "SURVIVOR LOCATION: <style=cDeath>ERROR.</style> LATEST DATA: o63,283 i45,818 SKY MEADOWS" +
                 "\n" +
                 "BEACON ID: 12A o3 4" +
                 "\n" +

@@ -35,6 +35,7 @@ namespace CaeliImperium.Elites
         private static Texture2D eliteRamp = MainAssets.LoadAsset<Texture2D>("Assets/Textures/hasting_ramp.png");
         private static Sprite eliteIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/hasting_icon.png");
         // RoR2/Base/Common/ColorRamps/texRampWarbanner.png 
+        public static ConfigEntry<bool> HastingEnableConfig;
         public static ConfigEntry<float> HastingHealthMult;
         public static ConfigEntry<float> HastingDamageMult;
         public static ConfigEntry<float> HastingTier;
@@ -75,6 +76,10 @@ namespace CaeliImperium.Elites
         }
         private void AddConfigs()
         {
+            HastingEnableConfig = Config.Bind<bool>("Elite : Hasting",
+                 "Config Activation",
+                 false,
+                 "Enable config?");
             HastingHealthMult = Config.Bind<float>("Elite : Hasting",
                                          "Health Multiplier",
                                          4f,
@@ -128,6 +133,7 @@ namespace CaeliImperium.Elites
                  true,
                  "Enable Hasting elite?");
             ModSettingsManager.AddOption(new CheckBoxOption(HastingEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(HastingEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(HastingHealthMult));
             ModSettingsManager.AddOption(new FloatFieldOption(HastingDamageMult));
             ModSettingsManager.AddOption(new CheckBoxOption(HastingHonor, new CheckBoxConfig() { restartRequired = true }));
@@ -149,9 +155,9 @@ namespace CaeliImperium.Elites
                 {
                     float combinedHealthFraction = sender.healthComponent.combinedHealthFraction;
                     
-                        args.attackSpeedMultAdd += (HastingAttackSpeedMult.Value - 1) + ((1f - combinedHealthFraction) * HastingAttackSpeedMultAddition.Value);
-                        args.moveSpeedMultAdd += (HastingSpeedMult.Value - 1) + ((1f - combinedHealthFraction) * HastingSpeedMultAddition.Value);
-                args.cooldownMultAdd = -HastingCooldownReductionMult.Value;
+                        args.attackSpeedMultAdd += (ConfigFloat(HastingAttackSpeedMult, HastingEnableConfig) - 1) + ((1f - combinedHealthFraction) * ConfigFloat(HastingAttackSpeedMultAddition, HastingEnableConfig));
+                        args.moveSpeedMultAdd += (ConfigFloat(HastingSpeedMult, HastingEnableConfig) - 1) + ((1f - combinedHealthFraction) * ConfigFloat(HastingSpeedMultAddition, HastingEnableConfig));
+                args.cooldownMultAdd = -ConfigFloat(HastingCooldownReductionMult, HastingEnableConfig);
                     
 
                }
@@ -203,12 +209,12 @@ namespace CaeliImperium.Elites
             //if (EliteAPI.VanillaEliteTiers.Length > 2)
             //{
             //    // HONOR
-            if (HastingHonor.Value)
+            if (ConfigBool(HastingHonor, HastingEnableConfig))
             {
                 CombatDirector.EliteTierDef targetTier2 = EliteAPI.VanillaEliteTiers[2];
                 List<EliteDef> elites2 = targetTier2.eliteTypes.ToList();
-                AffixHastingElite.healthBoostCoefficient = HastingHealthMult.Value / 1.6f;
-                AffixHastingElite.damageBoostCoefficient = HastingDamageMult.Value / 1.3f;
+                AffixHastingElite.healthBoostCoefficient = ConfigFloat(HastingHealthMult, HastingEnableConfig) / 1.6f;
+                AffixHastingElite.damageBoostCoefficient = ConfigFloat(HastingDamageMult, HastingEnableConfig) / 1.3f;
                 elites2.Add(AffixHastingElite);
                 targetTier2.eliteTypes = elites2.ToArray();
             }
@@ -229,20 +235,26 @@ namespace CaeliImperium.Elites
             // targetTiers.ToList().Add(eliteTier);
             // targetTiers.ToArray();
             // CombatDirector.eliteTiers = targetTiers;
-            int index = 1;
-            switch (HastingTier.Value)
+            EliteDef index = RoR2Content.Elites.Ice;
+            switch (ConfigFloat(HastingTier, HastingEnableConfig))
             {
-                case 1: index = 1; break;
-                    case 2: index = 3; break;
-                    case 3: index = 4; break;
+                case 1: index = RoR2Content.Elites.Ice; break;
+                case 2: index = DLC2Content.Elites.Aurelionite; break;
+                case 3: index = RoR2Content.Elites.Poison; break;
 
             }
-            CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[index];
-            List<EliteDef> elites = targetTier.eliteTypes.ToList();
-            AffixHastingElite.healthBoostCoefficient = HastingHealthMult.Value;
-            AffixHastingElite.damageBoostCoefficient = HastingDamageMult.Value;
-            elites.Add(AffixHastingElite);
-            targetTier.eliteTypes = elites.ToArray();
+            foreach (EliteTierDef eliteIndex in EliteAPI.VanillaEliteTiers)
+            {
+                if (eliteIndex.eliteTypes.Contains(index))
+                {
+                    CombatDirector.EliteTierDef targetTier = eliteIndex;
+                    List<EliteDef> elites = targetTier.eliteTypes.ToList();
+                    AffixHastingElite.healthBoostCoefficient = ConfigFloat(HastingHealthMult, HastingEnableConfig);
+                    AffixHastingElite.damageBoostCoefficient = ConfigFloat(HastingDamageMult, HastingEnableConfig);
+                    elites.Add(AffixHastingElite);
+                    targetTier.eliteTypes = elites.ToArray();
+                }
+            }
             //}
         }
 
@@ -330,8 +342,8 @@ namespace CaeliImperium.Elites
             AffixHastingElite.eliteEquipmentDef = AffixHastingEquipment;
             AffixHastingElite.modifierToken = "ELITE_MODIFIER_HASTING";
             AffixHastingElite.name = "EliteHasting";
-            AffixHastingElite.healthBoostCoefficient = HastingHealthMult.Value;
-            AffixHastingElite.damageBoostCoefficient = HastingDamageMult.Value;
+            AffixHastingElite.healthBoostCoefficient = ConfigFloat(HastingHealthMult, HastingEnableConfig);
+            AffixHastingElite.damageBoostCoefficient = ConfigFloat(HastingDamageMult, HastingEnableConfig);
             AffixHastingBuff.eliteDef = AffixHastingElite;
         }
 

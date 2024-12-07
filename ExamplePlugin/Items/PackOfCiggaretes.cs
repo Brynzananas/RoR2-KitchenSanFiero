@@ -27,6 +27,7 @@ namespace CaeliImperium.Items
         internal static Sprite PackOfCiggaretesIcon;
         public static ItemDef PackOfCiggaretesItemDef;
         public static ConfigEntry<bool> PackOfCiggaretesEnable;
+        public static ConfigEntry<bool> PackOfCiggaretesEnableConfig;
         public static ConfigEntry<bool> PackOfCiggaretesAIBlacklist;
         public static ConfigEntry<float> PackOfCiggaretesTier;
         public static ConfigEntry<float> PackOfCiggaretesTime;
@@ -58,7 +59,7 @@ namespace CaeliImperium.Items
         {
             AddConfigs();
             string tier = "Assets/Icons/PackOfCiggaretsIcon.png";
-            switch (PackOfCiggaretesTier.Value)
+            switch (ConfigFloat(PackOfCiggaretesTier, PackOfCiggaretesEnableConfig))
             {
                 case 1:
                     tier = "Assets/Icons/PackOfCiggaretsIcon.png";
@@ -90,9 +91,13 @@ namespace CaeliImperium.Items
                              "Activation",
                              true,
                              "Enable Pack of Siggaretes item?");//\nDefault value: " + PackOfCiggaretesEnable.DefaultValue);
+            PackOfCiggaretesEnableConfig = Config.Bind<bool>("Item : Pack of Siggaretes",
+                             "Config Activation",
+                             false,
+                             "Enable config?");
             PackOfCiggaretesAIBlacklist = Config.Bind<bool>("Item : Pack of Siggaretes",
                                          "AI Blacklist",
-                                         false,
+                                         true,
                                          "Blacklist this item from enemies?");//\nDefault value: " + PackOfCiggaretesAIBlacklist.DefaultValue);
             PackOfCiggaretesTier = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Item tier",
@@ -100,7 +105,7 @@ namespace CaeliImperium.Items
                                          "1: Common/White\n2: Uncommon/Green\n3: Rare/Red");//\nDefault value: " + PackOfCiggaretesTier.DefaultValue);
             PackOfCiggaretesTime = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Interval",
-                                         1,
+                                         0.5f,
                                          "Control the interval");//\nDefault value: " + PackOfCiggaretesTime.DefaultValue);
             PackOfCiggaretesCurse = Config.Bind<int>("Item : Pack of Siggaretes",
                                          "Permanent damage",
@@ -112,11 +117,11 @@ namespace CaeliImperium.Items
                                          "Control the amount of permanent damage per item stack");//\nDefault value: " + PackOfCiggaretesCurseStack.DefaultValue);
             PackOfCiggaretesCurseTime = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Permanent damage time",
-                                         5,
+                                         2,
                                          "Control the time of permanent damage in seconds\nSet it to 0 to make it permanent");//\nDefault value: " + PackOfCiggaretesCurseTime.DefaultValue);
             PackOfCiggaretesCurseTimeStack = Config.Bind<float>("Item : Pack of Siggaretes",
                                          "Permanent damage time stack",
-                                         5,
+                                         2,
                                          "Control the time addition of permanent damage per item stack in seconds");//\nDefault value: " + PackOfCiggaretesCurseTimeStack.DefaultValue);
             /*PackOfCiggaretesRework = Config.Bind<bool>("Item : Pack of Siggaretes",
                                          "Rework",
@@ -183,6 +188,7 @@ namespace CaeliImperium.Items
                                          150f,
                                          "Control damage increase from Ignition Tank burn upgrade in percentage\nSet it to zero to use standart value");*/
             ModSettingsManager.AddOption(new CheckBoxOption(PackOfCiggaretesEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(PackOfCiggaretesEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(PackOfCiggaretesAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(PackOfCiggaretesTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(PackOfCiggaretesTime));
@@ -215,7 +221,7 @@ namespace CaeliImperium.Items
             PackOfCiggaretesItemDef.pickupToken = "PACKOFCIGGARETS_PICKUP";
             PackOfCiggaretesItemDef.descriptionToken = "PACKOFCIGGARETS_DESC";
             PackOfCiggaretesItemDef.loreToken = "PACKOFCIGGARETS_LORE";
-            switch (PackOfCiggaretesTier.Value)
+            switch (ConfigFloat(PackOfCiggaretesTier, PackOfCiggaretesEnableConfig))
             {
                 case 1: PackOfCiggaretesItemDef.deprecatedTier = ItemTier.Tier1;
                     break;
@@ -231,7 +237,7 @@ namespace CaeliImperium.Items
             PackOfCiggaretesItemDef.hidden = false;
             PackOfCiggaretesItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Damage };
-            if (PackOfCiggaretesAIBlacklist.Value)
+            if (ConfigBool(PackOfCiggaretesAIBlacklist, PackOfCiggaretesEnableConfig))
             {
                 tags.Add(ItemTag.AIBlacklist);
             }
@@ -477,18 +483,18 @@ localScale = new Vector3(0.01019F, 0.01019F, 0.01019F)
                 if (stack > 0)
                 {
                     timer += Time.fixedDeltaTime;
-                    if (timer > PackOfCiggaretesTime.Value)
+                    if (timer > ConfigFloat(PackOfCiggaretesTime, PackOfCiggaretesEnableConfig))
                     {
                         foreach(var characterBody in CharacterBody.readOnlyInstancesList)
                         {
                             if (characterBody.teamComponent.teamIndex != body.teamComponent.teamIndex)
                             {
-                                float buffTime = PackOfCiggaretesCurseTime.Value;
-                                if (PackOfCiggaretesCurseTime.Value > 0)
+                                float buffTime = ConfigFloat(PackOfCiggaretesCurseTime, PackOfCiggaretesEnableConfig);
+                                if (ConfigFloat(PackOfCiggaretesCurseTime, PackOfCiggaretesEnableConfig) > 0)
                                 {
-                                    buffTime += (stack - 1) * PackOfCiggaretesCurseTimeStack.Value;
+                                    buffTime += (stack - 1) * ConfigFloat(PackOfCiggaretesCurseTimeStack, PackOfCiggaretesEnableConfig);
                                 }
-                                for (int i = 0; i < PackOfCiggaretesCurse.Value + ((stack - 1) * PackOfCiggaretesCurseStack.Value); i++)
+                                for (int i = 0; i < ConfigInt(PackOfCiggaretesCurse, PackOfCiggaretesEnableConfig) + ((stack - 1) * ConfigInt(PackOfCiggaretesCurseStack, PackOfCiggaretesEnableConfig)); i++)
                                 {
                                     if (buffTime > 0)
                                     {
@@ -670,13 +676,23 @@ private void Update()
             //LanguageAPI.Add("CIGGARETS_DESC", "Enemies gain <style=cDeath>+" + PackOfCiggaretesRegen.Value + " hp/s</style> <style=cStack>(+" + PackOfCiggaretesRegenStack.Value + " hp/s per item stack)</style> and <style=cDeath>" + PackOfCiggaretesRegenPercentage.Value + "%</style> <style=cStack>(+" + PackOfCiggaretesRegenPercentageStack.Value + "% per item stack)</style> <style=cDeath>health drain</style>" + smoke);
             //LanguageAPI.Add("CIGGARETS_LORE", "");
             string seconds = "second";
-            if (PackOfCiggaretesTime.Value != 1)
+            if (ConfigFloat(PackOfCiggaretesTime, PackOfCiggaretesEnableConfig) != 1)
             {
                 seconds += "s";
             }
+            string amountStack = "";
+            if (ConfigInt(PackOfCiggaretesCurseStack, PackOfCiggaretesEnableConfig) > 0)
+            {
+                amountStack = " <style=cStack>(+" + ConfigInt(PackOfCiggaretesCurseStack, PackOfCiggaretesEnableConfig) + " per item stack)</style>";
+            }
+            string timeStack = "";
+            if (ConfigFloat(PackOfCiggaretesCurseTimeStack, PackOfCiggaretesEnableConfig) > 0)
+            {
+                timeStack = " <style=cStack>(+" + ConfigFloat(PackOfCiggaretesCurseTimeStack, PackOfCiggaretesEnableConfig) + " per item stack)</style>";
+            }
             LanguageAPI.Add("PACKOFCIGGARETS_NAME", "Pack of Ciggaretes");
-            LanguageAPI.Add("PACKOFCIGGARETS_PICKUP", "Enemies gain <style=cIsHealth>" + PackOfCiggaretesCurse.Value + "</style> <style=cStack>(+" + PackOfCiggaretesCurseStack.Value + " per item stack)</style <style=cIsHealth>permanent damage</style> every " + PackOfCiggaretesTime.Value + " " + seconds + " for " + PackOfCiggaretesCurseTime.Value + " <style=cStack>(+" + PackOfCiggaretesCurseTimeStack.Value + " per item stack)</style> seconds");
-            LanguageAPI.Add("PACKOFCIGGARETS_DESC", "Enemies gain <style=cIsHealth>" + PackOfCiggaretesCurse.Value + "</style> <style=cStack>(+" + PackOfCiggaretesCurseStack.Value + " per item stack)</style <style=cIsHealth>permanent damage</style> every " + PackOfCiggaretesTime.Value + " " + seconds + " for " + PackOfCiggaretesCurseTime.Value + " <style=cStack>(+" + PackOfCiggaretesCurseTimeStack.Value + " per item stack)</style> seconds");
+            LanguageAPI.Add("PACKOFCIGGARETS_PICKUP", "Enemies gain <style=cIsHealth>" + ConfigInt(PackOfCiggaretesCurse, PackOfCiggaretesEnableConfig) + "</style>" + amountStack + " <style=cIsHealth>permanent damage</style> every " + ConfigFloat(PackOfCiggaretesTime, PackOfCiggaretesEnableConfig) + " " + seconds + " for " + ConfigFloat(PackOfCiggaretesCurseTime, PackOfCiggaretesEnableConfig) + timeStack + " seconds");
+            LanguageAPI.Add("PACKOFCIGGARETS_DESC", "Enemies gain <style=cIsHealth>" + ConfigInt(PackOfCiggaretesCurse, PackOfCiggaretesEnableConfig) + "</style>" + amountStack + " <style=cIsHealth>permanent damage</style> every " + ConfigFloat(PackOfCiggaretesTime, PackOfCiggaretesEnableConfig) + " " + seconds + " for " + ConfigFloat(PackOfCiggaretesCurseTime, PackOfCiggaretesEnableConfig) + timeStack + " seconds");
             LanguageAPI.Add("PACKOFCIGGARETS_LORE", "");
         }
 

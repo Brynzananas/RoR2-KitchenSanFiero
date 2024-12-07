@@ -429,15 +429,16 @@ localScale = new Vector3(0.23871F, 0.23871F, 0.23871F)
                             {
                                 stunChance += ConfigFloat(GuardianCrownEnemyChance, GuardianCrownEnableConfig);
                             }
-                            if (dist < StackFLoat(ConfigFloat(GuardianCrownDistance, GuardianCrownEnableConfig), ConfigFloat(GuardianCrownDistanceStack, GuardianCrownEnableConfig), itemCount))
+                            if (dist < StackFloat(ConfigFloat(GuardianCrownDistance, GuardianCrownEnableConfig), ConfigFloat(GuardianCrownDistanceStack, GuardianCrownEnableConfig), itemCount))
                             {
-                                stunChance += Falloff(dist, ConfigFloat(GuardianCrownDistanceMaxChance, GuardianCrownEnableConfig) + (itemCount - 1) * ConfigFloat(GuardianCrownDistanceMaxChanceStack, GuardianCrownEnableConfig), ConfigFloat(GuardianCrownDistance, GuardianCrownEnableConfig) + (itemCount - 1) * ConfigFloat(GuardianCrownDistanceStack, GuardianCrownEnableConfig));//  ConfigFloat(GuardianCrownDistanceMaxChance, GuardianCrownEnableConfig) - (dist * (ConfigFloat(GuardianCrownDistanceMaxChance, GuardianCrownEnableConfig) / dist));
+                                stunChance += ChanceFalloff(dist, ConfigFloat(GuardianCrownDistanceMaxChance, GuardianCrownEnableConfig) + (itemCount - 1) * ConfigFloat(GuardianCrownDistanceMaxChanceStack, GuardianCrownEnableConfig), ConfigFloat(GuardianCrownDistance, GuardianCrownEnableConfig) + (itemCount - 1) * ConfigFloat(GuardianCrownDistanceStack, GuardianCrownEnableConfig));//  ConfigFloat(GuardianCrownDistanceMaxChance, GuardianCrownEnableConfig) - (dist * (ConfigFloat(GuardianCrownDistanceMaxChance, GuardianCrownEnableConfig) / dist));
                             }
                             if (ConfigBool(GuardianCrownLuckAffected, GuardianCrownEnableConfig))
                             {
                                 allLuck += Math.Max(characterBody.master.luck, -1);
                             }
                             stunChance *= itemCount;
+                            Debug.Log (stunChance);
 
                         }
                     }

@@ -24,13 +24,16 @@ namespace CaeliImperium.Items
         internal static Sprite OtherworldlyManuscriptIcon;
         public static ItemDef OtherworldlyManuscriptItemDef;
         public static ConfigEntry<bool> OtherworldlyManuscriptEnable;
+        public static ConfigEntry<bool> OtherworldlyManuscriptEnableConfig;
         public static ConfigEntry<bool> OtherworldlyManuscriptAIBlacklist;
         public static ConfigEntry<float> OtherworldlyManuscriptTier;
         public static ConfigEntry<float> OtherworldlyManuscriptTalismanedTimer;
         public static ConfigEntry<int> OtherworldlyManuscriptTalismanedCount;
         public static ConfigEntry<float> OtherworldlyManuscriptCooldown;
         public static ConfigEntry<float> OtherworldlyManuscriptDamageMultiplier;
+        public static ConfigEntry<float> OtherworldlyManuscriptDamageMultiplierStack;
         public static ConfigEntry<int> OtherworldlyManuscriptCurseAmount;
+        public static ConfigEntry<int> OtherworldlyManuscriptCurseAmountStack;
         public static ConfigEntry<float> OtherworldlyManuscriptCurseTime;
         public static ConfigEntry<float> OtherworldlyManuscriptCurseTimeStack;
         private static GameObject TalismanPrefab;
@@ -39,7 +42,7 @@ namespace CaeliImperium.Items
         {
             AddConfigs();
             string tier = "Assets/Icons/OtherworldlyManuscript.png";
-            switch (OtherworldlyManuscriptTier.Value)
+            switch (ConfigFloat(OtherworldlyManuscriptTier, OtherworldlyManuscriptEnableConfig))
             {
                 case 1:
                     tier = "Assets/Icons/OtherworldlyManuscriptTier1.png";
@@ -74,9 +77,13 @@ namespace CaeliImperium.Items
                              "Activation",
                              true,
                              "Enable Otherworldly Manuscript item?");
+            OtherworldlyManuscriptEnableConfig = Config.Bind<bool>("Item : Otherworldly Manuscript",
+                             "Config Activation",
+                             false,
+                             "Enable config?");
             OtherworldlyManuscriptAIBlacklist = Config.Bind<bool>("Item : Otherworldly Manuscript",
                  "AI Blacklist",
-                 true,
+                 false,
                  "Blacklist this item from enemies?");
             OtherworldlyManuscriptTier = Config.Bind<float>("Item : Otherworldly Manuscript",
                                          "Item tier",
@@ -96,12 +103,20 @@ namespace CaeliImperium.Items
                                          "Control the cooldown of this item");
             OtherworldlyManuscriptDamageMultiplier = Config.Bind<float>("Item : Otherworldly Manuscript",
                                          "Damage",
-                                         100f,
+                                         150f,
                                          "Control the damage of this item explosion in percentage");
+            OtherworldlyManuscriptDamageMultiplierStack = Config.Bind<float>("Item : Otherworldly Manuscript",
+                                         "Damage stack",
+                                         150f,
+                                         "Control the damage increase of this item explosion per item stack in percentage");
             OtherworldlyManuscriptCurseAmount = Config.Bind<int>("Item : Otherworldly Manuscript",
                                          "Wound amount",
-                                         1,
-                                         "Control how much Wounds the explosion applies per item stack");
+                                         2,
+                                         "Control how much Wounds the explosion applies");
+            OtherworldlyManuscriptCurseAmountStack = Config.Bind<int>("Item : Otherworldly Manuscript",
+                                         "Wound amount stack",
+                                         2,
+                                         "Control the increase of Wounds the explosion applies per item stack");
             OtherworldlyManuscriptCurseTime = Config.Bind<float>("Item : Otherworldly Manuscript",
                                          "Wound time",
                                          10f,
@@ -111,13 +126,16 @@ namespace CaeliImperium.Items
                                          0f,
                                          "Control Wound time increase per item stack in seconds");
             ModSettingsManager.AddOption(new CheckBoxOption(OtherworldlyManuscriptEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(OtherworldlyManuscriptEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(OtherworldlyManuscriptAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(OtherworldlyManuscriptTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(OtherworldlyManuscriptTalismanedTimer));
             ModSettingsManager.AddOption(new IntFieldOption(OtherworldlyManuscriptTalismanedCount));
             ModSettingsManager.AddOption(new FloatFieldOption(OtherworldlyManuscriptCooldown));
             ModSettingsManager.AddOption(new FloatFieldOption(OtherworldlyManuscriptDamageMultiplier));
+            ModSettingsManager.AddOption(new FloatFieldOption(OtherworldlyManuscriptDamageMultiplierStack));
             ModSettingsManager.AddOption(new IntFieldOption(OtherworldlyManuscriptCurseAmount));
+            ModSettingsManager.AddOption(new IntFieldOption(OtherworldlyManuscriptCurseAmountStack));
             ModSettingsManager.AddOption(new FloatFieldOption(OtherworldlyManuscriptCurseTime));
             ModSettingsManager.AddOption(new FloatFieldOption(OtherworldlyManuscriptCurseTimeStack));
         }
@@ -130,7 +148,7 @@ namespace CaeliImperium.Items
             OtherworldlyManuscriptItemDef.pickupToken = "OTHERWORLDLYMANUSCRIPT_PICKUP";
             OtherworldlyManuscriptItemDef.descriptionToken = "OTHERWORLDLYMANUSCRIPT_DESC";
             OtherworldlyManuscriptItemDef.loreToken = "OTHERWORLDLYMANUSCRIPT_LORE";
-            switch (OtherworldlyManuscriptTier.Value)
+            switch (ConfigFloat(OtherworldlyManuscriptTier, OtherworldlyManuscriptEnableConfig))
             {
                 case 1:
                     OtherworldlyManuscriptItemDef.deprecatedTier = ItemTier.Tier1;
@@ -149,7 +167,7 @@ namespace CaeliImperium.Items
             OtherworldlyManuscriptItemDef.hidden = false;
             OtherworldlyManuscriptItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Damage };
-            if (OtherworldlyManuscriptAIBlacklist.Value)
+            if (ConfigBool(OtherworldlyManuscriptAIBlacklist, OtherworldlyManuscriptEnableConfig))
             {
                 tags.Add(ItemTag.AIBlacklist);
             }
@@ -428,13 +446,13 @@ int count = self.inventory ? self.inventory.GetItemCount(OtherworldlyManuscriptI
                 if (damageInfo.attacker)
                 {
                     var victimBody = victim.GetComponent<CharacterBody>();
-                    victimBody.AddTimedBuff(Buffs.TalismanVictimBuff.TalismanVictimBuffDef, OtherworldlyManuscriptTalismanedTimer.Value);
-                    if (victimBody.GetBuffCount(Buffs.TalismanVictimBuff.TalismanVictimBuffDef) >= OtherworldlyManuscriptTalismanedCount.Value)
+                    victimBody.AddTimedBuff(Buffs.TalismanVictimBuff.TalismanVictimBuffDef, ConfigFloat(OtherworldlyManuscriptTalismanedTimer, OtherworldlyManuscriptEnableConfig));
+                    if (victimBody.GetBuffCount(Buffs.TalismanVictimBuff.TalismanVictimBuffDef) >= ConfigInt(OtherworldlyManuscriptTalismanedCount, OtherworldlyManuscriptEnableConfig))
                     {
                         victimBody.SetBuffCount(Buffs.TalismanVictimBuff.TalismanVictimBuffDef.buffIndex, 0);
                         body.SetBuffCount(Buffs.TalismanAttackerBuff.TalismanAttackerBuffDef.buffIndex, 0);
-                        body.AddTimedBuff(Buffs.TalismanCooldownBuff.TalismanCooldownBuffDef, OtherworldlyManuscriptCooldown.Value);
-                        float damage = Util.OnHitProcDamage(damageInfo.damage, body.damage, count * (OtherworldlyManuscriptDamageMultiplier.Value / 100));
+                        body.AddTimedBuff(Buffs.TalismanCooldownBuff.TalismanCooldownBuffDef, ConfigFloat(OtherworldlyManuscriptCooldown, OtherworldlyManuscriptEnableConfig));
+                        float damage = Util.OnHitProcDamage(damageInfo.damage, body.damage, (StackFloat(ConfigFloat(OtherworldlyManuscriptDamageMultiplier, OtherworldlyManuscriptEnableConfig), ConfigFloat(OtherworldlyManuscriptDamageMultiplierStack, OtherworldlyManuscriptEnableConfig), count)  / 100));
                         Vector3 position2 = damageInfo.position;
                         ProcChainMask procChainMask5 = damageInfo.procChainMask;
                         procChainMask5.AddProc(ProcType.Rings);
@@ -451,13 +469,13 @@ int count = self.inventory ? self.inventory.GetItemCount(OtherworldlyManuscriptI
                             procChainMask = procChainMask5,
                             procCoefficient = 1f
                         };
-                        float buffTime = OtherworldlyManuscriptCurseTime.Value;
+                        float buffTime = ConfigFloat(OtherworldlyManuscriptCurseTime, OtherworldlyManuscriptEnableConfig);
                         if (buffTime > 0)
                         {
-                            buffTime += (count - 1) * OtherworldlyManuscriptCurseTimeStack.Value;
+                            buffTime += (count - 1) * ConfigFloat(OtherworldlyManuscriptCurseTimeStack, OtherworldlyManuscriptEnableConfig);
 
                         }
-                        for (int i = 0; i < count * OtherworldlyManuscriptCurseAmount.Value; i++)
+                        for (int i = 0; i < StackInt(ConfigInt(OtherworldlyManuscriptCurseAmount, OtherworldlyManuscriptEnableConfig), ConfigInt(OtherworldlyManuscriptCurseAmountStack, OtherworldlyManuscriptEnableConfig), count); i++)
                         {
                             if (buffTime > 0)
                             {
@@ -480,9 +498,24 @@ int count = self.inventory ? self.inventory.GetItemCount(OtherworldlyManuscriptI
 
         private static void AddLanguageTokens()
         {
+            string damageStack = "";
+            if (ConfigFloat(OtherworldlyManuscriptDamageMultiplierStack, OtherworldlyManuscriptEnableConfig) > 0)
+            {
+                damageStack = " <style=cStack>(+" + ConfigFloat(OtherworldlyManuscriptDamageMultiplierStack, OtherworldlyManuscriptEnableConfig) + "% per item stack)</style>";
+            }
+            string curseStack = "";
+            if (ConfigInt(OtherworldlyManuscriptCurseAmountStack, OtherworldlyManuscriptEnableConfig) > 0)
+            {
+                curseStack = " <style=cStack>(+" + ConfigInt(OtherworldlyManuscriptCurseAmountStack, OtherworldlyManuscriptEnableConfig) + " per item stack)</style>";
+            }
+            string timeStack = "";
+            if (ConfigFloat(OtherworldlyManuscriptCurseTimeStack, OtherworldlyManuscriptEnableConfig) > 0)
+            {
+                timeStack = " <style=cStack>(+" + ConfigFloat(OtherworldlyManuscriptCurseTimeStack, OtherworldlyManuscriptEnableConfig) + " per item stack)</style>";
+            }
             LanguageAPI.Add("OTHERWORLDLYMANUSCRIPT_NAME", "Otherworldly Manuscript");
-            LanguageAPI.Add("OTHERWORLDLYMANUSCRIPT_PICKUP", "<style=cIsDamage>Hitting</style> enemies continually " + OtherworldlyManuscriptTalismanedCount.Value + " times in a span of " + OtherworldlyManuscriptTalismanedTimer.Value + " seconds will make them <style=cIsDamage>explode</style> for <style=cIsDamage>" + OtherworldlyManuscriptDamageMultiplier.Value + "%</style> <style=cStack>(+" + OtherworldlyManuscriptDamageMultiplier.Value + "% per item stack)</style> <style=cIsDamage>TOTAL damage</style> and applies " + OtherworldlyManuscriptCurseAmount.Value + " <style=cStack>(+" + OtherworldlyManuscriptCurseAmount.Value + " per item stack)</style> amount of Wounds for " + OtherworldlyManuscriptCurseTime.Value + " <style=cStack>(+" + OtherworldlyManuscriptCurseTimeStack.Value + " per item stack)</style> seconds");
-            LanguageAPI.Add("OTHERWORLDLYMANUSCRIPT_DESC", "<style=cIsDamage>Hitting</style> enemies continually " + OtherworldlyManuscriptTalismanedCount.Value + " times in a span of " + OtherworldlyManuscriptTalismanedTimer.Value + " seconds will make them <style=cIsDamage>explode</style> for <style=cIsDamage>" + OtherworldlyManuscriptDamageMultiplier.Value + "%</style> <style=cStack>(+" + OtherworldlyManuscriptDamageMultiplier.Value + "% per item stack)</style> <style=cIsDamage>TOTAL damage</style> and applies " + OtherworldlyManuscriptCurseAmount.Value + " <style=cStack>(+" + OtherworldlyManuscriptCurseAmount.Value + " per item stack)</style> amount of Wounds for " + OtherworldlyManuscriptCurseTime.Value + " <style=cStack>(+" + OtherworldlyManuscriptCurseTimeStack.Value + " per item stack)</style> seconds");
+            LanguageAPI.Add("OTHERWORLDLYMANUSCRIPT_PICKUP", "<style=cIsDamage>Hitting</style> enemies continually " + ConfigInt(OtherworldlyManuscriptTalismanedCount, OtherworldlyManuscriptEnableConfig) + " times in a span of " + ConfigFloat(OtherworldlyManuscriptTalismanedTimer, OtherworldlyManuscriptEnableConfig) + " seconds will make them <style=cIsDamage>explode</style> for <style=cIsDamage>" + ConfigFloat(OtherworldlyManuscriptDamageMultiplier, OtherworldlyManuscriptEnableConfig) + "%</style>" + damageStack + " <style=cIsDamage>TOTAL damage</style> and applies " + ConfigInt(OtherworldlyManuscriptCurseAmount, OtherworldlyManuscriptEnableConfig) + curseStack + " amount of Wounds for " + ConfigFloat(OtherworldlyManuscriptCurseTime, OtherworldlyManuscriptEnableConfig) + timeStack + " seconds");
+            LanguageAPI.Add("OTHERWORLDLYMANUSCRIPT_DESC", "<style=cIsDamage>Hitting</style> enemies continually " + ConfigInt(OtherworldlyManuscriptTalismanedCount, OtherworldlyManuscriptEnableConfig) + " times in a span of " + ConfigFloat(OtherworldlyManuscriptTalismanedTimer, OtherworldlyManuscriptEnableConfig) + " seconds will make them <style=cIsDamage>explode</style> for <style=cIsDamage>" + ConfigFloat(OtherworldlyManuscriptDamageMultiplier, OtherworldlyManuscriptEnableConfig) + "%</style>" + damageStack + " <style=cIsDamage>TOTAL damage</style> and applies " + ConfigInt(OtherworldlyManuscriptCurseAmount, OtherworldlyManuscriptEnableConfig) + curseStack + " amount of Wounds for " + ConfigFloat(OtherworldlyManuscriptCurseTime, OtherworldlyManuscriptEnableConfig) + timeStack + " seconds");
             LanguageAPI.Add("OTHERWORLDLYMANUSCRIPT_LORE", "");
         }
     }

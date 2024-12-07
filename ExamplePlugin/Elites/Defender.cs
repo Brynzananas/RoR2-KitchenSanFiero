@@ -40,6 +40,7 @@ namespace CaeliImperium.Elites
         private static Texture2D eliteRamp = MainAssets.LoadAsset<Texture2D>("Assets/Textures/defender_ramp.png");
         private static Sprite eliteIcon = MainAssets.LoadAsset<Sprite>("Assets/Icons/guardian_elite_icon.png");
         // RoR2/Base/Common/ColorRamps/texRampWarbanner.png 
+        public static ConfigEntry<bool> DefenderEnableConfig;
         public static ConfigEntry<float> DefenderHealthMult;
         public static ConfigEntry<float> DefenderDamageMult;
         public static ConfigEntry<float> DefenderTier;
@@ -84,6 +85,10 @@ namespace CaeliImperium.Elites
 
         private static void AddConfigs()
         {
+            DefenderEnableConfig = Config.Bind<bool>("Elite : " + name,
+                 "Config Activation",
+                 false,
+                 "Enable config?");
             DefenderHealthMult = Config.Bind<float>("Elite : " + name,
                                          "Health Multiplier",
                                          13f,
@@ -138,6 +143,7 @@ namespace CaeliImperium.Elites
                  true,
                  "Enable damage absorbing?");
             ModSettingsManager.AddOption(new CheckBoxOption(DefenderEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(DefenderEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderHealthMult, new FloatFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderDamageMult, new FloatFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(DefenderHonor, new CheckBoxConfig() { restartRequired = true }));
@@ -179,8 +185,8 @@ namespace CaeliImperium.Elites
             {
                 CombatDirector.EliteTierDef targetTier2 = EliteAPI.VanillaEliteTiers[2];
                 List<EliteDef> elites2 = targetTier2.eliteTypes.ToList();
-                AffixDefenderElite.healthBoostCoefficient = DefenderHealthMult.Value / 1.6f;
-                AffixDefenderElite.damageBoostCoefficient = DefenderDamageMult.Value / 1.3f;
+                AffixDefenderElite.healthBoostCoefficient = ConfigFloat(DefenderHealthMult, DefenderEnableConfig) / 1.6f;
+                AffixDefenderElite.damageBoostCoefficient = ConfigFloat(DefenderDamageMult, DefenderEnableConfig) / 1.3f;
                 //targetTier.costMultiplier *= 6;
                 elites2.Add(AffixDefenderElite);
                 targetTier2.eliteTypes = elites2.ToArray();
@@ -203,33 +209,39 @@ namespace CaeliImperium.Elites
             //CombatDirector.eliteTiers = targetTiers;
             //Array.Resize(ref CombatDirector.eliteTiers, CombatDirector.eliteTiers.Length + 1);
             //CombatDirector.eliteTiers[CombatDirector.eliteTiers.Length - 1] = AffixDefenderTier;
-            int index = 1;
-            switch (DefenderTier.Value)
+            EliteDef index = RoR2Content.Elites.Ice;
+            switch (ConfigFloat(DefenderTier, DefenderEnableConfig))
             {
-                case 1: index = 1; break;
-                case 2: index = 3; break;
-                case 3: index = 4; break;
+                case 1: index = RoR2Content.Elites.Ice; break;
+                case 2: index = DLC2Content.Elites.Aurelionite; break;
+                case 3: index = RoR2Content.Elites.Poison; break;
 
             }
-            CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[index];
-            List<EliteDef> elites = targetTier.eliteTypes.ToList();
-            AffixDefenderElite.healthBoostCoefficient = DefenderHealthMult.Value;
-            AffixDefenderElite.damageBoostCoefficient = DefenderDamageMult.Value;
-            //elites.Add(AffixDefenderElite);
-            targetTier.eliteTypes = elites.ToArray();
+            foreach (EliteTierDef eliteIndex in EliteAPI.VanillaEliteTiers)
+            {
+                if (eliteIndex.eliteTypes.Contains(index))
+                {
+                    CombatDirector.EliteTierDef targetTier = eliteIndex;
+                    List<EliteDef> elites = targetTier.eliteTypes.ToList();
+                    AffixDefenderElite.healthBoostCoefficient = ConfigFloat(DefenderHealthMult, DefenderEnableConfig);
+                    AffixDefenderElite.damageBoostCoefficient = ConfigFloat(DefenderDamageMult, DefenderEnableConfig);
+                    //elites.Add(AffixDefenderElite);
+                    targetTier.eliteTypes = elites.ToArray();
+                }
+            }
             //}
         }
         private static void Stats(CharacterBody sender, StatHookEventArgs args)
         {
             if (sender.HasBuff(AffixDefenderBuff))
             {
-                args.armorAdd += DefenderArmor.Value;
+                args.armorAdd += ConfigFloat(DefenderArmor, DefenderEnableConfig);
             }
         }
 
         private static void AbsorbDamage(On.RoR2.HealthComponent.orig_TakeDamageProcess orig, HealthComponent self, DamageInfo damageInfo)
         {
-            if (DefenderEnableDamageAbsorb.Value && damageInfo != null && self != null && damageInfo.attacker && !self.body.HasBuff(AffixDefenderBuff))
+            if (ConfigBool(DefenderEnableDamageAbsorb, DefenderEnableConfig) && damageInfo != null && self != null && damageInfo.attacker && !self.body.HasBuff(AffixDefenderBuff))
             {
                 int eliteCount = 0;
                 CharacterBody[] eliteArray = new CharacterBody[0];
@@ -271,7 +283,7 @@ namespace CaeliImperium.Elites
         }
         private static void OnEnemySkillUse(On.RoR2.CharacterBody.orig_OnSkillActivated orig, CharacterBody self, GenericSkill skill)
         {
-            if (DefenderStunChance.Value > 0)
+            if (ConfigFloat(DefenderStunChance, DefenderEnableConfig) > 0)
             {
                 float stunChance = 0;
                 foreach (var characterBody in CharacterBody.readOnlyInstancesList)
@@ -280,7 +292,7 @@ namespace CaeliImperium.Elites
                     {
                         if (characterBody.HasBuff(AffixDefenderBuff))
                         {
-                            stunChance += DefenderStunChance.Value;
+                            stunChance += ConfigFloat(DefenderStunChance, DefenderEnableConfig);
 
                         }
                     }
@@ -289,7 +301,7 @@ namespace CaeliImperium.Elites
                 {
                     bool roll = false;
                     int buffCount = self.GetBuffCount(DazzledBuff.DazzledBuffDef) + 1;
-                    roll = Util.CheckRoll(ConvertAmplificationPercentageIntoReductionPercentage(stunChance / buffCount, DefenderMaxChance.Value));
+                    roll = Util.CheckRoll(ConvertAmplificationPercentageIntoReductionPercentage(stunChance / buffCount, ConfigFloat(DefenderMaxChance, DefenderEnableConfig)));
                     if (roll)
                     {
                         SetStateOnHurt component = self.GetComponent<SetStateOnHurt>();
@@ -316,7 +328,7 @@ namespace CaeliImperium.Elites
                         //    EffectManager.SimpleImpactEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/ImpactStunGrenade"), self.corePosition, self.corePosition, true);
 
                         //}
-                        self.AddTimedBuff(DazzledBuff.DazzledBuffDef, DefenderDazzledTime.Value);
+                        self.AddTimedBuff(DazzledBuff.DazzledBuffDef, ConfigFloat(DefenderDazzledTime, DefenderEnableConfig));
                         return;
                     }
                 }
@@ -409,8 +421,8 @@ namespace CaeliImperium.Elites
             AffixDefenderElite.eliteEquipmentDef = AffixDefenderEquipment;
             AffixDefenderElite.modifierToken = "ELITE_MODIFIER_" + name.ToUpper().Replace(" ", "");
             AffixDefenderElite.name = "Elite" + name.Replace(" ", "");
-            AffixDefenderElite.healthBoostCoefficient = DefenderHealthMult.Value;
-            AffixDefenderElite.damageBoostCoefficient = DefenderDamageMult.Value;
+            AffixDefenderElite.healthBoostCoefficient = ConfigFloat(DefenderHealthMult, DefenderEnableConfig);
+            AffixDefenderElite.damageBoostCoefficient = ConfigFloat(DefenderDamageMult, DefenderEnableConfig);
             AffixDefenderBuff.eliteDef = AffixDefenderElite;
             //var baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
             //if (VanillaTier != 0)

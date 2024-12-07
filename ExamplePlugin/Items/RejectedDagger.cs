@@ -23,6 +23,7 @@ namespace CaeliImperium.Items
         internal static Sprite RejectedDaggerIcon;
         public static ItemDef RejectedDaggerItemDef;
         public static ConfigEntry<bool> RejectedDaggerEnable;
+        public static ConfigEntry<bool> RejectedDaggerEnableConfig;
         public static ConfigEntry<bool> RejectedDaggerAIBlacklist;
         public static ConfigEntry<float> RejectedDaggerTier;
         public static ConfigEntry<bool> RejectedDaggerAltFunc;
@@ -39,7 +40,7 @@ namespace CaeliImperium.Items
         {
             AddConfigs();
             string tier = "Assets/Icons/RejectedDagger.png";
-            switch (RejectedDaggerTier.Value)
+            switch (ConfigFloat(RejectedDaggerTier, RejectedDaggerEnableConfig))
             {
                 case 1:
                     tier = "Assets/Icons/RejectedDaggerTier1.png";
@@ -66,9 +67,13 @@ namespace CaeliImperium.Items
         private static void AddConfigs()
         {
             RejectedDaggerEnable = Config.Bind<bool>("Item : " + name,
-                             "Enable",
+                             "Activation",
                              true,
                              "Enable this item?");
+            RejectedDaggerEnableConfig = Config.Bind<bool>("Item : " + name,
+                             "Config Activation",
+                             false,
+                             "Enable config?");
             RejectedDaggerAIBlacklist = Config.Bind<bool>("Item : " + name,
                              "AI Blacklist",
                              false,
@@ -87,7 +92,7 @@ namespace CaeliImperium.Items
                              "Count all enemy teams?");
             RejectedDaggerGlobalCount = Config.Bind<bool>("Item : " + name,
                              "Global count",
-                             false,
+                             true,
                              "Count all enemies?");
             RejectedDaggerDamageToAll = Config.Bind<float>("Item : " + name,
                                          "Damage sharing to all",
@@ -110,6 +115,7 @@ namespace CaeliImperium.Items
                                          2f,
                                          "Control the division applied to the damage increase if the enemy is a champion");*/
             ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(RejectedDaggerTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerAltFunc));
@@ -130,7 +136,7 @@ namespace CaeliImperium.Items
             RejectedDaggerItemDef.pickupToken = name.ToUpper().Replace(" ", "") + "_PICKUP";
             RejectedDaggerItemDef.descriptionToken = name.ToUpper().Replace(" ", "") + "_DESC";
             RejectedDaggerItemDef.loreToken = name.ToUpper().Replace(" ", "") + "_LORE";
-            switch (RejectedDaggerTier.Value)
+            switch (ConfigFloat(RejectedDaggerTier, RejectedDaggerEnableConfig))
             {
                 case 1:
                     RejectedDaggerItemDef.deprecatedTier = ItemTier.Tier1;
@@ -148,7 +154,7 @@ namespace CaeliImperium.Items
             RejectedDaggerItemDef.canRemove = true;
             RejectedDaggerItemDef.hidden = false;
             var tags = new List<ItemTag>() { ItemTag.Damage };
-            if (RejectedDaggerAIBlacklist.Value)
+            if (ConfigBool(RejectedDaggerAIBlacklist, RejectedDaggerEnableConfig))
             {
                 tags.Add(ItemTag.AIBlacklist);
             }
@@ -252,12 +258,12 @@ namespace CaeliImperium.Items
                         if (victimBody && characterBody && body.teamComponent.teamIndex != characterBody.teamComponent.teamIndex)// && victimBody.master.masterIndex == characterBody.master.masterIndex && victimBody != characterBody)
                         {
                             bool teamCount = true;
-                            if (!RejectedDaggerTeamCount.Value)
+                            if (!ConfigBool(RejectedDaggerTeamCount, RejectedDaggerEnableConfig))
                             {
                                 teamCount = victimBody.teamComponent.teamIndex == characterBody.teamComponent.teamIndex;
                             }
                             bool globalCount = true;
-                            if (!RejectedDaggerGlobalCount.Value)
+                            if (!ConfigBool(RejectedDaggerGlobalCount, RejectedDaggerEnableConfig))
                             {
                                 globalCount = victimBody.master && characterBody.master && victimBody.master.masterIndex == characterBody.master.masterIndex;
                             }
@@ -274,13 +280,13 @@ namespace CaeliImperium.Items
                     }
                     float damageFinal = damageInfo.damage;
                     //Debug.Log("1Damage: " + damageFinal);
-                    if (RejectedDaggerAltFunc.Value)
+                    if (ConfigBool(RejectedDaggerAltFunc, RejectedDaggerEnableConfig))
                     {
                         damageFinal *= characterBodyArray.Length;
                         //Debug.Log("2Damage: " + damageFinal);
                         DamageInfo damageInfo2 = new DamageInfo
                         {
-                            damage = damageFinal * (RejectedDaggerDamageToAll.Value / 100) + ((count - 1) * (RejectedDaggerDamageToAllStack.Value / 100)),
+                            damage = damageFinal * (ConfigFloat(RejectedDaggerDamageToAll, RejectedDaggerEnableConfig) / 100) + ((count - 1) * (ConfigFloat(RejectedDaggerDamageToAllStack, RejectedDaggerEnableConfig) / 100)),
                             damageColorIndex = DamageColorIndex.Item,
                             damageType = DamageType.Silent,
                             attacker = attacker,
@@ -302,7 +308,7 @@ namespace CaeliImperium.Items
 
                             DamageInfo damageInfo2 = new DamageInfo
                             {
-                                damage = damageFinal * (RejectedDaggerDamageToAll.Value / 100) + ((count - 1) * (RejectedDaggerDamageToAllStack.Value / 100)),
+                                damage = damageFinal * (ConfigFloat(RejectedDaggerDamageToAll, RejectedDaggerEnableConfig) / 100) + ((count - 1) * (ConfigFloat(RejectedDaggerDamageToAllStack, RejectedDaggerEnableConfig) / 100)),
                                 damageColorIndex = DamageColorIndex.Item,
                                 damageType = DamageType.Silent,
                                 attacker = attacker,
@@ -358,21 +364,26 @@ namespace CaeliImperium.Items
         {
             string damage = "";
             string team = "";
-            if (!RejectedDaggerTeamCount.Value)
+            string damageStack = "";
+            if (ConfigFloat(RejectedDaggerDamageToAll, RejectedDaggerEnableConfig) > 0)
+            {
+                damageStack = " <style=cStack>(+" + ConfigFloat(RejectedDaggerDamageToAll, RejectedDaggerEnableConfig) + "% per item stack)</style>";
+            }
+            if (!ConfigBool(RejectedDaggerTeamCount, RejectedDaggerEnableConfig))
             {
                 team = " on the same team";
             }
-            if (!RejectedDaggerGlobalCount.Value)
+            if (!ConfigBool(RejectedDaggerGlobalCount, RejectedDaggerEnableConfig))
             {
                 team = " of the same type";
             }
             if (RejectedDaggerAltFunc.Value)
             {
-                damage = "On hit, <style=cIsDamage>damage</style> the same enemy for <style=cIsDamage>" + RejectedDaggerDamageToAll.Value + "%</style> <style=cStack>(+" + RejectedDaggerDamageToAll.Value + "% per item stack)</style> <style=cIsDamage>TOTAL damage</style>. Damage is multiplied by the number of all enemies" +team;
+                damage = "On hit, <style=cIsDamage>damage</style> the same enemy for <style=cIsDamage>" + ConfigFloat(RejectedDaggerDamageToAll, RejectedDaggerEnableConfig) + "%</style>" + damageStack + " <style=cIsDamage>TOTAL damage</style>. Damage is multiplied by the number of all enemies" +team;
             }
             else
             {
-                damage = "On hit, <style=cIsDamage>damage</style> all enemies" + team + " for <style=cIsDamage>" + RejectedDaggerDamageToAll.Value + "%</style> <style=cStack>(+" + RejectedDaggerDamageToAll.Value + "% per item stack)</style> <style=cIsDamage>TOTAL damage</style>. Damage is divided by the number of all enemies" + team;
+                damage = "On hit, <style=cIsDamage>damage</style> all enemies" + team + " for <style=cIsDamage>" + ConfigFloat(RejectedDaggerDamageToAll, RejectedDaggerEnableConfig) + "%</style>" + damageStack + " <style=cIsDamage>TOTAL damage</style>. Damage is divided by the number of all enemies" + team;
             }
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name);
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", damage);

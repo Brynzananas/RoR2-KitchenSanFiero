@@ -48,7 +48,7 @@ namespace CaeliImperium.Buffs
             if (buffCount > 0)
             {
                 int itemCount = sender.inventory ? sender.inventory.GetItemCount(BrassBell.BrassBellItemDef) : 0;
-                args.damageMultAdd += (BrassBell.BrassBellDamageIncrease.Value / 100) + ((itemCount - 1) * BrassBell.BrassBellDamageIncreaseStack.Value / 100);
+                args.damageMultAdd += (ConfigFloat(BrassBellDamageIncrease, BrassBellEnableConfig) / 100) + ((itemCount - 1) * ConfigFloat(BrassBellDamageIncreaseStack, BrassBellEnableConfig) / 100);
             }
         }
         
@@ -72,7 +72,7 @@ namespace CaeliImperium.Buffs
                     self.skillLocator.special.AddOneStock();
 
                 }
-                if (BrassBell.BrassBellIsReloadSound.Value) //&& !self.outOfDanger)
+                if (BrassBellIsReloadSound.Value) //&& !self.outOfDanger)
                 {
                     EntitySoundManager.EmitSoundServer(BrassBell.BellSound.akId, self.gameObject);
                 }

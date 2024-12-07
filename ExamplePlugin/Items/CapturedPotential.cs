@@ -52,6 +52,7 @@ namespace CaeliImperium.Items
         public static ConfigEntry<KeyboardShortcut> CapturedPotentialKey3;
         public static ConfigEntry<KeyboardShortcut> CapturedPotentialKey4;
         public static ConfigEntry<KeyboardShortcut> CapturedPotentialKey5;
+        public static ConfigEntry<bool> CapturedPotentialEnableDocumentation;
         public static NetworkSoundEventDef EquipArrayUpSound;
         public static NetworkSoundEventDef EquipArrayDownSound;
 
@@ -98,6 +99,7 @@ public static bool hasAuroAffix = false;
 
             Item();
             CreateSound();
+            Documentation.Init();
             AddLanguageTokens();
         }
 
@@ -159,6 +161,10 @@ public static bool hasAuroAffix = false;
                                          "|Key 5|",
                                          new KeyboardShortcut(KeyCode.Joystick1Button6),
                                          "Key to switch equipment down for game controllers\nWIP: Does not work");
+            CapturedPotentialEnableDocumentation = Config.Bind<bool>("Item : Captured Potential",
+                             "|Documentation Activation|",
+                             true,
+                             "Enable Documentation item?");
             ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialEnable, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(CapturedPotentialTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
@@ -663,6 +669,12 @@ private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, 
                 //component.body = self;
                 component.equipArray = new EquipmentIndex[0];
                 component.master = self.master;
+                if (CapturedPotentialEnableDocumentation.Value)
+                {
+                PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(Documentation.DocumentationItemDef.itemIndex), self.transform.position, self.transform.up * 20f);
+
+                }
+
             }
             //self.AddItemBehavior<CapturedPotentialBehaviour>(itemCount);
 
@@ -680,14 +692,14 @@ private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, 
 
                 }
             }*/
-            
+
             /*if (self.masterObject.GetComponent<CapturedPotentialComponent>())
             {
             Debug.Log(self.masterObject.GetComponent<CapturedPotentialComponent>().body);
 
             Debug.Log(self.masterObject.GetComponent<CapturedPotentialComponent>().equipArray.Length);
             }*/
-            
+
 
         }
         /*

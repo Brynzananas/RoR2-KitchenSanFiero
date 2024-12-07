@@ -47,6 +47,7 @@ namespace CaeliImperium.Elites
         public static Inventory DredgedInventory;
         public static bool isRespawning = false;
         //public static int buffCOunt = 0;
+        public static ConfigEntry<bool> DredgedEnableConfig;
         public static ConfigEntry<float> DredgedHealthMult;
         public static ConfigEntry<float> DredgedDamageMult;
         public static ConfigEntry<float> DredgedTier;
@@ -108,6 +109,10 @@ namespace CaeliImperium.Elites
 
         private static void AddConfigs()
         {
+            DredgedEnableConfig = Config.Bind<bool>("Elite : Dredged",
+                 "Config Activation",
+                 false,
+                 "Enable config?");
             DredgedHealthMult = Config.Bind<float>("Elite : Dredged",
                                          "Health Multiplier",
                                          6f,
@@ -173,6 +178,7 @@ namespace CaeliImperium.Elites
                  true,
                  "Enable Dredged elite?");
             ModSettingsManager.AddOption(new CheckBoxOption(DredgedEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(DredgedEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(DredgedHealthMult));
             ModSettingsManager.AddOption(new FloatFieldOption(DredgedDamageMult));
             ModSettingsManager.AddOption(new StepSliderOption(DredgedTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
@@ -194,9 +200,9 @@ namespace CaeliImperium.Elites
         {
             if (sender.HasBuff(AffixDredgedBuff) && sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) > 0 && !sender.isPlayerControlled)
             {
-                args.healthMultAdd += sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) * DredgedHealthReviveMult.Value / 100;
-                args.damageMultAdd += sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) * DredgedDamageReviveMult.Value / 100;
-                args.regenMultAdd += sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) * DredgedRegenReviveMult.Value / 100;
+                args.healthMultAdd += sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) * ConfigFloat(DredgedHealthReviveMult, DredgedEnableConfig) / 100;
+                args.damageMultAdd += sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) * ConfigFloat(DredgedDamageReviveMult, DredgedEnableConfig) / 100;
+                args.regenMultAdd += sender.GetBuffCount(DeathCountBuff.DeathCountBuffDef) * ConfigFloat(DredgedRegenReviveMult, DredgedEnableConfig) / 100;
             }/*
             else if(sender.HasBuff(AffixDredgedBuff) && sender.isPlayerControlled)
             {
@@ -338,7 +344,7 @@ namespace CaeliImperium.Elites
         private static void OnDeath(On.RoR2.CharacterBody.orig_OnDeathStart orig, CharacterBody self)
         {
             orig(self);
-            if (self.HasBuff(AffixDredgedBuff) && self.GetBuffCount(DeathCountBuff.DeathCountBuffDef) < DredgedDamageReviveCount.Value && !self.isPlayerControlled)
+            if (self.HasBuff(AffixDredgedBuff) && self.GetBuffCount(DeathCountBuff.DeathCountBuffDef) < ConfigInt(DredgedDamageReviveCount, DredgedEnableConfig) && !self.isPlayerControlled)
             {
                 int buffCount = self.GetBuffCount(DeathCountBuff.DeathCountBuffDef) + 1;
 
@@ -412,8 +418,8 @@ namespace CaeliImperium.Elites
             {
                 CombatDirector.EliteTierDef targetTier2 = EliteAPI.VanillaEliteTiers[2];
                 List<EliteDef> elites2 = targetTier2.eliteTypes.ToList();
-                AffixDredgedElite.healthBoostCoefficient = DredgedHealthMult.Value / 1.6f;
-                AffixDredgedElite.damageBoostCoefficient = DredgedDamageMult.Value / 1.3f;
+                AffixDredgedElite.healthBoostCoefficient = ConfigFloat(DredgedHealthMult, DredgedEnableConfig) / 1.6f;
+                AffixDredgedElite.damageBoostCoefficient = ConfigFloat(DredgedDamageMult, DredgedEnableConfig) / 1.3f;
                 elites2.Add(AffixDredgedElite);
                 targetTier2.eliteTypes = elites2.ToArray();
             }
@@ -434,20 +440,26 @@ namespace CaeliImperium.Elites
             //CombatDirector.eliteTiers = targetTiers;
             //Array.Resize(ref CombatDirector.eliteTiers, CombatDirector.eliteTiers.Length + 1);
             //CombatDirector.eliteTiers[CombatDirector.eliteTiers.Length - 1] = AffixDredgedTier;
-            int index = 1;
-            switch (DredgedTier.Value)
+            EliteDef index = RoR2Content.Elites.Ice;
+            switch (ConfigFloat(DredgedTier, DredgedEnableConfig))
             {
-                case 1: index = 1; break;
-                case 2: index = 3; break;
-                case 3: index = 4; break;
+                case 1: index = RoR2Content.Elites.Ice; break;
+                case 2: index = DLC2Content.Elites.Aurelionite; break;
+                case 3: index = RoR2Content.Elites.Poison; break;
 
             }
-            CombatDirector.EliteTierDef targetTier = EliteAPI.VanillaEliteTiers[index];
-            List<EliteDef> elites = targetTier.eliteTypes.ToList();
-            AffixDredgedElite.healthBoostCoefficient = DredgedHealthMult.Value;
-            AffixDredgedElite.damageBoostCoefficient = DredgedDamageMult.Value;
-            elites.Add(AffixDredgedElite);
-            targetTier.eliteTypes = elites.ToArray();
+            foreach (EliteTierDef eliteIndex in EliteAPI.VanillaEliteTiers)
+            {
+                if (eliteIndex.eliteTypes.Contains(index))
+                {
+                    CombatDirector.EliteTierDef targetTier = eliteIndex;
+                    List<EliteDef> elites = targetTier.eliteTypes.ToList();
+                    AffixDredgedElite.healthBoostCoefficient = ConfigFloat(DredgedHealthMult, DredgedEnableConfig);
+                    AffixDredgedElite.damageBoostCoefficient = ConfigFloat(DredgedDamageMult, DredgedEnableConfig);
+                    elites.Add(AffixDredgedElite);
+                    targetTier.eliteTypes = elites.ToArray();
+                }
+            }
             //}
         }
 
@@ -460,7 +472,7 @@ namespace CaeliImperium.Elites
             orig(self, buffDef);
             if (buffDef == AffixDredgedBuff)
             {
-                self.AddTimedBuff(DeathCountBuff.DeathCountBuffDef, 1);
+                //self.AddTimedBuff(DeathCountBuff.DeathCountBuffDef, 1);
                 GameObject gameObject = Object.Instantiate<GameObject>(DredgedWard);
 
                 //self.baseMoveSpeed *= 2f;
@@ -537,8 +549,8 @@ namespace CaeliImperium.Elites
             AffixDredgedElite.eliteEquipmentDef = AffixDredgedEquipment;
             AffixDredgedElite.modifierToken = "ELITE_MODIFIER_DREDGED";
             AffixDredgedElite.name = "EliteDredged";
-            AffixDredgedElite.healthBoostCoefficient = healthMult;
-            AffixDredgedElite.damageBoostCoefficient = damageMult;
+            AffixDredgedElite.healthBoostCoefficient = ConfigFloat(DredgedHealthMult, DredgedEnableConfig);
+            AffixDredgedElite.damageBoostCoefficient = ConfigFloat(DredgedDamageMult, DredgedEnableConfig);
             AffixDredgedBuff.eliteDef = AffixDredgedElite;
         }
 

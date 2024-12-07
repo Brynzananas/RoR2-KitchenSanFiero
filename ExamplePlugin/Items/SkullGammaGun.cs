@@ -25,6 +25,7 @@ namespace CaeliImperium.Items
         internal static Sprite MicrowaveIcon;
         public static ItemDef SkullGammaGunItemDef;
         public static ConfigEntry<bool> SkullGammaGunEnable;
+        public static ConfigEntry<bool> SkullGammaGunEnableConfig;
         public static ConfigEntry<bool> SkullGammaGunAIBlacklist;
         public static ConfigEntry<float> SkullGammaGunTier;
         public static ConfigEntry<float> SkullGammaGunTimer;
@@ -39,14 +40,14 @@ namespace CaeliImperium.Items
         public static ConfigEntry<float> SkullGammaGunDamageMultiplier;
         public static ConfigEntry<float> SkullGammaGunDuration;
         public static ConfigEntry<bool> SkullGammaGunDoDOT;
-        public static ConfigEntry<int> SkullGammaGunMaxBuffCount;
-        public static ConfigEntry<int> SkullGammaGunMaxBuffCountStack;
+        //public static ConfigEntry<int> SkullGammaGunMaxBuffCount;
+        //public static ConfigEntry<int> SkullGammaGunMaxBuffCountStack;
 
         internal static void Init()
         {
             AddConfigs();
             string tier = "Assets/Icons/SkullGammaGunIcon.png";
-            switch (SkullGammaGunTier.Value)
+            switch (ConfigFloat(SkullGammaGunTier, SkullGammaGunEnableConfig))
             {
                 case 1:
                     tier = "Assets/Icons/SkullGammaGunIconTier1.png";
@@ -75,6 +76,10 @@ namespace CaeliImperium.Items
                                          "Activation",
                                          true,
                                          "Enable Skull Gamma Gun item?");
+            SkullGammaGunEnableConfig = Config.Bind<bool>("Item : Skull Gamma Gun",
+                                         "Config Activation",
+                                         false,
+                                         "Enable config?");
             SkullGammaGunAIBlacklist = Config.Bind<bool>("Item : Skull Gamma Gun",
                              "AI Blacklist",
                              true,
@@ -93,7 +98,7 @@ namespace CaeliImperium.Items
                                          "Control the base angle value");
             SkullGammaGunAngleStack = Config.Bind<float>("Item : Skull Gamma Gun",
                                          "Angle per stack",
-                                         15f,
+                                         5f,
                                          "Control the angle increase per item stack");
             SkullGammaGunRange = Config.Bind<float>("Item : Skull Gamma Gun",
                                          "Base range",
@@ -105,11 +110,11 @@ namespace CaeliImperium.Items
                                          "Control the range increase per item stack");
             SkullGammaGunDamage = Config.Bind<float>("Item : Skull Gamma Gun",
                              "Damage",
-                             100f,
+                             200f,
                              "Control the damage of this item in percentage");
             SkullGammaGunDamageStack = Config.Bind<float>("Item : Skull Gamma Gun",
                              "Damage stack",
-                             100f,
+                             200f,
                              "Control the damage increase of this item per item stack in percentage");
             SkullGammaGunProc = Config.Bind<float>("Item : Skull Gamma Gun",
                              "Proc",
@@ -127,15 +132,16 @@ namespace CaeliImperium.Items
                                          "DOT Duration",
                                          5f,
                                          "Control the duration of the DOT");
-            SkullGammaGunMaxBuffCount = Config.Bind<int>("Item : Skull Gamma Gun",
-                                         "Base max debuff stack",
-                                         3,
-                                         "Control the base max debuff stack");
-            SkullGammaGunMaxBuffCountStack = Config.Bind<int>("Item : Skull Gamma Gun",
-                                         "Max debuff stack per stack",
-                                         1,
-                                         "Control the max debuff stack increase per item stack");
+            //SkullGammaGunMaxBuffCount = Config.Bind<int>("Item : Skull Gamma Gun",
+            //                             "Base max debuff stack",
+            //                             3,
+            //                             "Control the base max debuff stack");
+            //SkullGammaGunMaxBuffCountStack = Config.Bind<int>("Item : Skull Gamma Gun",
+            //                             "Max debuff stack per stack",
+            //                             1,
+            //                             "Control the max debuff stack increase per item stack");
             ModSettingsManager.AddOption(new CheckBoxOption(SkullGammaGunEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(SkullGammaGunEnableConfig, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(SkullGammaGunAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(SkullGammaGunTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunTimer));
@@ -148,8 +154,8 @@ namespace CaeliImperium.Items
             ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunProc));
             ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunBuffDamageMultiplier));
             ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunDuration));
-            ModSettingsManager.AddOption(new IntFieldOption(SkullGammaGunMaxBuffCount));
-            ModSettingsManager.AddOption(new IntFieldOption(SkullGammaGunMaxBuffCountStack));
+            //ModSettingsManager.AddOption(new IntFieldOption(SkullGammaGunMaxBuffCount));
+            //ModSettingsManager.AddOption(new IntFieldOption(SkullGammaGunMaxBuffCountStack));
         }
         private static void Item()
         {
@@ -159,7 +165,7 @@ namespace CaeliImperium.Items
             SkullGammaGunItemDef.pickupToken = "SKULLGAMMAGUN_PICKUP";
             SkullGammaGunItemDef.descriptionToken = "SKULLGAMMAGUN_DESC";
             SkullGammaGunItemDef.loreToken = "SKULLGAMMAGUN_LORE";
-            switch (SkullGammaGunTier.Value)
+            switch (ConfigFloat(SkullGammaGunTier, SkullGammaGunEnableConfig))
             {
                 case 1:
                     SkullGammaGunItemDef.deprecatedTier = ItemTier.Tier1;
@@ -178,7 +184,7 @@ namespace CaeliImperium.Items
             SkullGammaGunItemDef.hidden = false;
             SkullGammaGunItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Damage };
-            if (SkullGammaGunAIBlacklist.Value)
+            if (ConfigBool(SkullGammaGunAIBlacklist, SkullGammaGunEnableConfig))
             {
                 tags.Add(ItemTag.AIBlacklist);
             }
@@ -431,7 +437,7 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                     //Vector3 aim = self.inputBank.aimDirection;
                     //var owner = self.transform;
                     timer1 += Time.fixedDeltaTime;
-                    if (timer1 > SkullGammaGunTimer.Value / body.attackSpeed)
+                    if (timer1 > ConfigFloat(SkullGammaGunTimer, SkullGammaGunEnableConfig) / body.attackSpeed)
                     {
                         foreach (var characterBody in CharacterBody.readOnlyInstancesList)
                         {
@@ -441,13 +447,15 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                             Vector3 targetDir = characterBody.corePosition - body.corePosition;
                             float angle = Vector3.Angle(targetDir, body.inputBank.aimDirection);
                             float dist = Vector3.Distance(characterBody.corePosition, body.corePosition);
-                            if (angle < (SkullGammaGunAngle.Value / 2) + (SkullGammaGunAngleStack.Value / 2 * (stack - 1)) && body.teamComponent.teamIndex != characterBody.teamComponent.teamIndex && dist < SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value))
+                            float range = ConfigFloat(SkullGammaGunRange, SkullGammaGunEnableConfig) + ((stack - 1) * ConfigFloat(SkullGammaGunRangeStack, SkullGammaGunEnableConfig));
+                            if (angle < (ConfigFloat(SkullGammaGunAngle, SkullGammaGunEnableConfig) / 2) + (ConfigFloat(SkullGammaGunAngleStack, SkullGammaGunEnableConfig) / 2 * (stack - 1)) && body.teamComponent.teamIndex != characterBody.teamComponent.teamIndex && dist < range)
                             {
+                                var damageNum = (ConfigFloat(SkullGammaGunDamage, SkullGammaGunEnableConfig) / 100) + ((stack - 1) * (ConfigFloat(SkullGammaGunDamageStack, SkullGammaGunEnableConfig) / 100));
                                 float damage = body.damage;
                                 Vector3 position2 = characterBody.transform.position;
                                 DamageInfo damageInfo2 = new DamageInfo
                                 {
-                                    damage = damage * ((SkullGammaGunDamage.Value / 100) + ((stack - 1) * (SkullGammaGunDamageStack.Value / 100))),// * ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2)),
+                                    damage = damage * damageNum,// * ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2)),
                                     damageColorIndex = DamageColorIndex.Item,
                                     damageType = DamageType.Generic,
                                     attacker = body.gameObject,
@@ -456,20 +464,20 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                                     inflictor = null,
                                     position = position2,
                                     procChainMask = default,
-                                    procCoefficient = 1f
+                                    procCoefficient = ConfigFloat(SkullGammaGunProc, SkullGammaGunEnableConfig),
                                 };
                                 characterBody.healthComponent.TakeDamage(damageInfo2);
-                                if (SkullGammaGunDoDOT.Value)
+                                if (ConfigBool(SkullGammaGunDoDOT, SkullGammaGunEnableConfig))
                                 {
                                     InflictDotInfo dotInfo = new InflictDotInfo()
                                     {
                                         attackerObject = body.gameObject,
                                         victimObject = characterBody.gameObject,
-                                        totalDamage = body.damage * (SkullGammaGunBuffDamageMultiplier.Value / 100), //* PackOfCiggaretesDuration.Value,
+                                        totalDamage = body.damage * (ConfigFloat(SkullGammaGunBuffDamageMultiplier, SkullGammaGunEnableConfig) / 100), //* PackOfCiggaretesDuration.Value,
                                         damageMultiplier = stack,// * ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2)),
-                                        duration = SkullGammaGunDuration.Value,
+                                        duration = ConfigFloat(SkullGammaGunDuration, SkullGammaGunEnableConfig),
                                         dotIndex = Buffs.IrradiatedBuff.IrradiatedDOTDef,
-                                        maxStacksFromAttacker = (uint?)(SkullGammaGunMaxBuffCount.Value + ((stack - 1) * SkullGammaGunMaxBuffCountStack.Value))
+                                        //maxStacksFromAttacker = (uint?)(SkullGammaGunMaxBuffCount.Value + ((stack - 1) * SkullGammaGunMaxBuffCountStack.Value))
 
                                     };
                                     //StrengthenBurnUtils.CheckDotForUpgrade(self.inventory, ref dotInfo);
@@ -553,9 +561,24 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
          */
         private static void AddLanguageTokens()
         {
+            string damageStack = "";
+            if (ConfigFloat(SkullGammaGunDamageStack, SkullGammaGunEnableConfig) > 0)
+            {
+                damageStack = " <style=cStack>(+" + ConfigFloat(SkullGammaGunDamageStack, SkullGammaGunEnableConfig) + "% per item stack)</style>";
+            }
+            string rangeStack = "";
+            if (ConfigFloat(SkullGammaGunRange, SkullGammaGunEnableConfig) > 0)
+            {
+                rangeStack = " <style=cStack>(+" + ConfigFloat(SkullGammaGunAngleStack, SkullGammaGunEnableConfig) + " per item stack)</style>";
+            }
+            string distStack = "";
+            if (ConfigFloat(SkullGammaGunRangeStack, SkullGammaGunEnableConfig) > 0)
+            {
+                distStack = " <style=cStack>(+ " + ConfigFloat(SkullGammaGunRangeStack, SkullGammaGunEnableConfig) + " per item stack)</style>";
+            }
             LanguageAPI.Add("SKULLGAMMAGUN_NAME", "Skull Gamma Gun");
-            LanguageAPI.Add("SKULLGAMMAGUN_PICKUP", "In " + SkullGammaGunAngle.Value + " <style=cStack>(+" + SkullGammaGunAngleStack.Value + " per item stack)</style> degree radius and " + SkullGammaGunRange.Value + " <style=cStack>(+ " + SkullGammaGunRangeStack.Value + " per item stack)</style> meter distance <style=cIsDamage>irradiate</style> enemies for <style=cIsDamage>" + SkullGammaGunDamage.Value + "%</style> <style=cStack>(+" + SkullGammaGunDamageStack.Value + "% per item stack)</style> <style=cIsDamage>base damage</style>");
-            LanguageAPI.Add("SKULLGAMMAGUN_DESC", "In " + SkullGammaGunAngle.Value + " <style=cStack>(+" + SkullGammaGunAngleStack.Value + " per item stack)</style> degree radius and " + SkullGammaGunRange.Value + " <style=cStack>(+ " + SkullGammaGunRangeStack.Value + " per item stack)</style> meter distance <style=cIsDamage>irradiate</style> enemies for <style=cIsDamage>" + SkullGammaGunDamage.Value + "%</style> <style=cStack>(+" + SkullGammaGunDamageStack.Value + "% per item stack)</style> <style=cIsDamage>base damage</style>");
+            LanguageAPI.Add("SKULLGAMMAGUN_PICKUP", "In " + ConfigFloat(SkullGammaGunAngle, SkullGammaGunEnableConfig) + rangeStack +" degree radius and " + ConfigFloat(SkullGammaGunRange, SkullGammaGunEnableConfig) + distStack + " meter distance <style=cIsDamage>irradiate</style> enemies for <style=cIsDamage>" + ConfigFloat(SkullGammaGunDamage, SkullGammaGunEnableConfig) + "%</style>" + damageStack + " <style=cIsDamage>base damage</style>");
+            LanguageAPI.Add("SKULLGAMMAGUN_DESC", "In " + ConfigFloat(SkullGammaGunAngle, SkullGammaGunEnableConfig) + rangeStack + " degree radius and " + ConfigFloat(SkullGammaGunRange, SkullGammaGunEnableConfig) + distStack + " meter distance <style=cIsDamage>irradiate</style> enemies for <style=cIsDamage>" + ConfigFloat(SkullGammaGunDamage, SkullGammaGunEnableConfig) + "%</style>" + damageStack + " <style=cIsDamage>base damage</style>");
             LanguageAPI.Add("SKULLGAMMAGUN_LORE", "She enters the room with some papers, walking to show them to the professor" +
                 "\n" +
                 "\n" +

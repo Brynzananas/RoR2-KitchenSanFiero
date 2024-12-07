@@ -179,6 +179,7 @@ public static bool hasAuroAffix = false;
             ModSettingsManager.AddOption(new KeyBindOption(CapturedPotentialKey3));
             ModSettingsManager.AddOption(new KeyBindOption(CapturedPotentialKey4));
             ModSettingsManager.AddOption(new KeyBindOption(CapturedPotentialKey5));
+            ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialEnableDocumentation));
         }
         private static void CreateSound()
         {

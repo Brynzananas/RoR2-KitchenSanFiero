@@ -50,7 +50,7 @@ namespace CaeliImperiumPlugin
         public const string PluginGUID = PluginAuthor + PluginName;
         public const string PluginAuthor = "Brynzananas";
         public const string PluginName = "CaeliImperium";
-        public const string PluginVersion = "0.7.5";
+        public const string PluginVersion = "0.7.6";
         public static string SavesDirectory { get; } = System.IO.Path.Combine(Application.persistentDataPath, "ArchNemesis");
         public static ExpansionDef CaeliImperiumExpansionDef = ScriptableObject.CreateInstance<ExpansionDef>();
         public static AssetBundle MainAssets;
@@ -179,7 +179,7 @@ namespace CaeliImperiumPlugin
             LikeADragon.Init();
             OpposingForce.Init();
             DiscoBall.Init();
-            
+
             //CreateEliteTiers();
         }
         //public static void ShaderConversion(AssetBundle assets)

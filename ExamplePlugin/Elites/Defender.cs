@@ -181,7 +181,7 @@ namespace CaeliImperium.Elites
             //if (EliteAPI.VanillaEliteTiers.Length > 2)
             //{
                 // HONOR
-                if (DefenderHonor.Value)
+                if (ConfigBool(DefenderHonor, DefenderEnableConfig))
             {
                 CombatDirector.EliteTierDef targetTier2 = EliteAPI.VanillaEliteTiers[2];
                 List<EliteDef> elites2 = targetTier2.eliteTypes.ToList();

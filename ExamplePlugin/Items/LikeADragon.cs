@@ -83,11 +83,11 @@ namespace CaeliImperium.Items
                                          "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
             LikeADragonRoll = Config.Bind<int>("Item : " + name,
                                          "Roll amount",
-                                         3,
+                                         2,
                                          "Control the roll amount for damage increase");
             LikeADragonRollStack = Config.Bind<int>("Item : " + name,
                                          "Roll amount stack",
-                                         1,
+                                         2,
                                          "Control the roll amount increase for damage increase per item stack");
             LikeADragonRollChance = Config.Bind<float>("Item : " + name,
                                          "Roll chance",

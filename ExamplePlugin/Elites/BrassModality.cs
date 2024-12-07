@@ -202,7 +202,7 @@ namespace CaeliImperium.Elites
         private static void WoundThem(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim)
         {
             orig(self, damageInfo, victim);
-            if (BrassModalityDoWound.Value)
+            if (ConfigBool(BrassModalityDoWound, BrassModalityEnableConfig))
             {
                 if (damageInfo.attacker && !damageInfo.rejected && victim && victim.GetComponent<CharacterBody>() && damageInfo.attacker.GetComponent<CharacterBody>() && damageInfo.attacker.GetComponent<CharacterBody>().HasBuff(AffixBrassModalityBuff))
                 {
@@ -282,7 +282,7 @@ namespace CaeliImperium.Elites
             //if (EliteAPI.VanillaEliteTiers.Length > 2)
             //{
             //    // HONOR
-            if (BrassModalityHonor.Value)
+            if (ConfigBool(BrassModalityHonor, BrassModalityEnableConfig))
             {
                 CombatDirector.EliteTierDef targetTier2 = EliteAPI.VanillaEliteTiers[2];
                 List<EliteDef> elites2 = targetTier2.eliteTypes.ToList();

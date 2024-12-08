@@ -569,8 +569,8 @@ localScale = new Vector3(0.23871F, 0.23871F, 0.23871F)
                 chanceStack = " <style=cStack>(+" + ConfigFloat(GuardianCrownChance, GuardianCrownEnableConfig) + "% per item stack hyperbollicaly)</style>";
             }
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_NAME", name);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "On enemy attack, stun them with " + ConfigFloat(GuardianCrownChance, GuardianCrownEnableConfig) + "%" + chanceStack + " chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value +"%</style>.");
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "On enemy attack, stun them with " + ConfigFloat(GuardianCrownChance, GuardianCrownEnableConfig) + "%" + chanceStack + " chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + DazzledBuff.DazzledDamageIncrease.Value + "%</style>.");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "Enemies have a chance to Dazzle upon attacking, stunning and receiving more damage");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "On enemy attack, stun them with " + ConfigFloat(GuardianCrownChance, GuardianCrownEnableConfig) + "%" + chanceStack + " chance and apply a debuff, that increases <style=cIsDamage>incoming damage</style> by <style=cIsDamage>" + ConfigFloat(DazzledBuff.DazzledDamageIncrease, DazzledBuff.DazzledEnableConfig) + "%</style>.");
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_LORE", "To protect, to support, to relief, this crown will help. Let it be your honor to protect the weak. Let it be your duty to protect this world");
         }
 

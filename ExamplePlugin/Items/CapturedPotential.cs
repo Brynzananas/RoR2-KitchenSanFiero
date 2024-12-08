@@ -1231,11 +1231,11 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
             string slotStack = "";
             if (ConfigInt(CapturedPotentialEquipSlotsStack, CapturedPotentialEnableConfig) != 0)
             {
-                slotStack = " <style=cStack>(+" + CapturedPotentialEquipSlotsStack.Value + " per item stack)</style>";
+                slotStack = " <style=cStack>(+" + ConfigInt(CapturedPotentialEquipSlotsStack, CapturedPotentialEnableConfig) + " per item stack)</style>";
             }
             LanguageAPI.Add("CAPTUREDPOTENTIAL_NAME", "Captured Potential");
-            LanguageAPI.Add("CAPTUREDPOTENTIAL_PICKUP", "Gain <style=cIsUtility>+" + CapturedPotentialEquipSlots.Value + "</style>" + slotStack + " <style=cIsUtility>equipment slots</style>");
-            LanguageAPI.Add("CAPTUREDPOTENTIAL_DESC", "Gain <style=cIsUtility>+" + CapturedPotentialEquipSlots.Value + "</style>" + slotStack + " <style=cIsUtility>equipment slots</style>");
+            LanguageAPI.Add("CAPTUREDPOTENTIAL_PICKUP", "Increases equipment slots");
+            LanguageAPI.Add("CAPTUREDPOTENTIAL_DESC", "Gain <style=cIsUtility>+" + ConfigInt(CapturedPotentialEquipSlots, CapturedPotentialEnableConfig) + "</style>" + slotStack + " <style=cIsUtility>equipment slots</style>");
             LanguageAPI.Add("CAPTUREDPOTENTIAL_LORE", "<style=cMono>//--ATTEMPT № 45122--//</style>" +
                 "\n" +
                 "Void: 67.23%" +

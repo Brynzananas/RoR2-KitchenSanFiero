@@ -99,7 +99,7 @@ namespace CaeliImperium.Elites
         private static void GainDio(On.RoR2.CharacterBody.orig_OnInventoryChanged orig, CharacterBody self)
         {
             orig(self);
-            if (self && self.isPlayerControlled && self.inventory && self.inventory.GetEquipmentIndex() == AffixDredgedEquipment.equipmentIndex && DredgedConversion.Value)
+            if (ConfigBool(DredgedConversion, DredgedEnableConfig) && self && self.isPlayerControlled && self.inventory && self.inventory.GetEquipmentIndex() == AffixDredgedEquipment.equipmentIndex)
             {
                 self.inventory.SetEquipmentIndex(EquipmentIndex.None);
                 self.inventory.GiveItem(RoR2Content.Items.ExtraLife);

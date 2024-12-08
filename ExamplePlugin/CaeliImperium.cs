@@ -50,7 +50,7 @@ namespace CaeliImperiumPlugin
         public const string PluginGUID = PluginAuthor + PluginName;
         public const string PluginAuthor = "Brynzananas";
         public const string PluginName = "CaeliImperium";
-        public const string PluginVersion = "0.7.6";
+        public const string PluginVersion = "0.7.7";
         public static string SavesDirectory { get; } = System.IO.Path.Combine(Application.persistentDataPath, "ArchNemesis");
         public static ExpansionDef CaeliImperiumExpansionDef = ScriptableObject.CreateInstance<ExpansionDef>();
         public static AssetBundle MainAssets;
@@ -545,20 +545,36 @@ namespace CaeliImperiumPlugin
         private void BufferDeaths(On.RoR2.CharacterBody.orig_OnDeathStart orig, CharacterBody self)
         {
             orig(self);
-
-            if (self && !self.isPlayerControlled && self.inventory && self.inventory.GetItemCount(RoR2Content.Items.Ghost) <= 0 && self.inventory.GetEquipmentIndex() != Dredged.AffixDredgedEquipment.equipmentIndex)
-            {
-
-                deadPosition = self.transform.position;
-                deadPositionArray.SetValue(deadPosition, deadPositionArray.Length - 1);
-                Array.Copy(deadPositionArray, 1, deadPositionArray, 0, deadPositionArray.Length - 1);
-                deadMasterprefab = MasterCatalog.GetMasterPrefab(self.master.masterIndex);
-                deadMasterPrefabArray.SetValue(deadMasterprefab, deadMasterPrefabArray.Length - 1);
-                Array.Copy(deadMasterPrefabArray, 1, deadMasterPrefabArray, 0, deadMasterPrefabArray.Length - 1);
-                deadInventory = self.inventory;
-                deadInventoryArray.SetValue(deadInventory, deadInventoryArray.Length - 1);
-                Array.Copy(deadInventoryArray, 1, deadInventoryArray, 0, deadInventoryArray.Length - 1);
-            }
+            //try
+            //{
+                if (true)//self && !self.isPlayerControlled && self.inventory && self.inventory.GetItemCount(RoR2Content.Items.Ghost) <= 0 && self.inventory.GetEquipmentIndex() != Dredged.AffixDredgedEquipment.equipmentIndex)
+                {
+                    if (!self)
+                        return;
+                    if (self.isPlayerControlled)
+                        return;
+                    if (!self.inventory)
+                        return;
+                    if (self.inventory.GetItemCount(RoR2Content.Items.Ghost) > 0)
+                        return;
+                if (!Dredged.DredgedEnable.Value)
+                    return;
+                if (self.inventory.GetEquipmentIndex() == Dredged.AffixDredgedEquipment.equipmentIndex)
+                        return;
+                    deadPosition = self.transform.position;
+                    deadPositionArray.SetValue(deadPosition, deadPositionArray.Length - 1);
+                    Array.Copy(deadPositionArray, 1, deadPositionArray, 0, deadPositionArray.Length - 1);
+                    deadMasterprefab = MasterCatalog.GetMasterPrefab(self.master.masterIndex);
+                    deadMasterPrefabArray.SetValue(deadMasterprefab, deadMasterPrefabArray.Length - 1);
+                    Array.Copy(deadMasterPrefabArray, 1, deadMasterPrefabArray, 0, deadMasterPrefabArray.Length - 1);
+                    deadInventory = self.inventory;
+                    deadInventoryArray.SetValue(deadInventory, deadInventoryArray.Length - 1);
+                    Array.Copy(deadInventoryArray, 1, deadInventoryArray, 0, deadInventoryArray.Length - 1);
+                }
+            //}
+            //catch
+            //{
+            //}
         }
     }
 }

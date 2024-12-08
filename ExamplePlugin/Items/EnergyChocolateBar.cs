@@ -351,14 +351,14 @@ localScale = new Vector3(1F, 1F, 1F)
             {
                 int itemsToConsume = 0;
                 float luckDown = self.luck;
-                if (!EnergyChocolateBarsLuck.Value)
+                if (!ConfigBool(EnergyChocolateBarsLuck, EnergyChocolateBarsEnableConfig))
                 {
                     luckDown = 0;
                 }
                 for (int i = 0; i < itemCount; i++)
                 {
                     //Debug.Log(Util.CheckRoll(EnergyChocolateStageConsumeChance.Value, -luckDown));
-                    if (Util.CheckRoll(ConfigFloat(EnergyChocolateStageConsumeChance, EnergyChocolateBarsEnableConfig), -luckDown))
+                    if (!Util.CheckRoll(100 - ConfigFloat(EnergyChocolateStageConsumeChance, EnergyChocolateBarsEnableConfig), luckDown))
                     {
                         itemsToConsume++;
                     }
@@ -423,7 +423,7 @@ localScale = new Vector3(1F, 1F, 1F)
                 nextStageBehaviour = "";
             }
             LanguageAPI.Add("ENERGYCHOCOLATEBAR_NAME", "Energised Chocolate Bar");  
-            LanguageAPI.Add("ENERGYCHOCOLATEBAR_PICKUP", "Increase <style=cIsDamage>all statistics</style> by <style=cIsDamage>" + ConfigFloat(EnergyChocolateBuffStats, EnergyChocolateBarsEnableConfig) + "%</style> <style=cStack>(+" + ConfigFloat(EnergyChocolateBuffStatsStack, EnergyChocolateBarsEnableConfig) + "% per item stack)." + nextStageBehaviour);
+            LanguageAPI.Add("ENERGYCHOCOLATEBAR_PICKUP", "Slightly increases all statistics. Has a chance to be consumed on stage enter");
             LanguageAPI.Add("ENERGYCHOCOLATEBAR_DESC", "Increase <style=cIsDamage>all statistics</style> by <style=cIsDamage>" + ConfigFloat(EnergyChocolateBuffStats, EnergyChocolateBarsEnableConfig) + "%</style> <style=cStack>(+" + ConfigFloat(EnergyChocolateBuffStatsStack, EnergyChocolateBarsEnableConfig) + "% per item stack)." + nextStageBehaviour);
             LanguageAPI.Add("ENERGYCHOCOLATEBAR_LORE", "");
         }

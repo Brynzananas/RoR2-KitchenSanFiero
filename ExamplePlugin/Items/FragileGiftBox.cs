@@ -234,7 +234,7 @@ namespace CaeliImperium.Items
                 woundStack = " <style=cStack(+" + ConfigInt(FragileGiftBoxWoundStack, FragileGiftBoxEnableConfig) + " per item stack)</style>";
             }
             LanguageAPI.Add("FRAGILEGIFTBOX_NAME", "Fragile Gift Box");
-            LanguageAPI.Add("FRAGILEGIFTBOX_PICKUP", "Get +" + ConfigInt(FragileGiftBoxReward, FragileGiftBoxEnableConfig) + rewardStack + " more items from chests. " + rewardChance + "Get " + ConfigInt(FragileGiftBoxWound, FragileGiftBoxEnableConfig) + woundStack + " <style=cIsDamage>Deep Wound</style> on chest opening");
+            LanguageAPI.Add("FRAGILEGIFTBOX_PICKUP", "Increases chest contents with a chance to give nothing. Wounds the activator");
             LanguageAPI.Add("FRAGILEGIFTBOX_DESC", "Get +" + ConfigInt(FragileGiftBoxReward, FragileGiftBoxEnableConfig) + rewardStack + " more items from chests. " + rewardChance + "Get " + ConfigInt(FragileGiftBoxWound, FragileGiftBoxEnableConfig) + woundStack + " <style=cIsDamage>Deep Wound</style> on chest opening");
             LanguageAPI.Add("FRAGILEGIFTBOX_LORE", "I never though you are also a cook brother"/*"\"Pick\"" +
                 "\n" +

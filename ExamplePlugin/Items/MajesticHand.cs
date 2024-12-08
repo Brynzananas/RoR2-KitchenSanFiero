@@ -389,7 +389,7 @@ public class KillswitchComponent : MonoBehaviour
                 death += "Deal <style=cIsDamage>more damage</style> the <style=cIsHealth>weaker</style> the enemy is up to <style=cIsDamage>" + ConfigFloat(MajesticHandDoDamage, MajesticHandEnableConfig) +"%</style> <style=cStack>(+" + ConfigFloat(MajesticHandDoDamageStack, MajesticHandEnableConfig) + "% per item stack)</style>";
             }
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_NAME", name);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", death);
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "Enemies have a chance to die on spawn. Deal more damage the weaker the enemy is");
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", death);
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_LORE", "\"If we kill the god, it would be necessary to replace him.\"");
         }

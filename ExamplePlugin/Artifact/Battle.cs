@@ -26,6 +26,7 @@ namespace CaeliImperium.Artifact
         public static bool timerSet = false;
         public static float difficulty = 0;
         public static bool itHappened = false;
+        public static ConfigEntry<bool> BattleEnableConfig;
         public static ConfigEntry<float> BattleInterval;
         public static ConfigEntry<float> BattleCreditsAddition;
         public static ConfigEntry<bool> BattleMidwayBool;
@@ -51,6 +52,10 @@ namespace CaeliImperium.Artifact
 
         private static void AddConfigs()
         {
+            BattleEnableConfig = Config.Bind<bool>("Artifact : Battle",
+                                         "Config Activation",
+                                         false,
+                                         "Enable config?");
             BattleInterval = Config.Bind<float>("Artifact : Battle",
                              "Interval",
                              15f,
@@ -161,20 +166,20 @@ if (changeTeleport)
                     var teleport = TeleporterInteraction.instance;
 
                     timer += Time.fixedDeltaTime;
-                    if (timer >= BattleInterval.Value)
+                    if (timer >= ConfigFloat(BattleInterval, BattleEnableConfig))
                     {
 
 
 
-                        teleport.bonusDirector.monsterCredit += BattleCreditsAddition.Value;
+                        teleport.bonusDirector.monsterCredit += ConfigFloat(BattleCreditsAddition, BattleEnableConfig);
                         //Debug.Log("MonsterCredit " + teleport.bonusDirector.monsterCredit);
                         timer = 0f;
                     }
 
-                    if (teleport.holdoutZoneController.charge > 0.5 && !itHappened && BattleMidwayBool.Value)
+                    if (ConfigBool(BattleMidwayBool, BattleEnableConfig) && teleport.holdoutZoneController.charge > 0.5 && !itHappened)
                     {
-                        teleport.bonusDirector.monsterCredit += BattleMidwayCredits.Value;
-                        teleport.bonusDirector.creditMultiplier *= BattleMidwayCredits.Value;
+                        teleport.bonusDirector.monsterCredit += ConfigFloat(BattleMidwayCredits, BattleEnableConfig);
+                        teleport.bonusDirector.creditMultiplier *= ConfigFloat(BattleMidwayCredits, BattleEnableConfig);
 
                         itHappened = true;
                     }
@@ -221,7 +226,7 @@ private static void ChageTeleport(On.RoR2.Stage.orig_FixedUpdate orig, Stage sel
             if (NetworkServer.active && RunArtifactManager.instance.IsArtifactEnabled(BattleArtifactDef) && changeTeleport)
             {
                 var teleport = TeleporterInteraction.instance;
-                teleport.holdoutZoneController.charge += 1 / teleport.holdoutZoneController.baseChargeDuration * BattleChargeOnKill.Value ;//0.5f / 100;
+                teleport.holdoutZoneController.charge += 1 / teleport.holdoutZoneController.baseChargeDuration * ConfigFloat(BattleChargeOnKill, BattleEnableConfig) ;//0.5f / 100;
             }
         }
 
@@ -253,8 +258,8 @@ private static void ChageTeleport(On.RoR2.Stage.orig_FixedUpdate orig, Stage sel
                 Debug.Log("DischargeRate" + teleport.holdoutZoneController.dischargeRate);*/
                 changeTeleport = true;
                 itHappened = false;
-                teleport.holdoutZoneController.chargeRadiusDelta = BattleZoneRange.Value * 100;
-                teleport.holdoutZoneController.baseChargeDuration = BattleTime.Value;
+                teleport.holdoutZoneController.chargeRadiusDelta = ConfigFloat(BattleZoneRange, BattleEnableConfig) * 100;
+                teleport.holdoutZoneController.baseChargeDuration = ConfigFloat(BattleTime, BattleEnableConfig);
                 teleport.bonusDirector.creditMultiplier += difficulty;
 ;
             }
@@ -270,19 +275,19 @@ private static void ChageTeleport(On.RoR2.Stage.orig_FixedUpdate orig, Stage sel
                 //Chat.AddMessage("My Artifact has been enabled!");
                 if (Run.instance.selectedDifficulty <= DifficultyIndex.Easy)
                 {
-                    difficulty = BattleDrizzleDifficulty.Value;
+                    difficulty = ConfigFloat(BattleDrizzleDifficulty, BattleEnableConfig);
                 }
                 if (Run.instance.selectedDifficulty == DifficultyIndex.Normal)
                 {
-                    difficulty = BattleRainstormDifficulty.Value;
+                    difficulty = ConfigFloat(BattleRainstormDifficulty, BattleEnableConfig);
                 }
                 if (Run.instance.selectedDifficulty == DifficultyIndex.Hard)
                 {
-                    difficulty = BattleMonsoonDifficulty.Value;
+                    difficulty = ConfigFloat(BattleMonsoonDifficulty, BattleEnableConfig);
                 }
                 if (Run.instance.selectedDifficulty > DifficultyIndex.Hard)
                 {
-                    difficulty = BattleHigherDifficulty.Value;
+                    difficulty = ConfigFloat(BattleHigherDifficulty, BattleEnableConfig);
                 }
 
             }
@@ -292,7 +297,7 @@ private static void ChageTeleport(On.RoR2.Stage.orig_FixedUpdate orig, Stage sel
         public static void AddLanguageTokens()
         {
             LanguageAPI.Add("ARTIFACT_BATTLE_NAME", "Artifact of Battle");
-            LanguageAPI.Add("ARTIFACT_BATTLE_DESCRIPTION", "Increases teleporter event zone and completion time. Kills recharge teleporter.\n\"In an endless fight he could not win, his music was still electric\"");//"Multiply teleporter radius by " + BattleZoneRange.Value + " and set its completion time to " + BattleTime.Value + " seconds. Every " + BattleInterval.Value + " seconds monsters gain " + BattleCreditsAddition.Value + " director credits. Midway teleporter multiply credits multiplier by " + BattleMidwayDifficulty.Value + " and monsters gain " + BattleMidwayCredits.Value + " director credits one time. Kills gain " + BattleChargeOnKill.Value + "% teleporter charge");
+            LanguageAPI.Add("ARTIFACT_BATTLE_DESCRIPTION", "Increases teleporter event zone and completion time. Kills recharge teleporter.\n\"In a thick fog of battle, his music was still electric\"");//"Multiply teleporter radius by " + BattleZoneRange.Value + " and set its completion time to " + BattleTime.Value + " seconds. Every " + BattleInterval.Value + " seconds monsters gain " + BattleCreditsAddition.Value + " director credits. Midway teleporter multiply credits multiplier by " + BattleMidwayDifficulty.Value + " and monsters gain " + BattleMidwayCredits.Value + " director credits one time. Kills gain " + BattleChargeOnKill.Value + "% teleporter charge");
         }
     }
 }

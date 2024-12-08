@@ -159,7 +159,7 @@ namespace CaeliImperium.Items
             MedicineItemDef.hidden = false;
             MedicineItemDef.requiredExpansion = CaeliImperiumExpansionDef;
             var tags = new List<ItemTag>() { ItemTag.Healing };
-            if (PainkillersAIBlacklist.Value)
+            if (ConfigBool(PainkillersAIBlacklist, PainkillersEnableConfig))
             {
                 tags.Add(ItemTag.AIBlacklist);
             }
@@ -457,7 +457,7 @@ localScale = new Vector3(0.05652F, 0.05652F, 0.05652F)
                 healingMult = "Increases <style=cIsHealing>healing</style> by <style=cIsHealing>" + ConfigFloat(PainkillersHealthMult, PainkillersEnableConfig) + "%</style> <style=cStack>(+" + ConfigFloat(PainkillersHealthMult, PainkillersEnableConfig) + "% per item stack)</style>\n";
             }
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_NAME", name);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "Slightly increases <style=cIsHealing>all health statistics</style>");
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "Slightly increases <style=cIsHealing>healing and regen</style>");
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", 
                 armor +
                 regen +

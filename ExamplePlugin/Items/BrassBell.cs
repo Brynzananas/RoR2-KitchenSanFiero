@@ -520,7 +520,7 @@ localScale = new Vector3(0.03624F, 0.03624F, 0.03624F)
                 timeStack = " <style=cStack>(+" + ConfigFloat(BrassBellEffectTimeStack, BrassBellEnableConfig) + " per item stack)</style>";
             }
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_NAME", name);
-            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "Every " + ConfigFloat(BrassBellCooldown, BrassBellEnableConfig) + "" + cooldownStack + " seconds increase your damage by <style=cIsDamage>" + ConfigFloat(BrassBellDamageIncrease, BrassBellEnableConfig) + "%</style>" + damageStack + " for " + ConfigFloat(BrassBellEffectTime, BrassBellEnableConfig) + "" + timeStack + " seconds" + configSkills);
+            LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_PICKUP", "Increases damage in a short time period");
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_DESC", "Every " + ConfigFloat(BrassBellCooldown, BrassBellEnableConfig) + "" + cooldownStack + " seconds increase your damage by <style=cIsDamage>" + ConfigFloat(BrassBellDamageIncrease, BrassBellEnableConfig) + "%</style>" + damageStack + " for " + ConfigFloat(BrassBellEffectTime, BrassBellEnableConfig) + "" + timeStack + " seconds" + configSkills);
             LanguageAPI.Add(name.Replace(" ", "").ToUpper() + "_LORE", "");
         }

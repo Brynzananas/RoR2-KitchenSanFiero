@@ -192,7 +192,7 @@ namespace CaeliImperium.Items
                             damageInfo.damage += damageInfo.damage * (ConfigFloat(LikeADragonDamage, LikeADragonEnableConfig) / 100) + ((itemCount - 1) * (ConfigFloat(LikeADragonDamageStack, LikeADragonEnableConfig) / 100));
                         }
                         float luck = attackerBody.master.luck;
-                        if (!LikeADragonLuck.Value)
+                        if (!ConfigBool(LikeADragonLuck, LikeADragonEnableConfig))
                         {
                             luck = 0;
                         }
@@ -244,7 +244,7 @@ namespace CaeliImperium.Items
                 rollStack = " <style=cStack>(+" + ConfigInt(LikeADragonRollStack, LikeADragonEnableConfig) + " per item stack)</style>";
             }
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name);
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", ConfigFloat(LikeADragonRollChance, LikeADragonEnableConfig) +"%" + chanceStack + " chance to increase <style=cIsDamage>outcoming damage</style> by <style=cIsDamage>" + ConfigFloat(LikeADragonDamage, LikeADragonEnableConfig) + "%</style>" + damageStack + ". Rolls " + ConfigInt(LikeADragonRoll, LikeADragonEnableConfig) + rollStack + " times");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", "Chance to increase outcoming dammage. Stacks increase roll amount");
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", ConfigFloat(LikeADragonRollChance, LikeADragonEnableConfig) + "%" + chanceStack + " chance to increase <style=cIsDamage>outcoming damage</style> by <style=cIsDamage>" + ConfigFloat(LikeADragonDamage, LikeADragonEnableConfig) + "%</style>" + damageStack + ". Rolls " + ConfigInt(LikeADragonRoll, LikeADragonEnableConfig) + rollStack + " times");
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "");
         }

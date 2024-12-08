@@ -395,7 +395,7 @@ localScale = new Vector3(0.29592F, 0.29592F, 0.29592F)
                             CharacterMaster characterMaster = summon.Perform();
                             if (characterMaster)
                             {
-                                if (NecronomiconInventory != null && NecronomiconDoInventoryCopy.Value)
+                                if (NecronomiconInventory != null && ConfigBool(NecronomiconDoInventoryCopy, NecronomiconEnableConfig))
                                 {
                                     characterMaster.inventory.AddItemsFrom(NecronomiconInventory);
 
@@ -457,7 +457,7 @@ localScale = new Vector3(0.29592F, 0.29592F, 0.29592F)
 
                             if (characterMaster)
                             {
-                                if (NecronomiconInventory != null && NecronomiconDoInventoryCopyNoPlayer.Value)
+                                if (NecronomiconInventory != null && ConfigBool(NecronomiconDoInventoryCopyNoPlayer, NecronomiconEnableConfig))
                                 {
                                     characterMaster.inventory.AddItemsFrom(NecronomiconInventory);
 
@@ -491,7 +491,7 @@ localScale = new Vector3(0.29592F, 0.29592F, 0.29592F)
         private static void AddLanguageTokens()
         {
             LanguageAPI.Add("NECRONOMICON_NAME", "Necronomicon");
-            LanguageAPI.Add("NECRONOMICON_PICKUP", "On use revive " + ConfigInt(NecronomiconSpawnAmount, NecronomiconEnableConfig) + " last dead monsters to <style=cIsDamage>fight on your side</style>. Spawned monsters have <style=cIsHealth>" + ConfigInt(NecronomiconHealthBoost, NecronomiconEnableConfig) * 10 + "% more health</style> and <style=cIsDamage>" + ConfigInt(NecronomiconDamageBoost, NecronomiconEnableConfig) * 10 +  "% more damage</style>. They live for " + ConfigInt(NecronomiconHealthDrain, NecronomiconEnableConfig) + " seconds and cannot be revived again");
+            LanguageAPI.Add("NECRONOMICON_PICKUP", "Revives 5 last dead monsters to your side");
             LanguageAPI.Add("NECRONOMICON_DESC", "On use revive " + ConfigInt(NecronomiconSpawnAmount, NecronomiconEnableConfig) + " last dead monsters to <style=cIsDamage>fight on your side</style>. Spawned monsters have <style=cIsHealth>" + ConfigInt(NecronomiconHealthBoost, NecronomiconEnableConfig) * 10 + "% more health</style> and <style=cIsDamage>" + ConfigInt(NecronomiconDamageBoost, NecronomiconEnableConfig) * 10 + "% more damage</style>. They live for " + ConfigInt(NecronomiconHealthDrain, NecronomiconEnableConfig) + " seconds and cannot be revived again");
             LanguageAPI.Add("NECRONOMICON_LORE", "");
         }

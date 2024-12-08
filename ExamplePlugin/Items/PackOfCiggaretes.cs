@@ -691,7 +691,7 @@ private void Update()
                 timeStack = " <style=cStack>(+" + ConfigFloat(PackOfCiggaretesCurseTimeStack, PackOfCiggaretesEnableConfig) + " per item stack)</style>";
             }
             LanguageAPI.Add("PACKOFCIGGARETS_NAME", "Pack of Ciggaretes");
-            LanguageAPI.Add("PACKOFCIGGARETS_PICKUP", "Enemies gain <style=cIsHealth>" + ConfigInt(PackOfCiggaretesCurse, PackOfCiggaretesEnableConfig) + "</style>" + amountStack + " <style=cIsHealth>permanent damage</style> every " + ConfigFloat(PackOfCiggaretesTime, PackOfCiggaretesEnableConfig) + " " + seconds + " for " + ConfigFloat(PackOfCiggaretesCurseTime, PackOfCiggaretesEnableConfig) + timeStack + " seconds");
+            LanguageAPI.Add("PACKOFCIGGARETS_PICKUP", "Enemies gain permanent damage");
             LanguageAPI.Add("PACKOFCIGGARETS_DESC", "Enemies gain <style=cIsHealth>" + ConfigInt(PackOfCiggaretesCurse, PackOfCiggaretesEnableConfig) + "</style>" + amountStack + " <style=cIsHealth>permanent damage</style> every " + ConfigFloat(PackOfCiggaretesTime, PackOfCiggaretesEnableConfig) + " " + seconds + " for " + ConfigFloat(PackOfCiggaretesCurseTime, PackOfCiggaretesEnableConfig) + timeStack + " seconds");
             LanguageAPI.Add("PACKOFCIGGARETS_LORE", "");
         }

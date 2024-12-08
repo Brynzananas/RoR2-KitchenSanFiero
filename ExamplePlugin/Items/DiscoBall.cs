@@ -365,8 +365,8 @@ namespace CaeliImperium.Items
             private static void AddLanguageTokens()
         {
             LanguageAPI.Add("DISCOBALL_NAME", "Disco Ball");
-            LanguageAPI.Add("DISCOBALL_PICKUP", "Every " + ConfigFloat(DiscoBallInterval, DiscoBallEnableConfig) + " seconds enemies have a " + ConfigFloat(DiscoBallChance, DiscoBallEnableConfig) + "% <style=cStack>(+" + ConfigFloat(DiscoBallChance, DiscoBallEnableConfig) + "% per item stack hyperbollicaly)</style> to fall into a dance frenzy for " + ConfigFloat(DiscoBallTime, DiscoBallEnableConfig) + " seconds. Dancing enemies <style=cDeath>can't use</style> their <style=cIsUtility>skills</style> and slowed down up to " + ConfigFloat(DiscoBallSlowdown, DiscoBallEnableConfig));
-            LanguageAPI.Add("DISCOBALL_DESC", "Every " + ConfigFloat(DiscoBallInterval, DiscoBallEnableConfig) + " seconds enemies have a " + ConfigFloat(DiscoBallChance, DiscoBallEnableConfig) + "% <style=cStack>(+" + ConfigFloat(DiscoBallChance, DiscoBallEnableConfig) + "% per item stack hyperbollicaly)</style> to fall into a dance frenzy for " + ConfigFloat(DiscoBallTime, DiscoBallEnableConfig) + " seconds. Dancing enemies <style=cDeath>can't use</style> their <style=cIsUtility>skills</style> and slowed down up to " + ConfigFloat(DiscoBallSlowdown, DiscoBallEnableConfig));
+            LanguageAPI.Add("DISCOBALL_PICKUP", "Enemies have a chance to start dancing");
+            LanguageAPI.Add("DISCOBALL_DESC", "Every " + ConfigFloat(DiscoBallInterval, DiscoBallEnableConfig) + " seconds enemies have a " + ConfigFloat(DiscoBallChance, DiscoBallEnableConfig) + "% <style=cStack>(+" + ConfigFloat(DiscoBallChance, DiscoBallEnableConfig) + "% per item stack hyperbollicaly)</style> to fall into a dance frenzy for " + ConfigFloat(DiscoBallTime, DiscoBallEnableConfig) + " seconds. Dancing enemies <style=cDeath>can't use</style> their <style=cIsUtility>skills</style> and slowed down up to " + ConfigFloat(DiscoBallSlowdown, DiscoBallEnableConfig) + "%");
             LanguageAPI.Add("DISCOBALL_LORE", "Sigma sigma on the wall, who is skibidiest of them all");
         }
     }

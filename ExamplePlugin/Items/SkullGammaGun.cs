@@ -577,7 +577,7 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                 distStack = " <style=cStack>(+ " + ConfigFloat(SkullGammaGunRangeStack, SkullGammaGunEnableConfig) + " per item stack)</style>";
             }
             LanguageAPI.Add("SKULLGAMMAGUN_NAME", "Skull Gamma Gun");
-            LanguageAPI.Add("SKULLGAMMAGUN_PICKUP", "In " + ConfigFloat(SkullGammaGunAngle, SkullGammaGunEnableConfig) + rangeStack +" degree radius and " + ConfigFloat(SkullGammaGunRange, SkullGammaGunEnableConfig) + distStack + " meter distance <style=cIsDamage>irradiate</style> enemies for <style=cIsDamage>" + ConfigFloat(SkullGammaGunDamage, SkullGammaGunEnableConfig) + "%</style>" + damageStack + " <style=cIsDamage>base damage</style>");
+            LanguageAPI.Add("SKULLGAMMAGUN_PICKUP", "Your gaze damages and irradiates enemies");
             LanguageAPI.Add("SKULLGAMMAGUN_DESC", "In " + ConfigFloat(SkullGammaGunAngle, SkullGammaGunEnableConfig) + rangeStack + " degree radius and " + ConfigFloat(SkullGammaGunRange, SkullGammaGunEnableConfig) + distStack + " meter distance <style=cIsDamage>irradiate</style> enemies for <style=cIsDamage>" + ConfigFloat(SkullGammaGunDamage, SkullGammaGunEnableConfig) + "%</style>" + damageStack + " <style=cIsDamage>base damage</style>");
             LanguageAPI.Add("SKULLGAMMAGUN_LORE", "She enters the room with some papers, walking to show them to the professor" +
                 "\n" +

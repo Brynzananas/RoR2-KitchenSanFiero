@@ -209,7 +209,7 @@ namespace CaeliImperium.Items
                 armorStack = " <style=cStack>(+" + ConfigFloat(OpposingForceArmorGainStack, OpposingForceEnableConfig) + " per item stack)</style>";
             }
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_NAME", name);
-            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", "Reflect <style=cIsDamage>" + ConfigFloat(OpposingForceDamage, OpposingForceEnableConfig) + "%</style>" + reflectStack + " <style=cIsDamage>incoming damage</style> multiplied to the <style=cIsHealing>armor</style> percentage. Gain <style=cIsHealing>+" + ConfigFloat(OpposingForceArmorGain, OpposingForceEnableConfig) + "</style>" + armorStack + " <style=cIsHealing>armor</style>");
+            LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_PICKUP", "Reflects incoming damage back to the attacker based on your armor percentage");
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_DESC", "Reflect <style=cIsDamage>" + ConfigFloat(OpposingForceDamage, OpposingForceEnableConfig) + "%</style>" + reflectStack + " <style=cIsDamage>incoming damage</style> multiplied to the <style=cIsHealing>armor</style> percentage. Gain <style=cIsHealing>+" + ConfigFloat(OpposingForceArmorGain, OpposingForceEnableConfig) + "</style>" + armorStack + " <style=cIsHealing>armor</style>");
             LanguageAPI.Add(name.ToUpper().Replace(" ", "") + "_LORE", "");
         }

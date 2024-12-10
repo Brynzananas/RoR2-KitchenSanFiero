@@ -244,7 +244,7 @@ public class KillswitchComponent : MonoBehaviour
         private static void Die(On.RoR2.CharacterBody.orig_Start orig, CharacterBody self)
         {
             orig(self);
-            if (ConfigFloat(MajesticHandChance, MajesticHandEnableConfig) > 0 && self)
+            if (ConfigFloat(MajesticHandChance, MajesticHandEnableConfig) > 0 && self && self.master)
             {
                 //if (!self.GetComponent<KillswitchComponent>())
                 //{

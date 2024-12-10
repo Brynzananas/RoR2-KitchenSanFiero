@@ -438,17 +438,26 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                     //var owner = self.transform;
                     timer1 += Time.fixedDeltaTime;
                     if (timer1 > ConfigFloat(SkullGammaGunTimer, SkullGammaGunEnableConfig) / body.attackSpeed)
-                    {
-                        foreach (var characterBody in CharacterBody.readOnlyInstancesList)
-                        {
+                    {                            
+                        float range = ConfigFloat(SkullGammaGunRange, SkullGammaGunEnableConfig) + ((stack - 1) * ConfigFloat(SkullGammaGunRangeStack, SkullGammaGunEnableConfig));
+                        //Collider[] array = UnityEngine.Physics.OverlapCapsule(body.aimOrigin, body.inputBank.aimDirection, (ConfigFloat(SkullGammaGunAngle, SkullGammaGunEnableConfig) / 2) + (ConfigFloat(SkullGammaGunAngleStack, SkullGammaGunEnableConfig) / 2 * (stack - 1)), LayerIndex.entityPrecise.mask);
+                        //Debug.DrawLine(body.aimOrigin, body.inputBank.aimDirection, Color.green, 3f);
+                        //List<CharacterBody> charList = new List<CharacterBody>();
+                        //foreach (Collider i in array)
+                        //{
+                        //    CharacterBody characterBody = Util.HurtBoxColliderToBody(i);
+                        //    if (!charList.Contains(characterBody))
+                        //    {
+                        //        charList.Add(characterBody);
 
-
-
+                        //    }
+                        //}
+                        foreach (CharacterBody characterBody in CharacterBody.readOnlyInstancesList)
+                        { 
                             Vector3 targetDir = characterBody.corePosition - body.corePosition;
                             float angle = Vector3.Angle(targetDir, body.inputBank.aimDirection);
                             float dist = Vector3.Distance(characterBody.corePosition, body.corePosition);
-                            float range = ConfigFloat(SkullGammaGunRange, SkullGammaGunEnableConfig) + ((stack - 1) * ConfigFloat(SkullGammaGunRangeStack, SkullGammaGunEnableConfig));
-                            if (angle < (ConfigFloat(SkullGammaGunAngle, SkullGammaGunEnableConfig) / 2) + (ConfigFloat(SkullGammaGunAngleStack, SkullGammaGunEnableConfig) / 2 * (stack - 1)) && body.teamComponent.teamIndex != characterBody.teamComponent.teamIndex && dist < range)
+                            if (characterBody.master && angle < (ConfigFloat(SkullGammaGunAngle, SkullGammaGunEnableConfig) / 2) + (ConfigFloat(SkullGammaGunAngleStack, SkullGammaGunEnableConfig) / 2 * (stack - 1))  && body.teamComponent.teamIndex != characterBody.teamComponent.teamIndex && dist < range)
                             {
                                 var damageNum = (ConfigFloat(SkullGammaGunDamage, SkullGammaGunEnableConfig) / 100) + ((stack - 1) * (ConfigFloat(SkullGammaGunDamageStack, SkullGammaGunEnableConfig) / 100));
                                 float damage = body.damage;
@@ -485,9 +494,9 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                                 }
                                 
                             }
-                            timer1 = 0;
 
                         }
+                        timer1 = 0;
                     }
                 }
 

@@ -142,7 +142,7 @@ namespace CaeliImperium.Buffs
                 if (BoneMapper.characterBodiesToBoneMappers[self] && BoneMapper.characterBodiesToBoneMappers[self].currentClipName == "none")
                 {
                     var emoteArray2 = emoteArray;
-                    if (DiscoBallPizzaTowerMode.Value && EmotesCompatibility.brynzaEmotesEnabled)
+                    if (DiscoBallPizzaTowerMode.Value && ModCompatability.EmotesCompatibility.brynzaEmotesEnabled)
                     {
                         emoteArray2 = Taunts;
                     }

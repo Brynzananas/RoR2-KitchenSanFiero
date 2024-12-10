@@ -436,14 +436,14 @@ localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         private static void ProperSaveCompat()
         {
-                if(ProperSaveCompatibility.enabled)
+            if (ModCompatability.ProperSaveCompatibility.enabled)
             {
                 Debug.Log("megaballs");
-            ProperSave.SaveFile.OnGatherSaveData += SaveFile_OnGatherSaveData;
+                ProperSave.SaveFile.OnGatherSaveData += SaveFile_OnGatherSaveData;
                 ProperSave.Loading.OnLoadingEnded += Loading_OnLoadingStarted;
             }
         }
-        private static void Loading_OnLoadingStarted(SaveFile file)
+        static void Loading_OnLoadingStarted(SaveFile file)
         {
             string ComponentDictKey = "KitchenSanFiero_CapturedPotentialInventory";
             List<CapturedPotentialSaveStructure> CapturedPotentialStructures = file.GetModdedData<List<CapturedPotentialSaveStructure>>(ComponentDictKey);
@@ -455,7 +455,7 @@ localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
                 EquipmentIndex[] equipmentIndexes = new EquipmentIndex[0];
                 int number = 0;
                 Debug.Log(master);
-                
+
                 foreach (EquipmentIndex equip in ComponentsList.EquipInventory)
                 {
                     //if (equip != EquipmentIndex.None)
@@ -468,7 +468,7 @@ localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
                     number++;
                     //equipmentIndexes.Add(EquipmentCatalog.GetEquipmentDef(EquipmentCatalog.FindEquipmentIndex(equip)));
 
-                    
+
                 }
                 Debug.Log(equipmentIndexes.Length);
                 Debug.Log(equipmentIndexes.GetValue(0));
@@ -480,14 +480,18 @@ localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
                 //}
                 //else
                 //{
-                    CapturedPotentialComponent temp = masterObject.AddComponent<CapturedPotentialComponent>();
-                    temp.master = master;
-                    temp.equipArray = equipmentIndexes;
+                CapturedPotentialComponent temp = masterObject.AddComponent<CapturedPotentialComponent>();
+                temp.master = master;
+                temp.equipArray = equipmentIndexes;
                 //}
             }
         }
 
-        private static void SaveFile_OnGatherSaveData(Dictionary<string, object> dictionary)
+
+
+
+        //[MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        static void SaveFile_OnGatherSaveData(Dictionary<string, object> dictionary)
         {
             string ComponentDictKey = "KitchenSanFiero_CapturedPotentialInventory";
 
@@ -514,7 +518,7 @@ localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
                 foreach (EquipmentIndex ED in component.equipArray)
                 {
                     ComponentEquipList.SetValue(ED, number);
-                number++;
+                    number++;
 
                 }
 
@@ -527,34 +531,41 @@ localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
 
             dictionary.Add(ComponentDictKey, ComponentSaveListList);
         }
-        public struct CapturedPotentialSaveStructure
-        {
-            [DataMember(Name = "UserID")]
-            public ProperSave.Data.UserIDData userID;
-            [DataMember(Name = "EquipInventory")]
-            public EquipmentIndex[] EquipInventory;
-        }
-        /*
+    
+
+
+
+
+
+public struct CapturedPotentialSaveStructure
+{
+
+    [DataMember(Name = "UserID")]
+    public ProperSave.Data.UserIDData userID;
+    [DataMember(Name = "EquipInventory")]
+    public EquipmentIndex[] EquipInventory;
+}
+/*
 private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, ref PickupDef.GrantContext context)
 {
-   if (context.body.masterObject.GetComponent<CapturedPotentialComponent>() && context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray.Length > 0 && context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray.Contains(EquipmentIndex.None))
+if (context.body.masterObject.GetComponent<CapturedPotentialComponent>() && context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray.Length > 0 && context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray.Contains(EquipmentIndex.None))
+{
+bool found = false;
+for (int i = 0; i < context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray.Length && !found; i++)
+{
+   if (context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray[i] == EquipmentIndex.None)
    {
-       bool found = false;
-       for (int i = 0; i < context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray.Length && !found; i++)
-       {
-           if (context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray[i] == EquipmentIndex.None)
-           {
-               context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray[i] = context.body.inventory.currentEquipmentIndex;
-               context.body.inventory.SetEquipmentIndex(EquipmentIndex.None);
-               found = true;
-           }
-
-       }
+       context.body.masterObject.GetComponent<CapturedPotentialComponent>().equipArray[i] = context.body.inventory.currentEquipmentIndex;
+       context.body.inventory.SetEquipmentIndex(EquipmentIndex.None);
+       found = true;
    }
-   orig(ref context);
+
+}
+}
+orig(ref context);
 }
 */
-        [ConCommand(commandName = "EquipArrayIndexUp", flags = ConVarFlags.ExecuteOnServer)]
+[ConCommand(commandName = "EquipArrayIndexUp", flags = ConVarFlags.ExecuteOnServer)]
         private static void EquipArrayIndexUp(ConCommandArgs args)
         {
             CharacterMaster networkIdentity = args.senderBody.masterObject.GetComponent<CapturedPotentialComponent>() ? args.senderBody.masterObject.GetComponent<CapturedPotentialComponent>().master : null;

@@ -37,7 +37,7 @@ namespace CaeliImperiumPlugin
     [BepInDependency(RecalculateStatsAPI.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency(SoundAPI.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency(DotAPI.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency(ProperSavePlugin.GUID, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("com.KingEnderBrine.ProperSave", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("com.brynzananas.brynzaemotes", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.weliveinasociety.badassemotes", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(CommandHelper.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
@@ -50,7 +50,7 @@ namespace CaeliImperiumPlugin
         public const string PluginGUID = PluginAuthor + PluginName;
         public const string PluginAuthor = "Brynzananas";
         public const string PluginName = "CaeliImperium";
-        public const string PluginVersion = "0.7.7";
+        public const string PluginVersion = "0.7.8";
         public static string SavesDirectory { get; } = System.IO.Path.Combine(Application.persistentDataPath, "ArchNemesis");
         public static ExpansionDef CaeliImperiumExpansionDef = ScriptableObject.CreateInstance<ExpansionDef>();
         public static AssetBundle MainAssets;
@@ -71,7 +71,7 @@ namespace CaeliImperiumPlugin
         //public static GameObject LunarScavenger4Body = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ScavLunar/ScavLunar4Master.prefab").WaitForCompletion();
         public static UnityEngine.Vector3 deadPosition;
         public static Inventory deadInventory; 
-        
+        public bool canSwitch = true;
         
         public static Dictionary<string, string> ShaderLookup = new Dictionary<string, string>()
         {
@@ -178,6 +178,7 @@ namespace CaeliImperiumPlugin
             RejectedDagger.Init();
             LikeADragon.Init();
             OpposingForce.Init();
+            Chalk.Init();
             DiscoBall.Init();
 
             //CreateEliteTiers();
@@ -201,7 +202,7 @@ namespace CaeliImperiumPlugin
 
         private void Update()
         {
-            if (!PauseManager.isPaused && CapturedPotential.CapturedPotentialEnable.Value && Run.instance)
+            if (!PauseManager.isPaused && canSwitch && CapturedPotential.CapturedPotentialEnable.Value && Run.instance)
             {
 
                 //var equipArray = GetOrCreateComponent(body.master).equipArray;
@@ -279,63 +280,7 @@ namespace CaeliImperiumPlugin
         }
 
 
-        public static class ProperSaveCompatibility
-        {
-            private static bool? _enabled;
-
-            public static bool enabled
-            {
-                get
-                {
-                    if (_enabled == null)
-                    {
-                        _enabled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.KingEnderBrine.ProperSave");
-                    }
-                    return (bool)_enabled;
-                }
-            }
-
-            [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-            public static void SomeMethodThatRequireTheDependencyToBeHere()
-            {
-                // stuff that require the dependency to be loaded
-            }
-        }
-        public static class EmotesCompatibility
-        {
-            private static bool? _brynzaEmotesEnabled;
-
-            public static bool brynzaEmotesEnabled
-            {
-                get
-                {
-                    if (_brynzaEmotesEnabled == null)
-                    {
-                        _brynzaEmotesEnabled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.brynzananas.brynzaemotes");
-                    }
-                    return (bool)_brynzaEmotesEnabled;
-                }
-            }
-            private static bool? _badassEmotesEnabled;
-
-            public static bool badassEmotesEnabled
-            {
-                get
-                {
-                    if (_badassEmotesEnabled == null)
-                    {
-                        _badassEmotesEnabled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.weliveinasociety.badassemotes");
-                    }
-                    return (bool)_badassEmotesEnabled;
-                }
-            }
-
-            [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-            public static void SomeMethodThatRequireTheDependencyToBeHere()
-            {
-                // stuff that require the dependency to be loaded
-            }
-        }
+        
         /*
         public static event Action FinishedLoadingCompatability;
 

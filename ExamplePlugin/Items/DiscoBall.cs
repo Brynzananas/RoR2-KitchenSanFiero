@@ -16,6 +16,7 @@ using System.Linq;
 using EmotesAPI;
 using CaeliImperium.Buffs;
 using System.Runtime.CompilerServices;
+using static CaeliImperium.ModCompatability;
 using EntityStates.AffixVoid;
 
 namespace CaeliImperium.Items

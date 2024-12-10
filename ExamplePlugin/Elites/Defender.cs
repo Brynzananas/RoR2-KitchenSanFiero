@@ -157,22 +157,22 @@ namespace CaeliImperium.Elites
             ModSettingsManager.AddOption(new CheckBoxOption(DefenderEnableDamageAbsorb));
         }
 
-        private static void CreateEliteTiers()
-        {
-            AffixDefenderTier = new CombatDirector.EliteTierDef()
-            {
-                costMultiplier = CombatDirector.baseEliteCostMultiplier * Defender.DefenderCostMult.Value,
-                eliteTypes = new EliteDef[]{AffixDefenderElite},
-                canSelectWithoutAvailableEliteDef = false,
-                isAvailable = ((SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= Defender.DefenderLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= Defender.DefenderStageCount.Value),
+        //private static void CreateEliteTiers()
+        //{
+        //    AffixDefenderTier = new CombatDirector.EliteTierDef()
+        //    {
+        //        costMultiplier = CombatDirector.baseEliteCostMultiplier * Defender.DefenderCostMult.Value,
+        //        eliteTypes = new EliteDef[]{AffixDefenderElite},
+        //        canSelectWithoutAvailableEliteDef = false,
+        //        isAvailable = ((SpawnCard.EliteRules rules) => Run.instance.loopClearCount >= Defender.DefenderLoopCount.Value && rules == SpawnCard.EliteRules.Default && Run.instance.stageClearCount >= Defender.DefenderStageCount.Value),
 
-            };
-            var baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
+        //    };
+        //    var baseEliteTierDefs = EliteAPI.GetCombatDirectorEliteTiers();
 
-            var indexToInsertAt = Array.FindIndex(baseEliteTierDefs, x => x.costMultiplier >= AffixDefenderTier.costMultiplier);
-            EliteAPI.AddCustomEliteTier(AffixDefenderTier, indexToInsertAt);
-            EliteAPI.Add(new CustomElite(AffixDefenderElite, CanAppearInEliteTiers));
-        }
+        //    var indexToInsertAt = Array.FindIndex(baseEliteTierDefs, x => x.costMultiplier >= AffixDefenderTier.costMultiplier);
+        //    EliteAPI.AddCustomEliteTier(AffixDefenderTier, indexToInsertAt);
+        //    EliteAPI.Add(new CustomElite(AffixDefenderElite, CanAppearInEliteTiers));
+        //}
         private static void CombatDirector_Init(On.RoR2.CombatDirector.orig_Init orig)
         {
 

@@ -11,6 +11,8 @@ using static CaeliImperiumPlugin.CaeliImperium;
 using static R2API.DotAPI;
 using JetBrains.Annotations;
 using RiskOfOptions.OptionConfigs;
+using HG;
+using UnityEngine.UIElements;
 
 namespace CaeliImperium.Buffs
 {
@@ -53,7 +55,7 @@ namespace CaeliImperium.Buffs
                              "Enable config?");
             IrradiatedEnable = Config.Bind<bool>("Buff : Irradiated",
                              "Function Activation",
-                             false,
+                             true,
                              "Enable damage and irradiate nearby allies function?");
             IrradiatedDoDamage = Config.Bind<bool>("Buff : Irradiated",
                              "Do damage",
@@ -69,7 +71,7 @@ namespace CaeliImperium.Buffs
                              "Can this DOT stack, increase all its damage values?");
             IrradiatedRange = Config.Bind<float>("Buff : Irradiated",
                              "Range",
-                             3.6f,
+                             3f,
                              "Control the range value");
             IrradiatedUsualDamage = Config.Bind<float>("Buff : Irradiated",
                              "Damage",
@@ -91,7 +93,7 @@ namespace CaeliImperium.Buffs
             //     "Max stack",
             //     5,
             //     "Control the DOT max stack value");
-            ModSettingsManager.AddOption(new CheckBoxOption(IrradiatedEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(IrradiatedEnableConfig));
             ModSettingsManager.AddOption(new FloatFieldOption(IrradiatedRange));
             ModSettingsManager.AddOption(new FloatFieldOption(IrradiatedUsualDamage));
             ModSettingsManager.AddOption(new FloatFieldOption(IrradiatedDamage));
@@ -150,11 +152,27 @@ namespace CaeliImperium.Buffs
                 {
                     if (body && body.HasBuff(IrradiatedBuffDef))
                     {
-                        foreach (var characterBody in CharacterBody.readOnlyInstancesList)
+                        float rangeStack = body.radius * ConfigFloat(IrradiatedRange, IrradiatedEnableConfig);
+                        Collider[] array = UnityEngine.Physics.OverlapSphere(body.corePosition, rangeStack, LayerIndex.entityPrecise.mask);
+
+                        //foreach (var characterBody in CharacterBody.readOnlyInstancesList)
+                        List<CharacterBody> charList = new List<CharacterBody>();
+                        foreach (Collider i in array)
                         {
+                            CharacterBody charBody = Util.HurtBoxColliderToBody(i);
+                            if (!charList.Contains(charBody))
+                            {
+                                charList.Add(charBody);
+
+
+                            }
+                        }
+                        foreach (var characterBody in charList)
+                        {
+
                             float dist = Vector3.Distance(characterBody.corePosition, body.corePosition);
                             //Debug.Log(characterBody.mainHurtBox.volume);
-                            if (dist < ConfigFloat(IrradiatedRange, IrradiatedEnableConfig) && body.teamComponent.teamIndex == characterBody.teamComponent.teamIndex && body != characterBody)
+                            if (characterBody.master/* && dist < ConfigFloat(IrradiatedRange, IrradiatedEnableConfig)*/ && body.teamComponent.teamIndex == characterBody.teamComponent.teamIndex && body != characterBody)
                             {
                                 float buffCount = 1;
                                 if (ConfigBool(IrradiatedCanStack, IrradiatedEnableConfig))
@@ -195,10 +213,11 @@ namespace CaeliImperium.Buffs
                                     DotController.InflictDot(ref dotInfo);
                                 }
 
-                                
-                            }
 
+                            }
                         }
+
+
                     }
 
                     timer = 0f;

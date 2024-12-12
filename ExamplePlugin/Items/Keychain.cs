@@ -76,7 +76,7 @@ namespace CaeliImperium.Items
             KeychainEnableConfig = Config.Bind<bool>("Item : " + name,
                              "Config Activation",
                              false,
-                             "Enable config?");
+                             "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             KeychainAIBlacklist = Config.Bind<bool>("Item : " + name,
                              "AI Blacklist",
                              false,
@@ -118,7 +118,7 @@ namespace CaeliImperium.Items
                                          5f,
                                          "Control the crit damage percentage increase per every buff stack");
             ModSettingsManager.AddOption(new CheckBoxOption(KeychainEnable, new CheckBoxConfig() { restartRequired = true }));
-            ModSettingsManager.AddOption(new CheckBoxOption(KeychainEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(KeychainEnableConfig));
             ModSettingsManager.AddOption(new CheckBoxOption(KeychainAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(keychainTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(keychainInitialCritIncrease));

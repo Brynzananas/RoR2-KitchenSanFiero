@@ -80,7 +80,7 @@ namespace CaeliImperium.Items
             OtherworldlyManuscriptEnableConfig = Config.Bind<bool>("Item : Otherworldly Manuscript",
                              "Config Activation",
                              false,
-                             "Enable config?");
+                             "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             OtherworldlyManuscriptAIBlacklist = Config.Bind<bool>("Item : Otherworldly Manuscript",
                  "AI Blacklist",
                  false,
@@ -126,7 +126,7 @@ namespace CaeliImperium.Items
                                          0f,
                                          "Control Wound time increase per item stack in seconds");
             ModSettingsManager.AddOption(new CheckBoxOption(OtherworldlyManuscriptEnable, new CheckBoxConfig() { restartRequired = true }));
-            ModSettingsManager.AddOption(new CheckBoxOption(OtherworldlyManuscriptEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(OtherworldlyManuscriptEnableConfig));
             ModSettingsManager.AddOption(new CheckBoxOption(OtherworldlyManuscriptAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(OtherworldlyManuscriptTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(OtherworldlyManuscriptTalismanedTimer));

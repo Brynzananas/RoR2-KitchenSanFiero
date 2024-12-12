@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 725593087
+CRC: 2328355773
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: bcbe45f29e0e3a6cef32f6166a16b9a2
+    Hash: 09cd89bec1e474bdd71b94263e5a48a0
   TypeTreeHash:
     serializedVersion: 2
     Hash: 29940bcbe38863e439e9f645fb28329e
@@ -157,6 +157,7 @@ Assets:
 - Assets/Textures/OpposingForcePalette.png
 - Assets/Icons/hasting_icon.png
 - Assets/Icons/GuardianAngelCrown.png
+- Assets/Icons/ChalkTier1.png
 - Assets/Icons/EnergisedChocolateBarIconTier3.png
 - Assets/Icons/SkullGammaGunIcon.png
 - Assets/Icons/LikeADragonTier3.png
@@ -186,6 +187,7 @@ Assets:
 - Assets/Icons/Wounded.png
 - Assets/Materials/LikeAYakuza.mat
 - Assets/Icons/BrassBellIconTier3.png
+- Assets/Icons/ChalkTier2.png
 - Assets/Models/Prefabs/BrassKnuckles.prefab
 - Assets/Icons/MajesticHandTier3.png
 - Assets/Textures/enforcer_hand_palette.png
@@ -207,6 +209,7 @@ Assets:
 - Assets/Icons/ReflectDamage.png
 - Assets/Icons/FragileGiftBoxIcon.png
 - Assets/Textures/defender_ramp.png
+- Assets/Icons/ChalkTier3.png
 - Assets/Materials/matEnforcer_hand_palette.mat
 - Assets/Models/Prefabs/ForbiddenTome.prefab
 - Assets/Icons/OpposingForceTier3.png

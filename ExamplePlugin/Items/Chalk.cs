@@ -30,17 +30,17 @@ namespace CaeliImperium.Items
 		internal static void Init()
         {
 			AddConfigs();
-			string tier = "Assets/Icons/Painkillers.png";
+			string tier = "Assets/Icons/ChalkTier1.png";
 			switch (ConfigFloat(ChalkTier, ChalkEnableConfig))
 			{
 				case 1:
-					tier = "Assets/Icons/Painkillers.png";
+					tier = "Assets/Icons/ChalkTier1.png";
 					break;
 				case 2:
-					tier = "Assets/Icons/PainkillersTier2.png";
+					tier = "Assets/Icons/ChalkTier2.png";
 					break;
 				case 3:
-					tier = "Assets/Icons/PainkillersTier3.png";
+					tier = "Assets/Icons/ChalkTier3.png";
 					break;
 
 			}
@@ -59,7 +59,7 @@ namespace CaeliImperium.Items
 			ChalkEnableConfig = Config.Bind<bool>("Item : " + name,
 							 "Config Activation",
 							 false,
-							 "Enable config?");
+							 "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
 			ChalkAIBlacklist = Config.Bind<bool>("Item : " + name,
             "AI Blacklist",
 							 false,
@@ -70,17 +70,19 @@ namespace CaeliImperium.Items
 										 "1: Common/White\n2: Rare/Green\n3: Legendary/Red");
 			ChalkDamage = Config.Bind<float>("Item : " + name,
 			"Damage",
-			10f,
+			15f,
 										 "Control the damage increase in percentage");
 			ChalkTimescale = Config.Bind<float>("Item : " + name,
 			"Time scale",
-			0.1f,
+			4f,
 										 "Control the time multiplier in the sinus formula");
 			ModSettingsManager.AddOption(new CheckBoxOption(ChalkEnable, new CheckBoxConfig() { restartRequired = true }));
-			ModSettingsManager.AddOption(new CheckBoxOption(ChalkEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+			ModSettingsManager.AddOption(new CheckBoxOption(ChalkEnableConfig));
 			ModSettingsManager.AddOption(new CheckBoxOption(ChalkAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
 			ModSettingsManager.AddOption(new StepSliderOption(ChalkTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
-		}
+            ModSettingsManager.AddOption(new FloatFieldOption(ChalkDamage));
+            ModSettingsManager.AddOption(new FloatFieldOption(ChalkTimescale));
+        }
 		private static void Item()
         {
             ChalkItemDef = ScriptableObject.CreateInstance<ItemDef>();

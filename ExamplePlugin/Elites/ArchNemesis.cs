@@ -159,7 +159,7 @@ namespace CaeliImperium.Elites
             ArchNemesisEnableConfig = Config.Bind<bool>("Elite : Arch Nemesis",
                  "Config Activation",
                  false,
-                 "Enable config?");
+                 "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             ArchNemesisHealthMult = Config.Bind<float>("Elite : Arch Nemesis",
                                          "Health Multiplier",
                                          32f,
@@ -249,7 +249,7 @@ namespace CaeliImperium.Elites
                              false,
                              "Can Lunar Scavengers become an Arch Nemesis?");
             ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisEnable, new CheckBoxConfig() { restartRequired = true }));
-            ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(ArchNemesisEnableConfig));
             ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisHealthMult));
             ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisDamageMult));
             ModSettingsManager.AddOption(new FloatFieldOption(ArchNemesisAttackSpeedMult));

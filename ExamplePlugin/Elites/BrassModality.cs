@@ -91,7 +91,7 @@ namespace CaeliImperium.Elites
             BrassModalityEnableConfig = Config.Bind<bool>("Elite : Brass Modality",
                              "Config Activation",
                              false,
-                             "Enable config?");
+                             "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             BrassModalityHealthMult = Config.Bind<float>("Elite : Brass Modality",
                                          "Health Multiplier",
                                          6f,
@@ -177,7 +177,7 @@ namespace CaeliImperium.Elites
                              true,
                              "Enable this elite?");
             ModSettingsManager.AddOption(new CheckBoxOption(BrassModalityEnable, new CheckBoxConfig() { restartRequired = true }));
-            ModSettingsManager.AddOption(new CheckBoxOption(BrassModalityEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(BrassModalityEnableConfig));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityHealthMult));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassModalityDamageMult));
             ModSettingsManager.AddOption(new StepSliderOption(BrassModalityTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));

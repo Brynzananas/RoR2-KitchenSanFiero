@@ -79,7 +79,7 @@ namespace CaeliImperium.Items
             SkullGammaGunEnableConfig = Config.Bind<bool>("Item : Skull Gamma Gun",
                                          "Config Activation",
                                          false,
-                                         "Enable config?");
+                                         "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             SkullGammaGunAIBlacklist = Config.Bind<bool>("Item : Skull Gamma Gun",
                              "AI Blacklist",
                              true,
@@ -141,7 +141,7 @@ namespace CaeliImperium.Items
             //                             1,
             //                             "Control the max debuff stack increase per item stack");
             ModSettingsManager.AddOption(new CheckBoxOption(SkullGammaGunEnable, new CheckBoxConfig() { restartRequired = true }));
-            ModSettingsManager.AddOption(new CheckBoxOption(SkullGammaGunEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(SkullGammaGunEnableConfig));
             ModSettingsManager.AddOption(new CheckBoxOption(SkullGammaGunAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(SkullGammaGunTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunTimer));

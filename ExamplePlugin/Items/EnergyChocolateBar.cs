@@ -66,7 +66,7 @@ namespace CaeliImperium.Items
             EnergyChocolateBarsEnableConfig = Config.Bind<bool>("Item : Energised Chocolate Bar",
                              "Config Activation",
                              false,
-                             "Enable config?");
+                             "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             EnergyChocolateBarsAIBlacklist = Config.Bind<bool>("Item : Energised Chocolate Bar",
                                          "AI Blacklist",
                                          false,
@@ -96,6 +96,7 @@ namespace CaeliImperium.Items
                                          50f,
                                          "Control the chance of consuming one item upon the next stage");
             ModSettingsManager.AddOption(new CheckBoxOption(EnergyChocolateBarsEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(EnergyChocolateBarsEnableConfig));
             ModSettingsManager.AddOption(new CheckBoxOption(EnergyChocolateBarsAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(EnergyChocolateBarTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(EnergyChocolateBuffStats));

@@ -37,7 +37,7 @@ namespace CaeliImperiumPlugin
     [BepInDependency(RecalculateStatsAPI.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency(SoundAPI.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency(DotAPI.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency("com.KingEnderBrine.ProperSave", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency("com.KingEnderBrine.ProperSave", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.brynzananas.brynzaemotes", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.weliveinasociety.badassemotes", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(CommandHelper.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
@@ -166,7 +166,6 @@ namespace CaeliImperiumPlugin
             Dredged.Init();
             EmergencyMedicalTreatment.Init();
             EnforcerHand.Init();
-            CapturedPotential.Init();
             Battle.Init();
             SkullGammaGun.Init();
             BrassBell.Init();
@@ -180,6 +179,7 @@ namespace CaeliImperiumPlugin
             OpposingForce.Init();
             Chalk.Init();
             DiscoBall.Init();
+            CapturedPotential.Init();
 
             //CreateEliteTiers();
         }

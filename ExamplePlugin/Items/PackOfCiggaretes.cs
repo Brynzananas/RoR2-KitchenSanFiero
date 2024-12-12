@@ -94,7 +94,7 @@ namespace CaeliImperium.Items
             PackOfCiggaretesEnableConfig = Config.Bind<bool>("Item : Pack of Siggaretes",
                              "Config Activation",
                              false,
-                             "Enable config?");
+                             "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             PackOfCiggaretesAIBlacklist = Config.Bind<bool>("Item : Pack of Siggaretes",
                                          "AI Blacklist",
                                          true,
@@ -188,7 +188,7 @@ namespace CaeliImperium.Items
                                          150f,
                                          "Control damage increase from Ignition Tank burn upgrade in percentage\nSet it to zero to use standart value");*/
             ModSettingsManager.AddOption(new CheckBoxOption(PackOfCiggaretesEnable, new CheckBoxConfig() { restartRequired = true }));
-            ModSettingsManager.AddOption(new CheckBoxOption(PackOfCiggaretesEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(PackOfCiggaretesEnableConfig));
             ModSettingsManager.AddOption(new CheckBoxOption(PackOfCiggaretesAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(PackOfCiggaretesTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(PackOfCiggaretesTime));

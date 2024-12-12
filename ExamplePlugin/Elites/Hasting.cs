@@ -79,7 +79,7 @@ namespace CaeliImperium.Elites
             HastingEnableConfig = Config.Bind<bool>("Elite : Hasting",
                  "Config Activation",
                  false,
-                 "Enable config?");
+                 "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             HastingHealthMult = Config.Bind<float>("Elite : Hasting",
                                          "Health Multiplier",
                                          4f,
@@ -133,7 +133,7 @@ namespace CaeliImperium.Elites
                  true,
                  "Enable Hasting elite?");
             ModSettingsManager.AddOption(new CheckBoxOption(HastingEnable, new CheckBoxConfig() { restartRequired = true }));
-            ModSettingsManager.AddOption(new CheckBoxOption(HastingEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(HastingEnableConfig));
             ModSettingsManager.AddOption(new FloatFieldOption(HastingHealthMult));
             ModSettingsManager.AddOption(new FloatFieldOption(HastingDamageMult));
             ModSettingsManager.AddOption(new CheckBoxOption(HastingHonor, new CheckBoxConfig() { restartRequired = true }));

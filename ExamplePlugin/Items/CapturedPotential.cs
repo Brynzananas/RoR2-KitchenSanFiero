@@ -30,6 +30,8 @@ using Rewired;
 using static RoR2.MasterSpawnSlotController;
 using RoR2.Audio;
 using System.Runtime.CompilerServices;
+using System.Reflection;
+using UnityEngine.UIElements;
 
 namespace CaeliImperium.Items
 {
@@ -112,7 +114,7 @@ public static bool hasAuroAffix = false;
             CapturedPotentialEnableConfig = Config.Bind<bool>("Item : Captured Potential",
                              "Config Activation",
                              false,
-                             "Enable config?");
+                             "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             CapturedPotentialTier = Config.Bind<float>("Item : Captured Potential",
                                          "Item tier",
                                          2f,
@@ -166,7 +168,7 @@ public static bool hasAuroAffix = false;
                              true,
                              "Enable Documentation item?");
             ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialEnable, new CheckBoxConfig() { restartRequired = true }));
-            ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(CapturedPotentialEnableConfig));
             ModSettingsManager.AddOption(new StepSliderOption(CapturedPotentialTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new IntFieldOption(CapturedPotentialEquipSlots));
             ModSettingsManager.AddOption(new IntFieldOption(CapturedPotentialEquipSlotsStack));
@@ -438,113 +440,12 @@ localScale = new Vector3(0.16594F, 0.16594F, 0.16594F)
         {
             if (ModCompatability.ProperSaveCompatibility.enabled)
             {
-                Debug.Log("megaballs");
+                //Debug.Log("megaballs");
                 ProperSave.SaveFile.OnGatherSaveData += SaveFile_OnGatherSaveData;
                 ProperSave.Loading.OnLoadingEnded += Loading_OnLoadingStarted;
             }
         }
-        static void Loading_OnLoadingStarted(SaveFile file)
-        {
-            string ComponentDictKey = "KitchenSanFiero_CapturedPotentialInventory";
-            List<CapturedPotentialSaveStructure> CapturedPotentialStructures = file.GetModdedData<List<CapturedPotentialSaveStructure>>(ComponentDictKey);
-            foreach (CapturedPotentialSaveStructure ComponentsList in CapturedPotentialStructures)
-            {
-                NetworkUserId NUID = ComponentsList.userID.Load();
-                CharacterMaster master = NetworkUser.readOnlyInstancesList.FirstOrDefault(Nuser => Nuser.id.Equals(NUID)).master;
-                GameObject masterObject = NetworkUser.readOnlyInstancesList.FirstOrDefault(Nuser => Nuser.id.Equals(NUID)).masterObject;
-                EquipmentIndex[] equipmentIndexes = new EquipmentIndex[0];
-                int number = 0;
-                Debug.Log(master);
-
-                foreach (EquipmentIndex equip in ComponentsList.EquipInventory)
-                {
-                    //if (equip != EquipmentIndex.None)
-                    //{
-                    //    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(equip), master.GetBody().transform.position, master.GetBody().transform.rotation.eulerAngles * 20f);
-
-                    //}
-                    Array.Resize(ref equipmentIndexes, number + 1);
-                    equipmentIndexes.SetValue(equip, number);
-                    number++;
-                    //equipmentIndexes.Add(EquipmentCatalog.GetEquipmentDef(EquipmentCatalog.FindEquipmentIndex(equip)));
-
-
-                }
-                Debug.Log(equipmentIndexes.Length);
-                Debug.Log(equipmentIndexes.GetValue(0));
-                //if (master.GetBody().masterObject.GetComponent<CapturedPotentialComponent>())
-                //{
-                //    CapturedPotentialComponent temp = master.GetBody().masterObject.GetComponent<CapturedPotentialComponent>();
-                //    temp.equipArray = equipmentIndexes;
-                //    temp.master = master;
-                //}
-                //else
-                //{
-                CapturedPotentialComponent temp = masterObject.AddComponent<CapturedPotentialComponent>();
-                temp.master = master;
-                temp.equipArray = equipmentIndexes;
-                //}
-            }
-        }
-
-
-
-
-        //[MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        static void SaveFile_OnGatherSaveData(Dictionary<string, object> dictionary)
-        {
-            string ComponentDictKey = "KitchenSanFiero_CapturedPotentialInventory";
-
-            //List<CapturedPotentialComponent> equipInventory = CharacterMaster.instancesList
-            //.Select(master => master.GetBody().masterObject.GetComponent<CapturedPotentialComponent>())
-            //.Where(tracker => tracker != null)
-            //.ToList();
-
-            List<CapturedPotentialComponent> equipInventory = new List<CapturedPotentialComponent>();
-            foreach (CharacterMaster characterMaster in CharacterMaster.instancesList)
-            {
-                if (characterMaster && characterMaster.gameObject.GetComponent<CapturedPotentialComponent>())
-                {
-                    equipInventory.Add(characterMaster.gameObject.GetComponent<CapturedPotentialComponent>());
-                }
-            }
-
-            List<CapturedPotentialSaveStructure> ComponentSaveListList = new List<CapturedPotentialSaveStructure>();
-
-            foreach (CapturedPotentialComponent component in equipInventory)
-            {
-                EquipmentIndex[] ComponentEquipList = new EquipmentIndex[component.equipArray.Length];
-                int number = 0;
-                foreach (EquipmentIndex ED in component.equipArray)
-                {
-                    ComponentEquipList.SetValue(ED, number);
-                    number++;
-
-                }
-
-                ComponentSaveListList.Add(new CapturedPotentialSaveStructure
-                {
-                    userID = new ProperSave.Data.UserIDData(component.master.playerCharacterMasterController.networkUser.id),
-                    EquipInventory = ComponentEquipList
-                });
-            }
-
-            dictionary.Add(ComponentDictKey, ComponentSaveListList);
-        }
-    
-
-
-
-
-
-public struct CapturedPotentialSaveStructure
-{
-
-    [DataMember(Name = "UserID")]
-    public ProperSave.Data.UserIDData userID;
-    [DataMember(Name = "EquipInventory")]
-    public EquipmentIndex[] EquipInventory;
-}
+        
 /*
 private static void FillEmptySlots(On.RoR2.EquipmentDef.orig_AttemptGrant orig, ref PickupDef.GrantContext context)
 {
@@ -607,6 +508,7 @@ orig(ref context);
                     Array.Reverse(args.senderMasterObject.GetComponent<CapturedPotentialComponent>().equipArray);
                     if (CapturedPotentialSound.Value)
                     {
+                        //EntitySoundManager.EmitSoundServer(AkSoundEngine.GetIDFromString("Play_UI_menuHover"), args.senderBody.gameObject);
                         EntitySoundManager.EmitSoundServer(EquipArrayDownSound.akId, args.senderBody.gameObject);
 
                     }
@@ -1325,6 +1227,108 @@ var equipArray = body.masterObject.GetComponent<CapturedPotentialComponent>().eq
                 "<style=cArtifact>「?H??E?L?』: 「??P%』</style>" +
                 "\n" +
                 "<style=cArtifact>「??????』: 「??ME???』</style>"*/);
+        }
+
+
+
+
+        static void Loading_OnLoadingStarted(SaveFile file)
+        {
+            string ComponentDictKey = "KitchenSanFiero_CapturedPotentialInventory";
+            List<CapturedPotentialSaveStructure> CapturedPotentialStructures = file.GetModdedData<List<CapturedPotentialSaveStructure>>(ComponentDictKey);
+            foreach (CapturedPotentialSaveStructure ComponentsList in CapturedPotentialStructures)
+            {
+                NetworkUserId NUID = ComponentsList.userID.Load();
+                CharacterMaster master = NetworkUser.readOnlyInstancesList.FirstOrDefault(Nuser => Nuser.id.Equals(NUID)).master;
+                GameObject masterObject = NetworkUser.readOnlyInstancesList.FirstOrDefault(Nuser => Nuser.id.Equals(NUID)).masterObject;
+                EquipmentIndex[] equipmentIndexes = new EquipmentIndex[0];
+                int number = 0;
+                Debug.Log(master);
+
+                foreach (EquipmentIndex equip in ComponentsList.EquipInventory)
+                {
+                    //if (equip != EquipmentIndex.None)
+                    //{
+                    //    PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(equip), master.GetBody().transform.position, master.GetBody().transform.rotation.eulerAngles * 20f);
+
+                    //}
+                    Array.Resize(ref equipmentIndexes, number + 1);
+                    equipmentIndexes.SetValue(equip, number);
+                    number++;
+                    //equipmentIndexes.Add(EquipmentCatalog.GetEquipmentDef(EquipmentCatalog.FindEquipmentIndex(equip)));
+
+
+                }
+                Debug.Log(equipmentIndexes.Length);
+                Debug.Log(equipmentIndexes.GetValue(0));
+                //if (master.GetBody().masterObject.GetComponent<CapturedPotentialComponent>())
+                //{
+                //    CapturedPotentialComponent temp = master.GetBody().masterObject.GetComponent<CapturedPotentialComponent>();
+                //    temp.equipArray = equipmentIndexes;
+                //    temp.master = master;
+                //}
+                //else
+                //{
+                CapturedPotentialComponent temp = masterObject.AddComponent<CapturedPotentialComponent>();
+                temp.master = master;
+                temp.equipArray = equipmentIndexes;
+                //}
+            }
+        }
+
+
+
+
+        //[MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        static void SaveFile_OnGatherSaveData(Dictionary<string, object> dictionary)
+        {
+            string ComponentDictKey = "KitchenSanFiero_CapturedPotentialInventory";
+
+            //List<CapturedPotentialComponent> equipInventory = CharacterMaster.instancesList
+            //.Select(master => master.GetBody().masterObject.GetComponent<CapturedPotentialComponent>())
+            //.Where(tracker => tracker != null)
+            //.ToList();
+
+            List<CapturedPotentialComponent> equipInventory = new List<CapturedPotentialComponent>();
+            foreach (CharacterMaster characterMaster in CharacterMaster.instancesList)
+            {
+                if (characterMaster && characterMaster.gameObject.GetComponent<CapturedPotentialComponent>())
+                {
+                    equipInventory.Add(characterMaster.gameObject.GetComponent<CapturedPotentialComponent>());
+                }
+            }
+
+            List<CapturedPotentialSaveStructure> ComponentSaveListList = new List<CapturedPotentialSaveStructure>();
+
+            foreach (CapturedPotentialComponent component in equipInventory)
+            {
+                EquipmentIndex[] ComponentEquipList = new EquipmentIndex[component.equipArray.Length];
+                int number = 0;
+                foreach (EquipmentIndex ED in component.equipArray)
+                {
+                    ComponentEquipList.SetValue(ED, number);
+                    number++;
+
+                }
+
+                ComponentSaveListList.Add(new CapturedPotentialSaveStructure
+                {
+                    userID = new ProperSave.Data.UserIDData(component.master.playerCharacterMasterController.networkUser.id),
+                    EquipInventory = ComponentEquipList
+                });
+            }
+
+            dictionary.Add(ComponentDictKey, ComponentSaveListList);
+        }
+
+
+        public struct CapturedPotentialSaveStructure
+        {
+
+            [DataMember(Name = "UserID")]
+            public ProperSave.Data.UserIDData userID;
+            [DataMember(Name = "EquipInventory")]
+            public EquipmentIndex[] EquipInventory;
         }
     }
 }

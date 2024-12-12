@@ -164,7 +164,7 @@ namespace CaeliImperium.Items
             DiscoBallEnableConfig = Config.Bind<bool>("Item : Disco Ball",
                              "Config Activation",
                              false,
-                             "Enable config?");
+                             "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             DiscoBallAIBlacklist = Config.Bind<bool>("Item : Disco Ball",
                              "AI Blacklist",
                              true,
@@ -225,7 +225,7 @@ namespace CaeliImperium.Items
                                          "Control the slowdown of dancing enemies in percentage");
             
             ModSettingsManager.AddOption(new CheckBoxOption(DiscoBallEnable, new CheckBoxConfig() { restartRequired = true }));
-            ModSettingsManager.AddOption(new CheckBoxOption(DiscoBallEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(DiscoBallEnableConfig));
             ModSettingsManager.AddOption(new CheckBoxOption(DiscoBallAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(DiscoBallTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(DiscoBallPizzaTowerMode));

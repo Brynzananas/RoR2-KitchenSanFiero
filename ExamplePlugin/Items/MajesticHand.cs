@@ -71,7 +71,7 @@ namespace CaeliImperium.Items
             MajesticHandEnableConfig = Config.Bind<bool>("Item : " + name,
                              "Config Activation",
                              false,
-                             "Enable this item?");
+                             "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             MajesticHandAIBlacklist = Config.Bind<bool>("Item : " + name,
                              "AI Blacklist",
                              true,
@@ -101,7 +101,7 @@ namespace CaeliImperium.Items
             //                             false,
             //                             "No timer. Kill initializes on Killswitch buff count cap");
             ModSettingsManager.AddOption(new CheckBoxOption(MajesticHandEnable, new CheckBoxConfig() { restartRequired = true }));
-            ModSettingsManager.AddOption(new CheckBoxOption(MajesticHandEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(MajesticHandEnableConfig));
             ModSettingsManager.AddOption(new CheckBoxOption(MajesticHandAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(MajesticHandTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(MajesticHandChance));

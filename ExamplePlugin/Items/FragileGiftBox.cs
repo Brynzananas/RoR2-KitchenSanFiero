@@ -59,9 +59,9 @@ namespace CaeliImperium.Items
                              true,
                              "Enable Fragile Gift Box item?");
             FragileGiftBoxEnableConfig = Config.Bind<bool>("Item : Fragile Gift Box",
-                             "Activation",
+                             "Config Activation",
                              false,
-                             "Enable config?");
+                             "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             FragileGiftBoxAIBlacklist = Config.Bind<bool>("Item : Fragile Gift Box",
                                          "AI Blacklist",
                                          true,
@@ -115,6 +115,7 @@ namespace CaeliImperium.Items
                                          35f,
                                          "Control the chance of clearing Deep Wound in percentage");
             ModSettingsManager.AddOption(new CheckBoxOption(FragileGiftBoxEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(FragileGiftBoxEnableConfig));
             ModSettingsManager.AddOption(new CheckBoxOption(FragileGiftBoxAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             //ModSettingsManager.AddOption(new FloatFieldOption(FragileGiftBoxCurseMultiplier));
             //ModSettingsManager.AddOption(new IntFieldOption(FragileGiftBoxCurseCleanseNextStage));
@@ -125,6 +126,9 @@ namespace CaeliImperium.Items
             ModSettingsManager.AddOption(new IntFieldOption(FragileGiftBoxWound));
             ModSettingsManager.AddOption(new IntFieldOption(FragileGiftBoxWoundStack));
             ModSettingsManager.AddOption(new CheckBoxOption(FragileGiftBoxCurseIsElse));
+            ModSettingsManager.AddOption(new FloatFieldOption(FragileGiftBoxWoundDamage));
+            ModSettingsManager.AddOption(new FloatFieldOption(FragileGiftBoxWoundDamageStack));
+            ModSettingsManager.AddOption(new FloatFieldOption(FragileGiftBoxWoundClearChance));
         }
 
         private static void Item()

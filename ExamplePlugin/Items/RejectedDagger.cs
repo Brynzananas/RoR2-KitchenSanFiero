@@ -73,7 +73,7 @@ namespace CaeliImperium.Items
             RejectedDaggerEnableConfig = Config.Bind<bool>("Item : " + name,
                              "Config Activation",
                              false,
-                             "Enable config?");
+                             "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             RejectedDaggerAIBlacklist = Config.Bind<bool>("Item : " + name,
                              "AI Blacklist",
                              false,
@@ -115,7 +115,7 @@ namespace CaeliImperium.Items
                                          2f,
                                          "Control the division applied to the damage increase if the enemy is a champion");*/
             ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerEnable, new CheckBoxConfig() { restartRequired = true }));
-            ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerEnableConfig));
             ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(RejectedDaggerTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(RejectedDaggerAltFunc));

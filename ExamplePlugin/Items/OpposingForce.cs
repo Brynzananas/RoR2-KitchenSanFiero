@@ -70,7 +70,7 @@ namespace CaeliImperium.Items
             OpposingForceEnableConfig = Config.Bind<bool>("Item : " + name,
                              "Config Activation",
                              false,
-                             "Enable config?");
+                             "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             OpposingForceAIBlacklist = Config.Bind<bool>("Item : " + name,
                              "AI Blacklist",
                              true,
@@ -104,7 +104,7 @@ namespace CaeliImperium.Items
                                          0.5f,
                                          "Control the proc of reflected damage");
             ModSettingsManager.AddOption(new CheckBoxOption(OpposingForceEnable, new CheckBoxConfig() { restartRequired = true }));
-            ModSettingsManager.AddOption(new CheckBoxOption(OpposingForceEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(OpposingForceEnableConfig));
             ModSettingsManager.AddOption(new CheckBoxOption(OpposingForceAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(OpposingForceTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(OpposingForceArmorGain));

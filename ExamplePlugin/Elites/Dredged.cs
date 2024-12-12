@@ -112,7 +112,7 @@ namespace CaeliImperium.Elites
             DredgedEnableConfig = Config.Bind<bool>("Elite : Dredged",
                  "Config Activation",
                  false,
-                 "Enable config?");
+                 "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             DredgedHealthMult = Config.Bind<float>("Elite : Dredged",
                                          "Health Multiplier",
                                          6f,
@@ -178,7 +178,7 @@ namespace CaeliImperium.Elites
                  true,
                  "Enable Dredged elite?");
             ModSettingsManager.AddOption(new CheckBoxOption(DredgedEnable, new CheckBoxConfig() { restartRequired = true }));
-            ModSettingsManager.AddOption(new CheckBoxOption(DredgedEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(DredgedEnableConfig));
             ModSettingsManager.AddOption(new FloatFieldOption(DredgedHealthMult));
             ModSettingsManager.AddOption(new FloatFieldOption(DredgedDamageMult));
             ModSettingsManager.AddOption(new StepSliderOption(DredgedTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));

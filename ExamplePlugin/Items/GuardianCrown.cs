@@ -80,7 +80,7 @@ namespace CaeliImperium.Items
             GuardianCrownEnableConfig = Config.Bind<bool>("Item : " + name,
                              "Config Activation",
                              false,
-                             "Enable config?");
+                             "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             GuardianCrownAIBlacklist = Config.Bind<bool>("Item : " + name,
                              "AI Blacklist",
                              true,
@@ -139,6 +139,7 @@ namespace CaeliImperium.Items
                                          "Change the amount increase of applied Dazzled debuff per item stack");
 
             ModSettingsManager.AddOption(new CheckBoxOption(GuardianCrownEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(GuardianCrownEnableConfig));
             ModSettingsManager.AddOption(new CheckBoxOption(GuardianCrownAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(GuardianCrownTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(GuardianCrownLuckAffected));

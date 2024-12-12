@@ -81,7 +81,7 @@ namespace CaeliImperium.Items
             EmergencyMedicalTreatmentEnableConfig = Config.Bind<bool>("Item : Emergency Medical Treatment",
                  "Config Activation",
                  false,
-                 "Enable config?");
+                 "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             EmergencyMedicalTreatmentAIBlacklist = Config.Bind<bool>("Item : Emergency Medical Treatment",
                                          "AI Blacklist",
                                          false,
@@ -139,6 +139,7 @@ namespace CaeliImperium.Items
                              20f,
                              "Control how much you gain barrier");
             ModSettingsManager.AddOption(new CheckBoxOption(EmergencyMedicalTreatmentEnable, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(EmergencyMedicalTreatmentEnableConfig));
             ModSettingsManager.AddOption(new CheckBoxOption(EmergencyMedicalTreatmentAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(EmergencyMedicalTreatmentTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(EmergencyMedicalTreatmentRegen));

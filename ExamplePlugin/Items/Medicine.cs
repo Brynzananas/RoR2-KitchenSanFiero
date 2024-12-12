@@ -74,7 +74,7 @@ namespace CaeliImperium.Items
             PainkillersEnableConfig = Config.Bind<bool>("Item : " + name,
                              "Config Activation",
                              false,
-                             "Enable config?");
+                             "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             PainkillersAIBlacklist = Config.Bind<bool>("Item : " + name,
                              "AI Blacklist",
                              false,
@@ -120,7 +120,7 @@ namespace CaeliImperium.Items
                              true,
                              "Enable on pickup effect?");*/
             ModSettingsManager.AddOption(new CheckBoxOption(PainkillersEnable, new CheckBoxConfig() { restartRequired = true }));
-            ModSettingsManager.AddOption(new CheckBoxOption(PainkillersEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(PainkillersEnableConfig));
             ModSettingsManager.AddOption(new CheckBoxOption(PainkillersAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(PainkillersTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(PainkillersArmorAdd));

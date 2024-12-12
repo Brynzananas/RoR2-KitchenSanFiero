@@ -72,7 +72,7 @@ namespace CaeliImperium.Items
             LikeADragonEnableConfig = Config.Bind<bool>("Item : " + name,
                              "Config Activation",
                              false,
-                             "Enable config?");
+                             "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             LikeADragonAIBlacklist = Config.Bind<bool>("Item : " + name,
                              "AI Blacklist",
                              false,
@@ -114,7 +114,7 @@ namespace CaeliImperium.Items
                                          0,
                                          "Control the damage increase per item stack in percentage");
             ModSettingsManager.AddOption(new CheckBoxOption(LikeADragonEnable, new CheckBoxConfig() { restartRequired = true }));
-            ModSettingsManager.AddOption(new CheckBoxOption(LikeADragonEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(LikeADragonEnableConfig));
             ModSettingsManager.AddOption(new CheckBoxOption(LikeADragonAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(LikeADragonTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new IntFieldOption(LikeADragonRoll));

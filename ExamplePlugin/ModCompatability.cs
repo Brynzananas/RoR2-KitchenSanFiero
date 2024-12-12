@@ -33,7 +33,10 @@ namespace CaeliImperium
             [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
             public static void SomeMethodThatRequireTheDependencyToBeHere()
             {
-                if (ModCompatability.ProperSaveCompatibility.enabled) { }
+                if (ModCompatability.ProperSaveCompatibility.enabled) {
+                    //[MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+                    
+                }
             }
         }
 

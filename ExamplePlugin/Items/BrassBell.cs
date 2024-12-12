@@ -81,7 +81,7 @@ namespace CaeliImperium.Items
             BrassBellEnableConfig = Config.Bind<bool>("Item : " + name,
                  "Config activation",
                  false,
-                 "Enable config?");
+                 "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
 
             BrassBellAIBlacklist = Config.Bind<bool>("Item : " + name,
                                          "AI Blacklist",
@@ -133,7 +133,7 @@ namespace CaeliImperium.Items
                                          "Play sound on activation?");//\nDefault value: " + BrassBellIsReloadSound.DefaultValue);
 
             ModSettingsManager.AddOption(new CheckBoxOption(BrassBellEnable, new CheckBoxConfig() { restartRequired = true }));
-            ModSettingsManager.AddOption(new CheckBoxOption(BrassBellEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(BrassBellEnableConfig));
             ModSettingsManager.AddOption(new CheckBoxOption(BrassBellAIBlacklist, new CheckBoxConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new StepSliderOption(BrassBellTier, new StepSliderConfig() { min = 1, max = 3, increment = 1f, restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(BrassBellCooldown));

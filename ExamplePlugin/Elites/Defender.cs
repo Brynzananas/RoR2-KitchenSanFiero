@@ -88,7 +88,7 @@ namespace CaeliImperium.Elites
             DefenderEnableConfig = Config.Bind<bool>("Elite : " + name,
                  "Config Activation",
                  false,
-                 "Enable config?");
+                 "Enable config?\nActivation option and |options under these brackets| are always taken in effect");
             DefenderHealthMult = Config.Bind<float>("Elite : " + name,
                                          "Health Multiplier",
                                          13f,
@@ -143,7 +143,7 @@ namespace CaeliImperium.Elites
                  true,
                  "Enable damage absorbing?");
             ModSettingsManager.AddOption(new CheckBoxOption(DefenderEnable, new CheckBoxConfig() { restartRequired = true }));
-            ModSettingsManager.AddOption(new CheckBoxOption(DefenderEnableConfig, new CheckBoxConfig() { restartRequired = true }));
+            ModSettingsManager.AddOption(new CheckBoxOption(DefenderEnableConfig));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderHealthMult, new FloatFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new FloatFieldOption(DefenderDamageMult, new FloatFieldConfig() { restartRequired = true }));
             ModSettingsManager.AddOption(new CheckBoxOption(DefenderHonor, new CheckBoxConfig() { restartRequired = true }));

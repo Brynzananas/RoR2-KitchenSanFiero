@@ -414,14 +414,21 @@ namespace CaeliImperium.Elites
             //if (EliteAPI.VanillaEliteTiers.Length > 2)
             //{
             //    // HONOR
+            EliteDef index = RoR2Content.Elites.IceHonor;
             if (ConfigBool(DredgedHonor, DredgedEnableConfig))
             {
-                CombatDirector.EliteTierDef targetTier2 = EliteAPI.VanillaEliteTiers[2];
-                List<EliteDef> elites2 = targetTier2.eliteTypes.ToList();
-                AffixDredgedElite.healthBoostCoefficient = ConfigFloat(DredgedHealthMult, DredgedEnableConfig) / 1.6f;
-                AffixDredgedElite.damageBoostCoefficient = ConfigFloat(DredgedDamageMult, DredgedEnableConfig) / 1.3f;
-                elites2.Add(AffixDredgedElite);
-                targetTier2.eliteTypes = elites2.ToArray();
+                foreach (EliteTierDef eliteIndex in EliteAPI.VanillaEliteTiers)
+                {
+                    if (eliteIndex.eliteTypes.Contains(index))
+                    {
+                        CombatDirector.EliteTierDef targetTier2 = eliteIndex;
+                        List<EliteDef> elites2 = targetTier2.eliteTypes.ToList();
+                        AffixDredgedElite.healthBoostCoefficient = ConfigFloat(DredgedHealthMult, DredgedEnableConfig) / 1.6f;
+                        AffixDredgedElite.damageBoostCoefficient = ConfigFloat(DredgedDamageMult, DredgedEnableConfig) / 1.3f;
+                        elites2.Add(AffixDredgedElite);
+                        targetTier2.eliteTypes = elites2.ToArray();
+                    }
+                }
             }
             
             //}
@@ -440,7 +447,7 @@ namespace CaeliImperium.Elites
             //CombatDirector.eliteTiers = targetTiers;
             //Array.Resize(ref CombatDirector.eliteTiers, CombatDirector.eliteTiers.Length + 1);
             //CombatDirector.eliteTiers[CombatDirector.eliteTiers.Length - 1] = AffixDredgedTier;
-            EliteDef index = RoR2Content.Elites.Ice;
+            index = RoR2Content.Elites.Ice;
             switch (ConfigFloat(DredgedTier, DredgedEnableConfig))
             {
                 case 1: index = RoR2Content.Elites.Ice; break;

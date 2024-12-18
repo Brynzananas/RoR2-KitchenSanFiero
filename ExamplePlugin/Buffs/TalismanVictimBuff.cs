@@ -27,10 +27,10 @@ namespace CaeliImperium.Buffs
             TalismanVictimBuffDef.name = "ciTalismaned";
             TalismanVictimBuffDef.buffColor = Color.white;
             TalismanVictimBuffDef.canStack = true;
-            TalismanVictimBuffDef.isDebuff = true;
+            TalismanVictimBuffDef.isDebuff = false;
             TalismanVictimBuffDef.ignoreGrowthNectar = true;
             TalismanVictimBuffDef.iconSprite = TalismanVictimIcon;
-            TalismanVictimBuffDef.isHidden = false;
+            TalismanVictimBuffDef.isHidden = true;
             TalismanVictimBuffDef.isCooldown = false;
             ContentAddition.AddBuffDef(TalismanVictimBuffDef);
         }

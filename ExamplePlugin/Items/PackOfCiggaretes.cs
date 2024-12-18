@@ -72,7 +72,7 @@ namespace CaeliImperium.Items
                     break;
 
             }
-            PackOfCiggaretesPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/Ciggaretes.prefab");
+            PackOfCiggaretesPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/CiggaretesNew.prefab");
             CiggaretePrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/CigWorldModel.prefab");
             PackOfCiggaretesIcon = MainAssets.LoadAsset<Sprite>(tier);
             if (!PackOfCiggaretesEnable.Value)

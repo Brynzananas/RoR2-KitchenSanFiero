@@ -165,7 +165,7 @@ namespace CaeliImperium.Items
 
         private static void DragonIt(On.RoR2.HealthComponent.orig_TakeDamageProcess orig, HealthComponent self, DamageInfo damageInfo)
         {
-            if (damageInfo!=null && self!=null && damageInfo.attacker && self.body && !damageInfo.rejected)
+            if (damageInfo!=null && self!=null && damageInfo.attacker && self.body)
             {
                 var attackerBody = damageInfo.attacker ? damageInfo.attacker.GetComponent<CharacterBody>() : null;
                 int itemCount = 0;
@@ -176,7 +176,7 @@ namespace CaeliImperium.Items
                         itemCount = attackerBody.inventory ? attackerBody.inventory.GetItemCount(LikeADragonItemDef) : 0;
 
                     }
-                    catch (Exception ex)
+                    catch
                     {
                     }
                 }

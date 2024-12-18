@@ -55,7 +55,7 @@ namespace CaeliImperium.Buffs
                              "Enable config?");
             IrradiatedEnable = Config.Bind<bool>("Buff : Irradiated",
                              "Function Activation",
-                             true,
+                             false,
                              "Enable damage and irradiate nearby allies function?");
             IrradiatedDoDamage = Config.Bind<bool>("Buff : Irradiated",
                              "Do damage",
@@ -152,7 +152,8 @@ namespace CaeliImperium.Buffs
                 {
                     if (body && body.HasBuff(IrradiatedBuffDef))
                     {
-                        float rangeStack = body.radius * ConfigFloat(IrradiatedRange, IrradiatedEnableConfig);
+                        float rangeStack = ConfigFloat(IrradiatedRange, IrradiatedEnableConfig);
+                        Debug.Log(body.radius);
                         Collider[] array = UnityEngine.Physics.OverlapSphere(body.corePosition, rangeStack, LayerIndex.entityPrecise.mask);
 
                         //foreach (var characterBody in CharacterBody.readOnlyInstancesList)

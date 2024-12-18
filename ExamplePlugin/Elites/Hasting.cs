@@ -209,14 +209,21 @@ namespace CaeliImperium.Elites
             //if (EliteAPI.VanillaEliteTiers.Length > 2)
             //{
             //    // HONOR
+            EliteDef index = RoR2Content.Elites.Ice;
             if (ConfigBool(HastingHonor, HastingEnableConfig))
             {
-                CombatDirector.EliteTierDef targetTier2 = EliteAPI.VanillaEliteTiers[2];
-                List<EliteDef> elites2 = targetTier2.eliteTypes.ToList();
-                AffixHastingElite.healthBoostCoefficient = ConfigFloat(HastingHealthMult, HastingEnableConfig) / 1.6f;
-                AffixHastingElite.damageBoostCoefficient = ConfigFloat(HastingDamageMult, HastingEnableConfig) / 1.3f;
-                elites2.Add(AffixHastingElite);
-                targetTier2.eliteTypes = elites2.ToArray();
+                foreach (EliteTierDef eliteIndex in EliteAPI.VanillaEliteTiers)
+                {
+                    if (eliteIndex.eliteTypes.Contains(index))
+                    {
+                        CombatDirector.EliteTierDef targetTier2 = eliteIndex;
+                        List<EliteDef> elites2 = targetTier2.eliteTypes.ToList();
+                        AffixHastingElite.healthBoostCoefficient = ConfigFloat(HastingHealthMult, HastingEnableConfig) / 1.6f;
+                        AffixHastingElite.damageBoostCoefficient = ConfigFloat(HastingDamageMult, HastingEnableConfig) / 1.3f;
+                        elites2.Add(AffixHastingElite);
+                        targetTier2.eliteTypes = elites2.ToArray();
+                    }
+                }
             }
                 
             //}
@@ -235,7 +242,7 @@ namespace CaeliImperium.Elites
             // targetTiers.ToList().Add(eliteTier);
             // targetTiers.ToArray();
             // CombatDirector.eliteTiers = targetTiers;
-            EliteDef index = RoR2Content.Elites.Ice;
+            index = RoR2Content.Elites.Ice;
             switch (ConfigFloat(HastingTier, HastingEnableConfig))
             {
                 case 1: index = RoR2Content.Elites.Ice; break;

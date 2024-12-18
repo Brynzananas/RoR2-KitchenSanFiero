@@ -27,11 +27,11 @@ namespace CaeliImperium.Buffs
             TalismanCooldownBuffDef.name = "ciTalismanCooldwon";
             TalismanCooldownBuffDef.buffColor = Color.grey;
             TalismanCooldownBuffDef.canStack = true;
-            TalismanCooldownBuffDef.isDebuff = true;
+            TalismanCooldownBuffDef.isDebuff = false;
             TalismanCooldownBuffDef.ignoreGrowthNectar = true;
             TalismanCooldownBuffDef.iconSprite = TalismanCooldownIcon;
             TalismanCooldownBuffDef.isHidden = false;
-            TalismanCooldownBuffDef.isCooldown = false;
+            TalismanCooldownBuffDef.isCooldown = true;
             ContentAddition.AddBuffDef(TalismanCooldownBuffDef);
             //On.RoR2.CharacterBody.OnBuffFinalStackLost += CharacterBody_OnBuffFinalStackLost;
         }

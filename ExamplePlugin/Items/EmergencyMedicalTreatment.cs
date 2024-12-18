@@ -108,7 +108,7 @@ namespace CaeliImperium.Items
             //                             "Enable: Flat cooldown reduction\nDisable: Percentage cooldown reduction");
             EmergencyMedicalTreatmentStartCooldown = Config.Bind<float>("Item : Emergency Medical Treatment",
                                          "Cooldown",
-                                         260f,
+                                         120f,
                                          "Control the cooldown in seconds");
             //EmergencyMedicalTreatmentFlatCooldownReduction = Config.Bind<float>("Item : Emergency Medical Treatment",
             //                             "Cooldown flat reduction",
@@ -116,7 +116,7 @@ namespace CaeliImperium.Items
             //                             "Control how much cooldown is substructed from a start cooldown per stack in seconds");
             EmergencyMedicalTreatmentPercentageCooldownReduction = Config.Bind<float>("Item : Emergency Medical Treatment",
                                          "Cooldown percentage reduction",
-                                         15f,
+                                         20f,
                                          "Control how much cooldown is reduced in percentage");
             //EmergencyMedicalTreatmentMaxStackForCooldown = Config.Bind<int>("Item : Emergency Medical Treatment",
             //                             "Max cooldown reductions",

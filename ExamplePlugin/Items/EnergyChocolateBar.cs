@@ -45,7 +45,7 @@ namespace CaeliImperium.Items
                     break;
 
             }
-            EnergyChocolateBarPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/Energychocolatebar.prefab");
+            EnergyChocolateBarPrefab = MainAssets.LoadAsset<GameObject>("Assets/Models/Prefabs/EnergisedChocolateBar.prefab");
             EnergyChocolateBarIcon = MainAssets.LoadAsset<Sprite>(tier);
             if (!EnergyChocolateBarsEnable.Value)
             {

@@ -151,7 +151,7 @@ namespace CaeliImperium.Items
         {
             LanguageAPI.Add("CHALKE_NAME", "Chalk");
             LanguageAPI.Add("CHALKE_PICKUP", "Gain damage bonus by sinus of current time");
-            LanguageAPI.Add("CHALKE_DESC", "Boost your <style=cIsDamage>outcoming damage</style> by <style=cIsDamage>" + ConfigFloat(ChalkDamage, ChalkEnableConfig) + "%</style> <style=cStack>(+" + ConfigFloat(ChalkDamage, ChalkEnableConfig) + " per item stack)</style> and multiplies it by the sinus of current time");
+            LanguageAPI.Add("CHALKE_DESC", "Boost your <style=cIsDamage>outcoming damage</style> by <style=cIsDamage>" + ConfigFloat(ChalkDamage, ChalkEnableConfig) + "%</style> <style=cStack>(+" + ConfigFloat(ChalkDamage, ChalkEnableConfig) + "% per item stack)</style>. Damage increase scales with the sinus of current time");
             LanguageAPI.Add("CHALKE_LORE", "");
         }
     }

@@ -33,7 +33,7 @@ namespace CaeliImperium.Buffs
             EmergencyMedicalTreatmentCooldownBuffDef.ignoreGrowthNectar = true;
             EmergencyMedicalTreatmentCooldownBuffDef.isCooldown = false;
             EmergencyMedicalTreatmentCooldownBuffDef.iconSprite = EmergencyMedicalTreatmentCooldownIcon;
-            EmergencyMedicalTreatmentCooldownBuffDef.isHidden = false;
+            EmergencyMedicalTreatmentCooldownBuffDef.isHidden = true;
             ContentAddition.AddBuffDef(EmergencyMedicalTreatmentCooldownBuffDef);
             //On.RoR2.CharacterBody.OnBuffFinalStackLost += CharacterBody_OnBuffFinalStackLost;
         }/*

@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 2328355773
+CRC: 640648901
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 09cd89bec1e474bdd71b94263e5a48a0
+    Hash: 3fc4101cbaeed540794a40a5f197df56
   TypeTreeHash:
     serializedVersion: 2
     Hash: 29940bcbe38863e439e9f645fb28329e
@@ -55,6 +55,7 @@ SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/Icons/PainKillers.png
 - Assets/Icons/EmergencyMedicalTreatmentIcon.png
+- Assets/Textures/Painkillers_palette2.png
 - Assets/Icons/DiscoBallTier2.png
 - Assets/Icons/OtherworldlyManuscriptTier1.png
 - Assets/Materials/matGuardianAngelPalette.mat
@@ -70,13 +71,14 @@ Assets:
 - Assets/Icons/BrassModalityAffix.png
 - Assets/Models/Prefabs/Talisman.prefab
 - Assets/Icons/OpposingForceTier1.png
-- Assets/Models/Prefabs/Energychocolatebar.prefab
 - Assets/Textures/CapturedPotentialColoredEmission.png
 - Assets/Textures/GuardianCrownColoredEmossion.png
 - Assets/Icons/BattleArtifactActivated.png
+- Assets/Textures/TuskOfShiftingEmission.png
 - Assets/Materials/documentationtex.mat
 - Assets/Icons/healshield.png
 - Assets/Materials/matLemurian_skull_normal.mat
+- Assets/Materials/TuskOfShifting.mat
 - Assets/Textures/ForbiddenTome_Emission.png
 - Assets/Icons/DefenderAffix.png
 - Assets/Textures/TalismanExplosion.png
@@ -85,16 +87,19 @@ Assets:
 - Assets/Materials/matArchnemesis_hat.mat
 - Assets/Materials/matTalismanPalette.mat
 - Assets/Materials/matAncientManuscript.mat
-- Assets/Textures/AncientManuscript.png
 - Assets/Textures/Painkillers_palette.png
 - Assets/Models/Prefabs/revengeitem.prefab
 - Assets/Icons/PainKillersTier2.png
 - Assets/Materials/matOtherworldlyManusscript.mat
 - Assets/Icons/LikeADragonTier2.png
+- Assets/Models/Prefabs/EnergisedChocolateBar.prefab
+- Assets/Textures/BlazingCigarettes.001.png
+- Assets/Models/Prefabs/TuskOfShifting.prefab
 - Assets/Icons/Keybuff.png
 - Assets/Models/Prefabs/QuantumDeck.prefab
 - Assets/Textures/EmergencyMedicalTreatmentEmission.png
 - Assets/Materials/matHotelBell.mat
+- Assets/Materials/CursingEye.mat
 - Assets/Textures/idk.png
 - Assets/Materials/matColdHeart.mat
 - Assets/Textures/arch_nemesis_ramp.png
@@ -122,9 +127,10 @@ Assets:
 - Assets/Textures/EnergyChocolateBar.png
 - Assets/Materials/defender_ramp.mat
 - Assets/Icons/SkullGammaGunIconTier1.png
+- Assets/Textures/DiscoballPalette.png
 - Assets/Textures/CapturedPotential.png
 - Assets/Icons/brass_modality_icon.png
-- Assets/Textures/EnergyChocolateBarColoredEmission.png
+- Assets/Textures/EnergisedChocolateBarEmission.png
 - Assets/Icons/TalismanReady.png
 - Assets/Materials/matBrassBellBake.mat
 - Assets/Materials/dredged_ramp.mat
@@ -139,7 +145,8 @@ Assets:
 - Assets/Icons/guardian_elite_icon.png
 - Assets/Icons/PainKillersTier3.png
 - Assets/Models/Prefabs/DiscoBall.prefab
-- Assets/Materials/matSkullGammaGun.mat
+- Assets/Textures/Medicine.png
+- Assets/Models/Prefabs/CiggaretesNew.prefab
 - Assets/Icons/MajesticHandTier1.png
 - Assets/Textures/FraileGiftBox.png
 - Assets/Icons/SkullGammaGunIconTier3.png
@@ -147,8 +154,10 @@ Assets:
 - Assets/Icons/MajesticHandTier2.png
 - Assets/Materials/hasting_ramp.mat
 - Assets/Icons/CapturedPotential.png
+- Assets/Materials/matSkullGammaGun.mat
 - Assets/Models/Prefabs/CigWorldModel.prefab
 - Assets/Materials/arch_nemesis_ramp.mat
+- Assets/Models/Prefabs/CursingEye.prefab
 - Assets/Models/Prefabs/Potential.anim
 - Assets/Textures/SkullGammaGun.png
 - Assets/Textures/CapturedPotentialEmission.png
@@ -159,26 +168,30 @@ Assets:
 - Assets/Icons/GuardianAngelCrown.png
 - Assets/Icons/ChalkTier1.png
 - Assets/Icons/EnergisedChocolateBarIconTier3.png
+- Assets/Textures/CursingEyeEmission.png
 - Assets/Icons/SkullGammaGunIcon.png
 - Assets/Icons/LikeADragonTier3.png
 - Assets/Textures/EmergencyMedicalTreatmentColoredEmisssion.png
 - Assets/Materials/matInvisibleHand.mat
-- Assets/Textures/EnergyChocolateBarEmission.png
 - Assets/Textures/dredged_ramp.png
 - Assets/Icons/DredgedAffix.png
 - Assets/Icons/Killswitchbuff.png
 - Assets/Materials/matForbiddenTome_palette.mat
+- Assets/Textures/TuskOfShifting.png
 - Assets/Icons/Irradiated.png
 - Assets/Icons/GuardianAngelCrownTier1.png
 - Assets/Icons/ModIconDisabled.png
 - Assets/Icons/BattleArtifactDeActivated.png
+- Assets/Textures/BlazingCigarettes.png
 - Assets/Models/Prefabs/Chalk.prefab
 - Assets/Models/Prefabs/PainKillers.prefab
 - Assets/Icons/EnergisedChocolateBarIconTier2.png
+- Assets/Materials/BlazingCigarettes.mat
 - Assets/Models/Prefabs/Keychains.prefab
 - Assets/Textures/brass_modality_ramp.png
 - Assets/Icons/dredged_icon.png
 - Assets/Textures/Cigs_palette.png
+- Assets/Textures/documentationtex.png
 - Assets/Icons/CapturedPotentialTier1.png
 - Assets/Materials/matheychain_palette.mat
 - Assets/Icons/ModIcon.png
@@ -186,15 +199,17 @@ Assets:
 - Assets/Materials/matCapturedPotential.mat
 - Assets/Icons/Wounded.png
 - Assets/Materials/LikeAYakuza.mat
+- Assets/Textures/CursingEye.png
 - Assets/Icons/BrassBellIconTier3.png
-- Assets/Icons/ChalkTier2.png
 - Assets/Models/Prefabs/BrassKnuckles.prefab
 - Assets/Icons/MajesticHandTier3.png
+- Assets/Icons/ChalkTier2.png
 - Assets/Textures/enforcer_hand_palette.png
 - Assets/Icons/CapturedPotentialTier3.png
 - Assets/Icons/PackOfCiggaretsIcon.png
 - Assets/Icons/OpposingForceTier2.png
 - Assets/Textures/hasting_ramp.png
+- Assets/Models/Prefabs/CursingEye.anim
 - Assets/Textures/SkullGammaGunEmission.png
 - Assets/Icons/BrassBellIcon.png
 - Assets/Materials/OpposingForcePalette.mat
@@ -226,13 +241,13 @@ Assets:
 - Assets/Textures/SkullGammaGun.001.png
 - Assets/Icons/healshield2.png
 - Assets/Materials/DiscoballPalette.mat
+- Assets/Models/Prefabs/CursingEye.controller
 - Assets/Icons/ArchNemesisHat.png
 - Assets/Models/Prefabs/ColdHeart.prefab
 - Assets/Models/Prefabs/QuantumDeck.controller
 - Assets/Icons/RejectedDagger.png
 - Assets/Textures/OtherWorldlyManuscript.png
 - Assets/Textures/BrassBellBake.png
-- Assets/Models/Prefabs/Ciggaretes.prefab
 - Assets/Models/Prefabs/hotelbell.prefab
 - Assets/Models/Prefabs/archnemesishat.prefab
 - Assets/Icons/BellBoosted.png

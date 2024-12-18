@@ -14,6 +14,8 @@ using static CaeliImperiumPlugin.CaeliImperium;
 using BepInEx;
 using RiskOfOptions.OptionConfigs;
 using UnityEngine.Networking;
+using UnityEngine.UIElements;
+using UnityEditor;
 
 namespace CaeliImperium.Items
 {
@@ -35,6 +37,7 @@ namespace CaeliImperium.Items
         public static ConfigEntry<float> SkullGammaGunRangeStack;
         public static ConfigEntry<float> SkullGammaGunDamage;
         public static ConfigEntry<float> SkullGammaGunDamageStack;
+        public static ConfigEntry<float> SkullGammaGunDamageFalloff;
         public static ConfigEntry<float> SkullGammaGunProc;
         public static ConfigEntry<float> SkullGammaGunBuffDamageMultiplier;
         public static ConfigEntry<float> SkullGammaGunDamageMultiplier;
@@ -69,6 +72,7 @@ namespace CaeliImperium.Items
             Item();
             //FixedUpdate();
             AddLanguageTokens();
+            CursingEye.Init();
         }
         public static void AddConfigs()
         {
@@ -93,13 +97,13 @@ namespace CaeliImperium.Items
                                          2f,
                                          "Control the interval this item irradiates enemies in seconds");
             SkullGammaGunAngle = Config.Bind<float>("Item : Skull Gamma Gun",
-                                         "Base angle",
-                                         60f,
-                                         "Control the base angle value");
+                                         "Base radius",
+                                         15f,
+                                         "Control the base radius value");
             SkullGammaGunAngleStack = Config.Bind<float>("Item : Skull Gamma Gun",
-                                         "Angle per stack",
+                                         "Radius per stack",
                                          5f,
-                                         "Control the angle increase per item stack");
+                                         "Control the radius increase per item stack");
             SkullGammaGunRange = Config.Bind<float>("Item : Skull Gamma Gun",
                                          "Base range",
                                          32f,
@@ -116,6 +120,10 @@ namespace CaeliImperium.Items
                              "Damage stack",
                              200f,
                              "Control the damage increase of this item per item stack in percentage");
+            SkullGammaGunDamageFalloff = Config.Bind<float>("Item : Skull Gamma Gun",
+                             "Damage falloff power",
+                             1.9f,
+                             "Control the damage falloff power of this item");
             SkullGammaGunProc = Config.Bind<float>("Item : Skull Gamma Gun",
                              "Proc",
                              0.6f,
@@ -151,6 +159,7 @@ namespace CaeliImperium.Items
             ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunRangeStack));
             ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunDamage));
             ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunDamageStack));
+            ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunDamageFalloff));
             ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunProc));
             ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunBuffDamageMultiplier));
             ModSettingsManager.AddOption(new FloatFieldOption(SkullGammaGunDuration));
@@ -440,69 +449,81 @@ localScale = new Vector3(0.07905F, 0.07905F, 0.07905F)
                     if (timer1 > ConfigFloat(SkullGammaGunTimer, SkullGammaGunEnableConfig) / body.attackSpeed)
                     {                            
                         float range = ConfigFloat(SkullGammaGunRange, SkullGammaGunEnableConfig) + ((stack - 1) * ConfigFloat(SkullGammaGunRangeStack, SkullGammaGunEnableConfig));
-                        //Collider[] array = UnityEngine.Physics.OverlapCapsule(body.aimOrigin, body.inputBank.aimDirection, (ConfigFloat(SkullGammaGunAngle, SkullGammaGunEnableConfig) / 2) + (ConfigFloat(SkullGammaGunAngleStack, SkullGammaGunEnableConfig) / 2 * (stack - 1)), LayerIndex.entityPrecise.mask);
-                        //Debug.DrawLine(body.aimOrigin, body.inputBank.aimDirection, Color.green, 3f);
-                        //List<CharacterBody> charList = new List<CharacterBody>();
-                        //foreach (Collider i in array)
-                        //{
-                        //    CharacterBody characterBody = Util.HurtBoxColliderToBody(i);
-                        //    if (!charList.Contains(characterBody))
-                        //    {
-                        //        charList.Add(characterBody);
-
-                        //    }
-                        //}
-                        foreach (CharacterBody characterBody in CharacterBody.readOnlyInstancesList)
-                        { 
-                            Vector3 targetDir = characterBody.corePosition - body.corePosition;
-                            float angle = Vector3.Angle(targetDir, body.inputBank.aimDirection);
-                            float dist = Vector3.Distance(characterBody.corePosition, body.corePosition);
-                            if (characterBody.master && angle < (ConfigFloat(SkullGammaGunAngle, SkullGammaGunEnableConfig) / 2) + (ConfigFloat(SkullGammaGunAngleStack, SkullGammaGunEnableConfig) / 2 * (stack - 1))  && body.teamComponent.teamIndex != characterBody.teamComponent.teamIndex && dist < range)
+                        //LayerMask layerMask = LayerMask.GetMask("Wall", "Character");
+                        RaycastHit raycastHit;
+                        Physics.Raycast(body.inputBank.aimOrigin, body.inputBank.aimDirection, out raycastHit, 30000f);
+                        if (true) 
+                        {
+                            float num = 2f;
+                            Vector3 position = body.inputBank.aimOrigin;
+                            Vector3 vector = raycastHit.point + raycastHit.normal * num;
+                            Vector3 vector2 = vector - position;
+                            Vector3 normalized = vector2.normalized;
+                            Vector3 pointBPosition = vector;
+                            Collider[] array = UnityEngine.Physics.OverlapCapsule(position + normalized * num, pointBPosition, (ConfigFloat(SkullGammaGunAngle, SkullGammaGunEnableConfig) / 2) + (ConfigFloat(SkullGammaGunAngleStack, SkullGammaGunEnableConfig) / 2 * (stack - 1)), LayerIndex.entityPrecise.mask);
+                            List<CharacterBody> charList = new List<CharacterBody>();
+                            foreach (Collider i in array)
                             {
-                                var damageNum = (ConfigFloat(SkullGammaGunDamage, SkullGammaGunEnableConfig) / 100) + ((stack - 1) * (ConfigFloat(SkullGammaGunDamageStack, SkullGammaGunEnableConfig) / 100));
-                                float damage = body.damage;
-                                Vector3 position2 = characterBody.transform.position;
-                                DamageInfo damageInfo2 = new DamageInfo
+                                CharacterBody characterBody = Util.HurtBoxColliderToBody(i);
+                                if (!charList.Contains(characterBody))
                                 {
-                                    damage = damage * damageNum,// * ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2)),
-                                    damageColorIndex = DamageColorIndex.Item,
-                                    damageType = DamageType.Generic,
-                                    attacker = body.gameObject,
-                                    crit = Util.CheckRoll(body.crit),
-                                    force = Vector3.zero,
-                                    inflictor = null,
-                                    position = position2,
-                                    procChainMask = default,
-                                    procCoefficient = ConfigFloat(SkullGammaGunProc, SkullGammaGunEnableConfig),
-                                };
-                                characterBody.healthComponent.TakeDamage(damageInfo2);
-                                if (ConfigBool(SkullGammaGunDoDOT, SkullGammaGunEnableConfig))
-                                {
-                                    InflictDotInfo dotInfo = new InflictDotInfo()
-                                    {
-                                        attackerObject = body.gameObject,
-                                        victimObject = characterBody.gameObject,
-                                        totalDamage = body.damage * (ConfigFloat(SkullGammaGunBuffDamageMultiplier, SkullGammaGunEnableConfig) / 100), //* PackOfCiggaretesDuration.Value,
-                                        damageMultiplier = stack,// * ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2)),
-                                        duration = ConfigFloat(SkullGammaGunDuration, SkullGammaGunEnableConfig),
-                                        dotIndex = Buffs.IrradiatedBuff.IrradiatedDOTDef,
-                                        //maxStacksFromAttacker = (uint?)(SkullGammaGunMaxBuffCount.Value + ((stack - 1) * SkullGammaGunMaxBuffCountStack.Value))
+                                    charList.Add(characterBody);
 
-                                    };
-                                    //StrengthenBurnUtils.CheckDotForUpgrade(self.inventory, ref dotInfo);
-                                    DotController.InflictDot(ref dotInfo);
                                 }
-                                
                             }
+                            foreach (CharacterBody characterBody in charList)
+                            {
+                                //Vector3 targetDir = characterBody.corePosition - body.corePosition;
+                                //float angle = Vector3.Angle(targetDir, body.inputBank.aimDirection);
+                                float dist = Vector3.Distance(characterBody.corePosition, body.corePosition);
+                                if (characterBody.master /*&& angle < (ConfigFloat(SkullGammaGunAngle, SkullGammaGunEnableConfig) / 2) + (ConfigFloat(SkullGammaGunAngleStack, SkullGammaGunEnableConfig) / 2 * (stack - 1))*/ && body.teamComponent.teamIndex != characterBody.teamComponent.teamIndex /*&& dist < range*/)
+                                {
+                                    var damageNum = (ConfigFloat(SkullGammaGunDamage, SkullGammaGunEnableConfig) / 100) + ((stack - 1) * (ConfigFloat(SkullGammaGunDamageStack, SkullGammaGunEnableConfig) / 100));
+                                    float damage = body.damage;
+                                    Vector3 position2 = characterBody.transform.position;
+                                    DamageInfo damageInfo2 = new DamageInfo
+                                    {
+                                        damage = damage * damageNum,// * ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2)),
+                                        damageColorIndex = DamageColorIndex.Item,
+                                        damageType = DamageType.Generic,
+                                        attacker = body.gameObject,
+                                        crit = Util.CheckRoll(body.crit),
+                                        force = Vector3.zero,
+                                        inflictor = null,
+                                        position = position2,
+                                        procChainMask = default,
+                                        procCoefficient = ConfigFloat(SkullGammaGunProc, SkullGammaGunEnableConfig),
+                                    };
+                                    characterBody.healthComponent.TakeDamage(damageInfo2);
+                                    if (ConfigBool(SkullGammaGunDoDOT, SkullGammaGunEnableConfig))
+                                    {
+                                        InflictDotInfo dotInfo = new InflictDotInfo()
+                                        {
+                                            attackerObject = body.gameObject,
+                                            victimObject = characterBody.gameObject,
+                                            totalDamage = body.damage * (ConfigFloat(SkullGammaGunBuffDamageMultiplier, SkullGammaGunEnableConfig) / 100), //* PackOfCiggaretesDuration.Value,
+                                            damageMultiplier = stack,// * ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / dist / ((SkullGammaGunRange.Value + ((stack - 1) * SkullGammaGunRangeStack.Value)) / 2)),
+                                            duration = ConfigFloat(SkullGammaGunDuration, SkullGammaGunEnableConfig),
+                                            dotIndex = Buffs.IrradiatedBuff.IrradiatedDOTDef,
+                                            //maxStacksFromAttacker = (uint?)(SkullGammaGunMaxBuffCount.Value + ((stack - 1) * SkullGammaGunMaxBuffCountStack.Value))
 
+                                        };
+                                        //StrengthenBurnUtils.CheckDotForUpgrade(self.inventory, ref dotInfo);
+                                        DotController.InflictDot(ref dotInfo);
+                                    }
+
+                                }
+
+                            }
                         }
+                        // Debug.DrawLine(body.aimOrigin, body.inputBank.aimDirection, Color.green, 3f);
+                        
                         timer1 = 0;
                     }
                 }
 
 
             }
-
             private void OnDisable()
             {
                 //base.enabled = false;

@@ -178,6 +178,12 @@ namespace CaeliImperiumPlugin
             LikeADragon.Init();
             OpposingForce.Init();
             Chalk.Init();
+            TuskOfShifting.Init();
+            RockBottom.Init();
+            ThunderThighs.Init();
+            //Wrench.Init();
+            PackOfDynamite.Init();
+            HeroBandage.Init();
             DiscoBall.Init();
             CapturedPotential.Init();
 
@@ -298,10 +304,11 @@ namespace CaeliImperiumPlugin
         {
             return (1f - maxDistance / (maxDistance + (maxDistance - amplificationPercentage))) * maxChance * 2;
         }
+        // Shit still not work
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Falloff(float amplificationPercentage, float maxDistance)
+        public static float DamageFalloff(float damage, float distance, float maxDistance, float distancePower)
         {
-            return (1f - maxDistance / (maxDistance + (maxDistance - amplificationPercentage))) * maxDistance * 2;
+            return damage/(1f-(distance*maxDistance/distance-(float)Math.Pow(maxDistance, distancePower)));
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float StackFloat(float value, float stack, int itemCount)

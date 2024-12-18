@@ -282,14 +282,21 @@ namespace CaeliImperium.Elites
             //if (EliteAPI.VanillaEliteTiers.Length > 2)
             //{
             //    // HONOR
+            EliteDef index = RoR2Content.Elites.Ice;
             if (ConfigBool(BrassModalityHonor, BrassModalityEnableConfig))
             {
-                CombatDirector.EliteTierDef targetTier2 = EliteAPI.VanillaEliteTiers[2];
-                List<EliteDef> elites2 = targetTier2.eliteTypes.ToList();
-                AffixBrassModalityElite.healthBoostCoefficient = ConfigFloat(BrassModalityHealthMult, BrassModalityEnableConfig) / 1.6f;
-                AffixBrassModalityElite.damageBoostCoefficient = ConfigFloat(BrassModalityDamageMult, BrassModalityEnableConfig) / 1.3f;
-                elites2.Add(AffixBrassModalityElite);
-                targetTier2.eliteTypes = elites2.ToArray();
+                foreach (EliteTierDef eliteIndex in EliteAPI.VanillaEliteTiers)
+                {
+                    if (eliteIndex.eliteTypes.Contains(index))
+                    {
+                        CombatDirector.EliteTierDef targetTier2 = eliteIndex;
+                        List<EliteDef> elites2 = targetTier2.eliteTypes.ToList();
+                        AffixBrassModalityElite.healthBoostCoefficient = ConfigFloat(BrassModalityHealthMult, BrassModalityEnableConfig) / 1.6f;
+                        AffixBrassModalityElite.damageBoostCoefficient = ConfigFloat(BrassModalityDamageMult, BrassModalityEnableConfig) / 1.3f;
+                        elites2.Add(AffixBrassModalityElite);
+                        targetTier2.eliteTypes = elites2.ToArray();
+                    }
+                }
             }
                 
             //}
@@ -306,7 +313,7 @@ namespace CaeliImperium.Elites
             //targetTiers.ToList().Add(eliteTier);
             //targetTiers.ToArray();
             //CombatDirector.eliteTiers = targetTiers;
-            EliteDef index = RoR2Content.Elites.Ice;
+            index = RoR2Content.Elites.Ice;
             switch (ConfigFloat(BrassModalityTier, BrassModalityEnableConfig))
             {
                 case 1: index = RoR2Content.Elites.Ice; break;

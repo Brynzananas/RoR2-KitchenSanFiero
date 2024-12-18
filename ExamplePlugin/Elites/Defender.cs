@@ -178,18 +178,25 @@ namespace CaeliImperium.Elites
 
 
             orig();
+            EliteDef index = RoR2Content.Elites.IceHonor;
             //if (EliteAPI.VanillaEliteTiers.Length > 2)
             //{
-                // HONOR
-                if (ConfigBool(DefenderHonor, DefenderEnableConfig))
+            // HONOR
+            if (ConfigBool(DefenderHonor, DefenderEnableConfig))
             {
-                CombatDirector.EliteTierDef targetTier2 = EliteAPI.VanillaEliteTiers[2];
-                List<EliteDef> elites2 = targetTier2.eliteTypes.ToList();
-                AffixDefenderElite.healthBoostCoefficient = ConfigFloat(DefenderHealthMult, DefenderEnableConfig) / 1.6f;
-                AffixDefenderElite.damageBoostCoefficient = ConfigFloat(DefenderDamageMult, DefenderEnableConfig) / 1.3f;
-                //targetTier.costMultiplier *= 6;
-                elites2.Add(AffixDefenderElite);
-                targetTier2.eliteTypes = elites2.ToArray();
+                foreach (EliteTierDef eliteIndex in EliteAPI.VanillaEliteTiers)
+                {
+                    if (eliteIndex.eliteTypes.Contains(index))
+                    {
+                        CombatDirector.EliteTierDef targetTier2 = eliteIndex;
+                        List<EliteDef> elites2 = targetTier2.eliteTypes.ToList();
+                        AffixDefenderElite.healthBoostCoefficient = ConfigFloat(DefenderHealthMult, DefenderEnableConfig) / 1.6f;
+                        AffixDefenderElite.damageBoostCoefficient = ConfigFloat(DefenderDamageMult, DefenderEnableConfig) / 1.3f;
+                        //targetTier.costMultiplier *= 6;
+                        elites2.Add(AffixDefenderElite);
+                        targetTier2.eliteTypes = elites2.ToArray();
+                    }
+                }
             }
                 
             //}
@@ -209,7 +216,7 @@ namespace CaeliImperium.Elites
             //CombatDirector.eliteTiers = targetTiers;
             //Array.Resize(ref CombatDirector.eliteTiers, CombatDirector.eliteTiers.Length + 1);
             //CombatDirector.eliteTiers[CombatDirector.eliteTiers.Length - 1] = AffixDefenderTier;
-            EliteDef index = RoR2Content.Elites.Ice;
+            index = RoR2Content.Elites.Ice;
             switch (ConfigFloat(DefenderTier, DefenderEnableConfig))
             {
                 case 1: index = RoR2Content.Elites.Ice; break;
@@ -225,7 +232,7 @@ namespace CaeliImperium.Elites
                     List<EliteDef> elites = targetTier.eliteTypes.ToList();
                     AffixDefenderElite.healthBoostCoefficient = ConfigFloat(DefenderHealthMult, DefenderEnableConfig);
                     AffixDefenderElite.damageBoostCoefficient = ConfigFloat(DefenderDamageMult, DefenderEnableConfig);
-                    //elites.Add(AffixDefenderElite);
+                    elites.Add(AffixDefenderElite);
                     targetTier.eliteTypes = elites.ToArray();
                 }
             }

@@ -62,7 +62,7 @@ namespace CaeliImperium.Equipment
             NecronomiconEnableConfig = Config.Bind<bool>("Equipment : Necronomicon",
                                          "Config Activation",
                                          false,
-                                         "Enable this equipment?");
+                                         "Enable config?");
             NecronomiconCooldown = Config.Bind<float>("Equipment : Necronomicon",
                                          "Cooldown",
                                          30,
